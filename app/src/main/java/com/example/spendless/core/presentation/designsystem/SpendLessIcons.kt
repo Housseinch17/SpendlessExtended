@@ -89,4 +89,16 @@ object SpendLessIcons {
     val FAB: ImageVector
         @Composable
         get() = ImageVector.vectorResource(R.drawable.floatingbutton)
+
+    val EllipseOff: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(R.drawable.ellipse_off)
+
+    val EllipseOn: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(R.drawable.ellipse_on)
+
+    val HeaderIcon: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(R.drawable.header_icon)
 }
