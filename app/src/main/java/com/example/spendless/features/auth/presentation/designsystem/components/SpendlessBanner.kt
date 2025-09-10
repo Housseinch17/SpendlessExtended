@@ -1,7 +1,8 @@
-package com.example.spendless.core.presentation.designsystem.components
+package com.example.spendless.features.auth.presentation.designsystem.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,7 +17,7 @@ fun SpendlessBanner(
     text: String,
     ){
     Text(
-        modifier = modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.error).padding(
+        modifier = modifier.imePadding().background(color = MaterialTheme.colorScheme.error).navigationBarsPadding().padding(
             horizontal = 16.dp,
             vertical = 12.dp
         ),

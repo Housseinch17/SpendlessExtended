@@ -98,7 +98,7 @@ object SpendLessIcons {
         @Composable
         get() = ImageVector.vectorResource(R.drawable.ellipse_on)
 
-    val HeaderIcon: ImageVector
+    val HeaderImage: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.header_icon)
+        get() = ImageVector.vectorResource(R.drawable.header_image)
 }

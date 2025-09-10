@@ -1,0 +1,195 @@
+package com.example.spendless.features.auth.presentation.ui.registration
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.spendless.R
+import com.example.spendless.core.presentation.designsystem.SpendLessIcons
+import com.example.spendless.core.presentation.designsystem.components.SpendlessButton
+import com.example.spendless.core.presentation.designsystem.components.SpendlessTextButton
+import com.example.spendless.core.presentation.designsystem.onBackgroundOpacity8
+import com.example.spendless.core.presentation.designsystem.onSurfaceOpacity30
+import com.example.spendless.features.auth.presentation.designsystem.components.AuthHeader
+
+@Composable
+fun RegisterScreen(
+    modifier: Modifier = Modifier,
+    registerUiState: RegisterUiState,
+    registerActions: (RegisterActions) -> Unit,
+) {
+    val state = rememberScrollState()
+    Column(
+        modifier = modifier.verticalScroll(state)
+    ) {
+        AuthHeader(
+            modifier = Modifier.fillMaxWidth(),
+            header = stringResource(R.string.register_header),
+            body = stringResource(R.string.register_body)
+        ) { registerBodyModifier ->
+            RegisterBody(
+                modifier = registerBodyModifier.fillMaxWidth(),
+                registerUiState = registerUiState,
+                registerActions = registerActions,
+            )
+        }
+
+    }
+}
+
+@Composable
+fun RegisterBody(
+    modifier: Modifier = Modifier,
+    registerUiState: RegisterUiState,
+    registerActions: (RegisterActions) -> Unit,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        //register textField
+        RegisterTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = registerUiState.username,
+            isError = registerUiState.isUsernameError,
+            errorText = registerUiState.usernameError?.asString() ?: "",
+            onValueChange = { newUsername ->
+                registerActions(RegisterActions.UpdateUsername(username = newUsername))
+            }
+        )
+
+        RegisterNextButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            enabled = registerUiState.isEnabled,
+            onClick = {
+                registerActions(RegisterActions.ClickNext)
+            }
+        )
+
+        SpendlessTextButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+            text = stringResource(R.string.register_text_button),
+            onClick = {
+                registerActions(RegisterActions.ClickAlreadyHaveAnAccount)
+            }
+        )
+    }
+}
+
+@Composable
+fun RegisterTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    isError: Boolean,
+    errorText: String,
+    onValueChange: (String) -> Unit,
+) {
+    TextField(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        maxLines = 2,
+        value = value,
+        onValueChange = { newUsername ->
+            onValueChange(newUsername)
+        },
+        placeholder = {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.username),
+                style = MaterialTheme.typography.displayMedium.copy(
+                    color = LocalContentColor.current,
+                    textAlign = TextAlign.Center
+                )
+            )
+        },
+        isError = isError,
+        supportingText =
+            if(isError){
+                {
+                Text(
+                    modifier = Modifier,
+                    text = errorText,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                )
+            }
+            }else{
+                null
+
+        },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.onBackgroundOpacity8,
+            unfocusedContainerColor = MaterialTheme.colorScheme.onBackgroundOpacity8,
+            disabledContainerColor = MaterialTheme.colorScheme.onBackgroundOpacity8,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceOpacity30,
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceOpacity30,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceOpacity30,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent,
+            errorSupportingTextColor = MaterialTheme.colorScheme.error
+        ),
+        textStyle = MaterialTheme.typography.displayMedium.copy(
+            color = LocalContentColor.current,
+            textAlign = TextAlign.Center
+        )
+    )
+}
+
+@Composable
+fun RegisterNextButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    SpendlessButton(
+        modifier = modifier,
+        enabled = enabled,
+        onClick = onClick,
+        content = {
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = stringResource(R.string.next),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = LocalContentColor.current,
+                    )
+                )
+                Icon(
+                    modifier = Modifier.padding(start = 8.dp),
+                    imageVector = SpendLessIcons.NavigateNext,
+                    contentDescription = stringResource(R.string.next),
+                    tint = LocalContentColor.current
+                )
+            }
+        }
+    )
+}

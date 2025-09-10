@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Spendless</string>
+    <string name="header_image">Header Image</string>
+
+    <string name="register_header">Welcome to SpendLess! How can we address you?</string>
+    <string name="register_body">Create unique username</string>
+    <string name="username">username</string>
+    <string name="next">Next</string>
+    <string name="register_text_button">Already have an account?</string>
+
+    <string name="error_username_too_short">Username must be at least 3 characters long.</string>
+    <string name="error_username_too_long">Username must not exceed 14 characters.</string>
+    <string name="error_username_invalid_chars">Username can only contain letters and digits (no spaces or symbols).</string>
+    <string name="username_already_exists">This username has already been taken!</string>
+
 </resources>
