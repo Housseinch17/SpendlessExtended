@@ -76,6 +76,8 @@ dependencies {
     //Kotlin serialization
     implementation(libs.kotlinx.serialization.json)
 
+    //compose navigation with type-safe
+    implementation(libs.androidx.navigation.compose)
 
     //hilt
     implementation(libs.hilt.android)
