@@ -5,11 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -27,6 +26,7 @@ import com.example.spendless.core.presentation.designsystem.components.Spendless
 import com.example.spendless.core.presentation.designsystem.onBackgroundOpacity8
 import com.example.spendless.core.presentation.designsystem.onSurfaceOpacity30
 import com.example.spendless.features.auth.presentation.designsystem.components.AuthHeader
+import com.example.spendless.features.auth.presentation.designsystem.components.SpendlessBanner
 
 @Composable
 fun RegisterScreen(
@@ -34,12 +34,19 @@ fun RegisterScreen(
     registerUiState: RegisterUiState,
     registerActions: (RegisterActions) -> Unit,
 ) {
-    val state = rememberScrollState()
-    Column(
-        modifier = modifier.verticalScroll(state)
-    ) {
+    Scaffold(
+        modifier = modifier,
+        bottomBar = {
+            SpendlessBanner(
+                modifier = Modifier.fillMaxWidth(),
+                text = registerUiState.bannerText
+            )
+        }
+    ) { innerPadding ->
         AuthHeader(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 36.dp, bottom = innerPadding.calculateBottomPadding(), start = 26.dp, end = 26.dp),
             header = stringResource(R.string.register_header),
             body = stringResource(R.string.register_body)
         ) { registerBodyModifier ->
@@ -49,7 +56,6 @@ fun RegisterScreen(
                 registerActions = registerActions,
             )
         }
-
     }
 }
 
@@ -125,20 +131,20 @@ fun RegisterTextField(
         },
         isError = isError,
         supportingText =
-            if(isError){
+            if (isError) {
                 {
-                Text(
-                    modifier = Modifier,
-                    text = errorText,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.error,
+                    Text(
+                        modifier = Modifier,
+                        text = errorText,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.error,
+                        )
                     )
-                )
-            }
-            }else{
+                }
+            } else {
                 null
 
-        },
+            },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.onBackgroundOpacity8,
             unfocusedContainerColor = MaterialTheme.colorScheme.onBackgroundOpacity8,

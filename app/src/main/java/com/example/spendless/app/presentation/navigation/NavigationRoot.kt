@@ -1,5 +1,6 @@
 package com.example.spendless.app.presentation.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -17,12 +18,12 @@ fun NavigationRoot(
         navController = navHostController
     ){
         authGraph(
-            modifier = Modifier,
+            modifier = Modifier.fillMaxSize(),
             navHostController = navHostController
         )
 
         financeGraph(
-            modifier = Modifier,
+            modifier = Modifier.fillMaxSize(),
             navHostController = navHostController
         )
     }

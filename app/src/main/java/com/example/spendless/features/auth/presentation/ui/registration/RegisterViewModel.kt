@@ -9,6 +9,7 @@ import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.PatternValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -16,11 +17,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 sealed interface RegisterEvents {
     data object NavigateToLogIn : RegisterEvents
     data class NavigateToPin(val username: String) : RegisterEvents
-    data class ShowBanner(val bannerText: UiText) : RegisterEvents
 }
 
 sealed interface RegisterActions {
@@ -72,15 +73,16 @@ class RegisterViewModel @Inject constructor(
                 is Result.Error -> Timber.tag("MyTag").e("error: ${doesUserExist.error}")
                 is Result.Success -> {
                     Timber.tag("MyTag").d("data: ${doesUserExist.data}")
+                    //if user exists
                     if (doesUserExist.data) {
                         //disable next button
-                        _state.update { newState->
+                        _state.update { newState ->
                             newState.copy(
                                 isNextEnabled = false
                             )
                         }
                         //if user exists show error banner
-                        _events.send(RegisterEvents.ShowBanner(bannerText = UiText.StringResource(R.string.username_already_exists)))
+                        showBanner()
                     } else {
                         //else navigate to create pin
                         _events.send(RegisterEvents.NavigateToPin(username = username))
@@ -90,9 +92,24 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun clickAlreadyHaveAccount(){
+    private fun clickAlreadyHaveAccount() {
         viewModelScope.launch {
             _events.send(RegisterEvents.NavigateToLogIn)
+        }
+    }
+
+    private suspend fun showBanner() {
+        _state.update { newState ->
+            newState.copy(
+                bannerText = UiText.StringResource(R.string.username_already_exists)
+            )
+        }
+        //show banner for 2 seconds
+        delay(2.seconds)
+        _state.update { newState ->
+            newState.copy(
+                bannerText = null
+            )
         }
     }
 }

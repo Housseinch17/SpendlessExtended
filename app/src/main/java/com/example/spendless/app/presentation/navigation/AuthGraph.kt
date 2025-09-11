@@ -1,5 +1,6 @@
 package com.example.spendless.app.presentation.navigation
 
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -9,7 +10,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterScreen
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterViewModel
-import androidx.compose.runtime.getValue
 
 fun NavGraphBuilder.authGraph(
     modifier: Modifier = Modifier,
