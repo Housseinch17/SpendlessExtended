@@ -4,8 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,9 +23,8 @@ fun AuthHeader(
     body: String,
     content: @Composable ((Modifier) -> Unit),
 ){
-    val state = rememberScrollState()
     Column(
-        modifier = modifier.verticalScroll(state = state),
+        modifier = modifier.padding(top = 36.dp, start = 26.dp, end = 26.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

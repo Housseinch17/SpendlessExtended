@@ -12,5 +12,11 @@
     <string name="error_username_too_long">Username must not exceed 14 characters.</string>
     <string name="error_username_invalid_chars">Username can only contain letters and digits (no spaces or symbols).</string>
     <string name="username_already_exists">This username has already been taken!</string>
+    <string name="back">Back</string>
+    <string name="create_pin">Create PIN</string>
+    <string name="use_pin_to_login">Use PIN to login to your account</string>
+    <string name="ellipse_on">Ellipse On</string>
+    <string name="ellipse_off">Ellipse Off</string>
+    <string name="backspace">Backspace</string>
 
 </resources>

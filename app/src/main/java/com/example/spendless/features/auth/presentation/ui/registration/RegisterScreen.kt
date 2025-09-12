@@ -46,7 +46,7 @@ fun RegisterScreen(
         AuthHeader(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 36.dp, bottom = innerPadding.calculateBottomPadding(), start = 26.dp, end = 26.dp),
+                .padding(bottom = innerPadding.calculateBottomPadding()),
             header = stringResource(R.string.register_header),
             body = stringResource(R.string.register_body)
         ) { registerBodyModifier ->
