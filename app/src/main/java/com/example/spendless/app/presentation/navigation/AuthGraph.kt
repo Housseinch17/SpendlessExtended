@@ -12,17 +12,19 @@ import com.example.spendless.features.auth.presentation.ui.createPin.CreatePinSc
 import com.example.spendless.features.auth.presentation.ui.createPin.CreatePinViewModel
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterScreen
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterViewModel
+import com.example.spendless.features.auth.presentation.ui.repeatPin.RepeatPinScreen
+import com.example.spendless.features.auth.presentation.ui.repeatPin.RepeatPinViewModel
 
 fun NavGraphBuilder.authGraph(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-){
-    navigation<NavigationGraphs.AuthGraph>(startDestination = NavigationScreens.CreatePin()){
-        composable<NavigationScreens.Login>{
+) {
+    navigation<NavigationGraphs.AuthGraph>(startDestination = NavigationScreens.RepeatPin()) {
+        composable<NavigationScreens.Login> {
 
         }
 
-        composable<NavigationScreens.Register>{
+        composable<NavigationScreens.Register> {
             val registerViewModel = hiltViewModel<RegisterViewModel>()
             val registerState by registerViewModel.state.collectAsStateWithLifecycle()
 
@@ -35,20 +37,31 @@ fun NavGraphBuilder.authGraph(
 
         composable<NavigationScreens.CreatePin> {
             val createPinViewModel = hiltViewModel<CreatePinViewModel>()
-            val createPinState by createPinViewModel.state.collectAsStateWithLifecycle()
+            val createPinUiState by createPinViewModel.state.collectAsStateWithLifecycle()
 
             CreatePinScreen(
                 modifier = modifier,
-                basePinUiState = createPinState,
+                createPinUiState = createPinUiState,
                 pinActions = createPinViewModel::onActions
             )
         }
 
-        composable<NavigationScreens.Preferences>{
+        composable<NavigationScreens.RepeatPin> {
+            val repeatPinViewModel = hiltViewModel<RepeatPinViewModel>()
+            val repeatPinUiState by repeatPinViewModel.state.collectAsStateWithLifecycle()
+
+            RepeatPinScreen(
+                modifier = modifier,
+                repeatPinUiState = repeatPinUiState,
+                pinActions = repeatPinViewModel::onActions
+            )
+        }
+
+        composable<NavigationScreens.Preferences> {
 
         }
 
-        composable<NavigationScreens.VerifyPin>{
+        composable<NavigationScreens.VerifyPin> {
 
         }
     }

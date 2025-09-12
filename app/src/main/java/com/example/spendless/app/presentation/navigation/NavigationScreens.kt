@@ -11,6 +11,9 @@ sealed interface NavigationScreens {
     data class CreatePin(val username: String = ""): NavigationScreens
 
     @Serializable
+    data class RepeatPin(val username: String = "", val pin: String = ""): NavigationScreens
+
+    @Serializable
     data class Preferences(val username: String = "", val pin: String = ""): NavigationScreens
 
     @Serializable

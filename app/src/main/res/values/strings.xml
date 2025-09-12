@@ -18,5 +18,8 @@
     <string name="ellipse_on">Ellipse On</string>
     <string name="ellipse_off">Ellipse Off</string>
     <string name="backspace">Backspace</string>
+    <string name="repeat_your_pin">Repeat Your PIN</string>
+    <string name="enter_yourPin_again">Enter your PIN again</string>
+    <string name="pins_dont_match_try_again">PINs don’t match. Try again</string>
 
 </resources>
