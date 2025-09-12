@@ -8,6 +8,7 @@ import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.PatternValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +40,8 @@ class RegisterViewModel @Inject constructor(
 
     private val _events = Channel<RegisterEvents>()
     val events = _events.receiveAsFlow()
+
+    private var job: Job? = null
 
     fun onActions(registerActions: RegisterActions) {
         when (registerActions) {
@@ -98,18 +101,22 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private suspend fun showBanner() {
-        _state.update { newState ->
-            newState.copy(
-                bannerText = UiText.StringResource(R.string.username_already_exists)
-            )
-        }
-        //show banner for 2 seconds
-        delay(2.seconds)
-        _state.update { newState ->
-            newState.copy(
-                bannerText = null
-            )
+    private fun showBanner() {
+        job?.cancel()
+        job = viewModelScope.launch {
+            _state.update { newState ->
+                newState.copy(
+                    bannerText = UiText.StringResource(R.string.username_already_exists)
+                )
+            }
+            //show banner for 2 seconds
+            delay(2.seconds)
+            _state.update { newState ->
+                newState.copy(
+                    bannerText = null
+                )
+            }
         }
     }
+
 }
