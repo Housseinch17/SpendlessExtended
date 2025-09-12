@@ -9,12 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.spendless.features.auth.presentation.ui.common.PinActions
-import com.example.spendless.features.auth.presentation.ui.common.PinUiState
+import com.example.spendless.features.auth.presentation.ui.common.BasePinUiState
 
 @Composable
 fun PinBody(
     modifier: Modifier = Modifier,
-    pinUiState: PinUiState,
+    basePinUiState: BasePinUiState,
     pinActions: (PinActions) -> Unit,
 ) {
     Column(
@@ -24,16 +24,16 @@ fun PinBody(
     ) {
         PinEllipses(
             modifier = Modifier,
-            ellipsesList = pinUiState.ellipsesList
+            ellipsesList = basePinUiState.ellipsesList
         )
 
         SpendlessKeyboard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 32.dp),
-            keys = pinUiState.keys,
-            isEnabled = pinUiState.isEnabled,
-            isBackspaceEnabled = pinUiState.isBackspaceEnabled,
+            keys = basePinUiState.keys,
+            isEnabled = basePinUiState.isEnabled,
+            isBackspaceEnabled = basePinUiState.isBackspaceEnabled,
             onItemClick = { pin ->
                 pinActions(PinActions.UpdatePin(newPin = pin))
             }

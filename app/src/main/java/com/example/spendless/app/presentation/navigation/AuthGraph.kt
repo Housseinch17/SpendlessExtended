@@ -39,7 +39,7 @@ fun NavGraphBuilder.authGraph(
 
             CreatePinScreen(
                 modifier = modifier,
-                pinUiState = createPinState,
+                basePinUiState = createPinState,
                 pinActions = createPinViewModel::onActions
             )
         }

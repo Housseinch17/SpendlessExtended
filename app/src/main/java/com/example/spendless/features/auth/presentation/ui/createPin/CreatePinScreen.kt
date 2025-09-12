@@ -10,12 +10,12 @@ import com.example.spendless.features.auth.presentation.designsystem.components.
 import com.example.spendless.features.auth.presentation.designsystem.components.PinBody
 import com.example.spendless.features.auth.presentation.designsystem.components.SpendlessBackButton
 import com.example.spendless.features.auth.presentation.ui.common.PinActions
-import com.example.spendless.features.auth.presentation.ui.common.PinUiState
+import com.example.spendless.features.auth.presentation.ui.common.BasePinUiState
 
 @Composable
 fun CreatePinScreen(
     modifier: Modifier = Modifier,
-    pinUiState: PinUiState,
+    basePinUiState: BasePinUiState,
     pinActions: (PinActions) -> Unit
 ) {
     Box(
@@ -28,7 +28,7 @@ fun CreatePinScreen(
         ) { createPinModifier ->
             PinBody(
                 modifier = createPinModifier.fillMaxWidth(),
-                pinUiState = pinUiState,
+                basePinUiState = basePinUiState,
                 pinActions = pinActions
             )
         }

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.spendless.features.auth.presentation.designsystem.Constants.DELETE_CHAR
 import com.example.spendless.features.auth.presentation.ui.common.PinActions
 import com.example.spendless.features.auth.presentation.ui.common.PinEvents
-import com.example.spendless.features.auth.presentation.ui.common.PinUiState
+import com.example.spendless.features.auth.presentation.ui.common.BasePinUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class CreatePinViewModel @Inject constructor(
     private val saveHandleStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _state = MutableStateFlow(PinUiState())
+    private val _state = MutableStateFlow(CreatePinUiState())
     val state = _state.asStateFlow()
 
     private val _events = Channel<PinEvents>()
