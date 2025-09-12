@@ -9,6 +9,7 @@ import com.example.spendless.features.auth.presentation.designsystem.Constants.D
 import com.example.spendless.features.auth.presentation.ui.common.PinActions
 import com.example.spendless.features.auth.presentation.ui.common.PinEvents.RepeatPinEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,8 @@ class RepeatPinViewModel @Inject constructor(
 
     private val _events = Channel<RepeatPinEvents>()
     val events = _events.receiveAsFlow()
+
+    private var job: Job? = null
 
     init {
         saveUsernameAndPin()
@@ -89,19 +92,23 @@ class RepeatPinViewModel @Inject constructor(
         }
     }
 
-    private suspend fun showBanner() {
-        _state.update { newState ->
-            newState.copy(
-                bannerText = UiText.StringResource(R.string.pins_dont_match_try_again),
-                repeatPin = ""
-            )
-        }
-        //show banner for 2 seconds
-        delay(2.seconds)
-        _state.update { newState ->
-            newState.copy(
-                bannerText = null
-            )
+    private fun showBanner() {
+        job?.cancel()
+        job = viewModelScope.launch {
+            _state.update { newState ->
+                newState.copy(
+                    bannerText = UiText.StringResource(R.string.pins_dont_match_try_again),
+                    repeatPin = ""
+                )
+            }
+            //show banner for 2 seconds
+            delay(2.seconds)
+            _state.update { newState ->
+                newState.copy(
+                    bannerText = null
+                )
+            }
         }
     }
+
 }
