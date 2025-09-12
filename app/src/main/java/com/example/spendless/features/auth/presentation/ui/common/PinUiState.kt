@@ -1,10 +1,11 @@
-package com.example.spendless.features.auth.presentation.ui.createPin
+package com.example.spendless.features.auth.presentation.ui.common
 
 import com.example.spendless.features.auth.presentation.designsystem.Constants
 
-data class CreatePinUiState(
+data class PinUiState(
     val username: String = "",
     val pin: String = "",
+    val repeatPin: String? = null,
     val keys: List<String?> = Constants.keys
 ) {
     val ellipsesList: List<Boolean>
@@ -17,3 +18,4 @@ data class CreatePinUiState(
     val isBackspaceEnabled: Boolean
         get() = pin.isNotEmpty()
 }
+

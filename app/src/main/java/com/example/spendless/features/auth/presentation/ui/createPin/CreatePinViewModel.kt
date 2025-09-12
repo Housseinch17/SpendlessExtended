@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.features.auth.presentation.designsystem.Constants.DELETE_CHAR
+import com.example.spendless.features.auth.presentation.ui.common.PinActions
+import com.example.spendless.features.auth.presentation.ui.common.PinUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,16 +20,11 @@ sealed interface CreatePinEvents {
     data class NavigateToRepeatPin(val username: String, val pin: String): CreatePinEvents
 }
 
-sealed interface CreatePinActions {
-    data class UpdatePin(val newPin: String) : CreatePinActions
-    data object NavigateBack : CreatePinActions
-}
-
 @HiltViewModel
 class CreatePinViewModel @Inject constructor(
     private val saveHandleStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _state = MutableStateFlow(CreatePinUiState())
+    private val _state = MutableStateFlow(PinUiState())
     val state = _state.asStateFlow()
 
     private val _events = Channel<CreatePinEvents>()
@@ -37,10 +34,10 @@ class CreatePinViewModel @Inject constructor(
         saveUsername()
     }
 
-    fun onActions(createPinActions: CreatePinActions) {
-        when (createPinActions) {
-            is CreatePinActions.UpdatePin -> updatePin(newPin = createPinActions.newPin)
-            CreatePinActions.NavigateBack -> navigateBack()
+    fun onActions(pinActions: PinActions) {
+        when (pinActions) {
+            is PinActions.UpdatePin -> updatePin(newPin = pinActions.newPin)
+            PinActions.NavigateBack -> navigateBack()
         }
     }
 
@@ -66,7 +63,6 @@ class CreatePinViewModel @Inject constructor(
                 pin = pin
             )
         }
-
         if(pin.length == 5){
             val username = _state.value.username
             viewModelScope.launch {
