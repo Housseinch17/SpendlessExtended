@@ -2,10 +2,10 @@ package com.example.spendless.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.spendless.core.data.dataSource.user.UserImpl
+import com.example.spendless.features.auth.data.dataSource.user.UserImpl
 import com.example.spendless.core.database.Database
 import com.example.spendless.core.database.user.dao.UserDao
-import com.example.spendless.core.domain.UserRepository
+import com.example.spendless.features.auth.domain.UserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

@@ -90,6 +90,8 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
+    implementation (libs.google.gson)
+
 
     //SplashScreen
     implementation (libs.androidx.core.splashscreen)

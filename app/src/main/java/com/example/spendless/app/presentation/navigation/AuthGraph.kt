@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.spendless.features.auth.presentation.ui.createPin.CreatePinScreen
 import com.example.spendless.features.auth.presentation.ui.createPin.CreatePinViewModel
+import com.example.spendless.features.auth.presentation.ui.onBoarding.OnBoardingScreen
+import com.example.spendless.features.auth.presentation.ui.onBoarding.OnBoardingViewModel
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterScreen
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterViewModel
 import com.example.spendless.features.auth.presentation.ui.repeatPin.RepeatPinScreen
@@ -19,7 +21,7 @@ fun NavGraphBuilder.authGraph(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
 ) {
-    navigation<NavigationGraphs.AuthGraph>(startDestination = NavigationScreens.RepeatPin()) {
+    navigation<NavigationGraphs.AuthGraph>(startDestination = NavigationScreens.Onboarding()) {
         composable<NavigationScreens.Login> {
 
         }
@@ -57,7 +59,15 @@ fun NavGraphBuilder.authGraph(
             )
         }
 
-        composable<NavigationScreens.Preferences> {
+        composable<NavigationScreens.Onboarding> {
+            val onBoardingViewModel = hiltViewModel<OnBoardingViewModel>()
+            val onBoardingUiState by onBoardingViewModel.state.collectAsStateWithLifecycle()
+
+            OnBoardingScreen(
+                modifier = modifier,
+                onBoardingUiState = onBoardingUiState,
+                onBoardingActions = onBoardingViewModel::onActions
+            )
 
         }
 

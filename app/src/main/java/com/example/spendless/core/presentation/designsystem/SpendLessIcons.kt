@@ -101,4 +101,16 @@ object SpendLessIcons {
     val HeaderImage: ImageVector
         @Composable
         get() = ImageVector.vectorResource(R.drawable.header_image)
+
+    val Clothing: Int = R.drawable.clothing
+
+    val Accessories: Int = R.drawable.accessories
+
+    val Health: Int = R.drawable.health
+
+    val Food: Int = R.drawable.food
+
+    val Entertainment: Int = R.drawable.entertainment
+
+    val Education: Int = R.drawable.education
 }

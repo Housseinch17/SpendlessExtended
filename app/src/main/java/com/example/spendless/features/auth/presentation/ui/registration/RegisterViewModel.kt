@@ -3,7 +3,7 @@ package com.example.spendless.features.auth.presentation.ui.registration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
-import com.example.spendless.core.domain.UserRepository
+import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.PatternValidator

@@ -2,18 +2,12 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "01a4dc1251c62a45f9cdc7eccdac0a98",
+    "identityHash": "d38cc3f002b92a96d65c61d3fb2cba4c",
     "entities": [
       {
         "tableName": "User",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `pin` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`username` TEXT NOT NULL, `pin` TEXT NOT NULL, `total` TEXT NOT NULL, `preferences` TEXT NOT NULL, PRIMARY KEY(`username`))",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "username",
             "columnName": "username",
@@ -25,19 +19,31 @@
             "columnName": "pin",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "total",
+            "columnName": "total",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "preferences",
+            "columnName": "preferences",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "username"
           ]
         }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '01a4dc1251c62a45f9cdc7eccdac0a98')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd38cc3f002b92a96d65c61d3fb2cba4c')"
     ]
   }
 }
