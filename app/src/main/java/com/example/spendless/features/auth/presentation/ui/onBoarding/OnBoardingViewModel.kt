@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 
 sealed interface OnBoardingEvents {
     data object NavigateBack : OnBoardingEvents
-    data object Dashboard : OnBoardingEvents
+    data class Dashboard(val username: String) : OnBoardingEvents
 }
 
 sealed interface OnBoardingActions {
@@ -142,7 +142,8 @@ class OnBoardingViewModel @Inject constructor(
                 preferences = preferencesFormat
             )
 
-            delay(2.seconds)
+            //show circular progress indicator for 1 seconds
+            delay(1.seconds)
             val result = userRepository.insertUser(user = user)
             when (result) {
                 is Result.Error -> {
@@ -156,7 +157,7 @@ class OnBoardingViewModel @Inject constructor(
                     _state.update { newState->
                         newState.copy(isButtonLoading = false)
                     }
-                    _events.send(OnBoardingEvents.Dashboard)
+                    _events.send(OnBoardingEvents.Dashboard(username = username))
                 }
             }
         }

@@ -61,6 +61,11 @@ class CreatePinViewModel @Inject constructor(
         if(pin.length == 5){
             val username = _state.value.username
             viewModelScope.launch {
+                _state.update { newState->
+                    newState.copy(
+                        pin = ""
+                    )
+                }
                 _events.send(CreatePinEvents.NavigateToRepeatPin(username = username, pin = pin))
             }
         }

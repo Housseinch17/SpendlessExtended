@@ -8,7 +8,8 @@ data class RegisterUiState(
     val isUsernameError: Boolean = false,
     val usernameError: UiText? = null,
     val isNextEnabled: Boolean = false,
-    val bannerText: UiText? = null
+    val bannerText: UiText? = null,
+    val isNextLoading: Boolean = false,
 ){
     val isEnabled: Boolean
         get() = (isUsernameError != true && username.length > 1 && isNextEnabled)

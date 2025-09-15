@@ -81,6 +81,11 @@ class LogInViewModel @Inject constructor(
     }
 
     private fun logIn() {
+        _state.update { newState->
+            newState.copy(
+                isLogInButtonLoading = true
+            )
+        }
         //login will only be enabled if username and pin are valid
         val state = _state.value
         val username = state.username
@@ -91,11 +96,24 @@ class LogInViewModel @Inject constructor(
             when (doesUserExist) {
                 is Result.Error -> {
                     Timber.tag("MyTag").e("logIn: error: ${doesUserExist.error}")
+                    _state.update { newState->
+                        newState.copy(
+                            isLogInButtonLoading = false
+                        )
+                    }
                     showBanner(UiText.DynamicString(value = doesUserExist.error.toString()))
                 }
 
                 is Result.Success -> {
                     if (doesUserExist.data) {
+                        //show circular progress indicator for 1 seconds
+                        delay(1.seconds)
+                        _state.update { newState->
+                            newState.copy(
+                                isLogInButtonLoading = false
+                            )
+                        }
+
                         verifyPin(username = username, pin = pin) {
                             _events.send(LogInEvents.NavigateToDashboard(username = username))
                         }

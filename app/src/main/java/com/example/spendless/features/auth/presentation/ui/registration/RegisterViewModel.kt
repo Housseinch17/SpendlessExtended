@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.seconds
 
 sealed interface RegisterEvents {
     data object NavigateToLogIn : RegisterEvents
-    data class NavigateToPin(val username: String) : RegisterEvents
+    data class NavigateToCreatePin(val username: String) : RegisterEvents
 }
 
 sealed interface RegisterActions {
@@ -69,11 +69,23 @@ class RegisterViewModel @Inject constructor(
 
     private fun clickNext() {
         viewModelScope.launch {
+            _state.update { newState->
+                newState.copy(
+                    isNextLoading = true
+                )
+            }
             val username = _state.value.username
             val doesUserExist = userRepository.doesUserExist(username)
 
             when (doesUserExist) {
-                is Result.Error -> Timber.tag("MyTag").e("error: ${doesUserExist.error}")
+                is Result.Error -> {
+                    _state.update { newState->
+                        newState.copy(
+                            isNextLoading = false
+                        )
+                    }
+                    Timber.tag("MyTag").e("error: ${doesUserExist.error}")
+                }
                 is Result.Success -> {
                     Timber.tag("MyTag").d("data: ${doesUserExist.data}")
                     //if user exists
@@ -81,14 +93,20 @@ class RegisterViewModel @Inject constructor(
                         //disable next button
                         _state.update { newState ->
                             newState.copy(
-                                isNextEnabled = false
+                                isNextEnabled = false,
+                                isNextLoading = false
                             )
                         }
                         //if user exists show error banner
                         showBanner()
                     } else {
+                        _state.update { newState->
+                            newState.copy(
+                                isNextLoading = false
+                            )
+                        }
                         //else navigate to create pin
-                        _events.send(RegisterEvents.NavigateToPin(username = username))
+                        _events.send(RegisterEvents.NavigateToCreatePin(username = username))
                     }
                 }
             }

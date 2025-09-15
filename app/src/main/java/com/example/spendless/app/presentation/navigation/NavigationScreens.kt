@@ -23,7 +23,7 @@ sealed interface NavigationScreens {
     data object VerifyPin: NavigationScreens
 
     @Serializable
-    data object Dashboard: NavigationScreens
+    data class Dashboard(val username: String = ""): NavigationScreens
 
     @Serializable
     data object Transactions: NavigationScreens

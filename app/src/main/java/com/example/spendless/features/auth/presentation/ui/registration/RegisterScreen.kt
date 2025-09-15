@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -86,6 +88,7 @@ fun RegisterBody(
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             enabled = registerUiState.isEnabled,
+            isNextLoading = registerUiState.isNextLoading,
             onClick = {
                 registerActions(RegisterActions.ClickNext)
             }
@@ -170,6 +173,7 @@ fun RegisterTextField(
 fun RegisterNextButton(
     modifier: Modifier = Modifier,
     enabled: Boolean,
+    isNextLoading: Boolean,
     onClick: () -> Unit,
 ) {
     SpendlessButton(
@@ -181,19 +185,26 @@ fun RegisterNextButton(
                 modifier = Modifier,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    modifier = Modifier,
-                    text = stringResource(R.string.next),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = LocalContentColor.current,
+                if (!isNextLoading) {
+                    Text(
+                        modifier = Modifier,
+                        text = stringResource(R.string.next),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            color = LocalContentColor.current,
+                        )
                     )
-                )
-                Icon(
-                    modifier = Modifier.padding(start = 8.dp),
-                    imageVector = SpendLessIcons.NavigateNext,
-                    contentDescription = stringResource(R.string.next),
-                    tint = LocalContentColor.current
-                )
+                    Icon(
+                        modifier = Modifier.padding(start = 8.dp),
+                        imageVector = SpendLessIcons.NavigateNext,
+                        contentDescription = stringResource(R.string.next),
+                        tint = LocalContentColor.current
+                    )
+                } else {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
     )
