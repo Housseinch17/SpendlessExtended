@@ -10,7 +10,10 @@
 
     <string name="error_username_too_short">Username must be at least 3 characters long.</string>
     <string name="error_username_too_long">Username must not exceed 14 characters.</string>
+    <string name="error_pin_too_short">Username must be 5 characters long.</string>
+    <string name="error_pin_too_long">Username must not exceed 5 characters.</string>
     <string name="error_username_invalid_chars">Username can only contain letters and digits (no spaces or symbols).</string>
+    <string name="error_pin_invalid_chars">Pin can only contain digits</string>
     <string name="username_already_exists">This username has already been taken!</string>
     <string name="back">Back</string>
 
@@ -34,5 +37,12 @@
     <string name="start_tracking">Start Tracking!</string>
     <string name="symbol_icon">Symbol Icon</string>
     <string name="check">Check</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="enter_your_login_details">Enter you login details</string>
+    <string name="username_doesnt_exist">Username doesn\'t exist</string>
+    <string name="login">Log in</string>
+    <string name="new_to_spendless">New to SpendLess?</string>
+    <string name="pin">PIN</string>
+    <string name="incorrect_pin">Incorrect pin!</string>
 
 </resources>

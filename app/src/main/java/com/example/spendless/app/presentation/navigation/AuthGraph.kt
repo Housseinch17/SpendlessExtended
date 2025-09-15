@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.spendless.features.auth.presentation.ui.createPin.CreatePinScreen
 import com.example.spendless.features.auth.presentation.ui.createPin.CreatePinViewModel
+import com.example.spendless.features.auth.presentation.ui.logIn.LogInScreen
+import com.example.spendless.features.auth.presentation.ui.logIn.LogInViewModel
 import com.example.spendless.features.auth.presentation.ui.onBoarding.OnBoardingScreen
 import com.example.spendless.features.auth.presentation.ui.onBoarding.OnBoardingViewModel
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterScreen
@@ -21,9 +23,16 @@ fun NavGraphBuilder.authGraph(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
 ) {
-    navigation<NavigationGraphs.AuthGraph>(startDestination = NavigationScreens.Onboarding()) {
+    navigation<NavigationGraphs.AuthGraph>(startDestination = NavigationScreens.Login) {
         composable<NavigationScreens.Login> {
+            val logInViewModel = hiltViewModel<LogInViewModel>()
+            val logInUiState by logInViewModel.state.collectAsStateWithLifecycle()
 
+            LogInScreen(
+                modifier = modifier,
+                logInUiState = logInUiState,
+                logInActions = logInViewModel::onActions
+            )
         }
 
         composable<NavigationScreens.Register> {

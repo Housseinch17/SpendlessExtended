@@ -136,14 +136,13 @@ fun RegisterTextField(
                     Text(
                         modifier = Modifier,
                         text = errorText,
-                        style = MaterialTheme.typography.bodySmall.copy(
+                        style = MaterialTheme.typography.bodyLarge.copy(
                             color = MaterialTheme.colorScheme.error,
                         )
                     )
                 }
             } else {
                 null
-
             },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.onBackgroundOpacity8,
