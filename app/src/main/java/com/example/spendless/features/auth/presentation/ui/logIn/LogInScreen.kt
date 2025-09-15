@@ -1,7 +1,6 @@
 package com.example.spendless.features.auth.presentation.ui.logIn
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +16,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import com.example.spendless.R
 import com.example.spendless.core.presentation.designsystem.components.SpendlessButton
 import com.example.spendless.core.presentation.designsystem.components.SpendlessTextButton
-import com.example.spendless.core.presentation.designsystem.onSurfaceOpacity30
 import com.example.spendless.features.auth.presentation.designsystem.components.AuthHeader
 import com.example.spendless.features.auth.presentation.designsystem.components.SpendlessBanner
 
@@ -154,70 +153,72 @@ fun LogInTextField(
     //current focus manager if focused or not
     val focusManager = LocalFocusManager.current
 
-    OutlinedTextField(
-        modifier = modifier.shadow(
-            elevation = 4.dp,
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.Start
+    ) {
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth().shadow(
+                elevation = 4.dp,
+                shape = MaterialTheme.shapes.medium,
+                clip = true,
+                ambientColor = Color.Transparent,
+                spotColor = MaterialTheme.colorScheme.onSurface
+            ),
             shape = MaterialTheme.shapes.medium,
-            clip = true,
-            ambientColor = Color.Transparent,
-            spotColor = Color.Transparent
-        ),
-        shape = MaterialTheme.shapes.medium,
-        value = value,
-        onValueChange = { newValue ->
-            onValueChange(newValue)
-        },
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        placeholder = {
+            value = value,
+            onValueChange = { newValue ->
+                onValueChange(newValue)
+            },
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            placeholder = {
+                Text(
+                    text = stringResource(placeHolderResId),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+            },
+            isError = isError,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                errorContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = Color.Transparent,
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = if (!isKeyboardNumber) KeyboardType.Text else KeyboardType.NumberPassword,
+                imeAction = if (!isLastField) ImeAction.Next else ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                },
+                onDone = {
+                    //close keyboard
+                    keyboardController?.hide()
+                    //clear focus
+                    focusManager.clearFocus()
+
+                    //do the function
+                    onDone()
+                }
+            ),
+            maxLines = 1
+        )
+
+        if(isError){
             Text(
-                text = stringResource(placeHolderResId),
+                modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+                text = errorText,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.error,
                 )
             )
-        },
-        isError = isError,
-        supportingText =
-            if (isError) {
-                {
-                    Text(
-                        modifier = Modifier,
-                        text = errorText,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    )
-                }
-            } else {
-                null
-            },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-            errorContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceOpacity30,
-        ),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = if (!isKeyboardNumber) KeyboardType.Text else KeyboardType.NumberPassword,
-            imeAction = if (!isLastField) ImeAction.Next else ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onNext = {
-                focusManager.moveFocus(FocusDirection.Down)
-            },
-            onDone = {
-                //close keyboard
-                keyboardController?.hide()
-                //clear focus
-                focusManager.clearFocus()
+        }
 
-                //do the function
-                onDone()
-            }
-        ),
-        maxLines = 1
-    )
+    }
 }
