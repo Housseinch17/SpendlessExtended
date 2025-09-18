@@ -2,11 +2,8 @@ package com.example.spendless.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.spendless.features.auth.data.dataSource.user.UserImpl
 import com.example.spendless.core.database.Database
 import com.example.spendless.core.database.user.dao.UserDao
-import com.example.spendless.features.auth.domain.UserRepository
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,9 +29,5 @@ abstract class CoreModule {
             return database.userDao()
         }
     }
-
-    @Binds
-    @Singleton
-    abstract fun provideUserRepository(userImpl: UserImpl): UserRepository
 
 }

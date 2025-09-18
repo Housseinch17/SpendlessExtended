@@ -7,6 +7,7 @@ import com.example.spendless.R
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.presentation.designsystem.Constants.DELETE_CHAR
 import com.example.spendless.features.auth.presentation.ui.common.PinActions
+import com.example.spendless.features.auth.presentation.ui.common.PinEvents
 import com.example.spendless.features.auth.presentation.ui.common.PinEvents.RepeatPinEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -27,7 +28,7 @@ class RepeatPinViewModel @Inject constructor(
     private val _state = MutableStateFlow(RepeatPinUiState())
     val state = _state.asStateFlow()
 
-    private val _events = Channel<RepeatPinEvents>()
+    private val _events = Channel<PinEvents>()
     val events = _events.receiveAsFlow()
 
     private var job: Job? = null
@@ -51,6 +52,7 @@ class RepeatPinViewModel @Inject constructor(
         when (pinActions) {
             is PinActions.UpdatePin -> updatePin(newPin = pinActions.newPin)
             PinActions.NavigateBack -> navigateBack()
+            else -> {}
         }
     }
 
@@ -88,7 +90,7 @@ class RepeatPinViewModel @Inject constructor(
 
     private fun navigateBack() {
         viewModelScope.launch {
-            _events.send(RepeatPinEvents.NavigateBack)
+            _events.send(PinEvents.NavigateBack)
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import com.example.spendless.R
 import com.example.spendless.features.auth.presentation.designsystem.components.AuthHeader
 import com.example.spendless.features.auth.presentation.designsystem.components.PinBody
@@ -37,10 +38,10 @@ fun RepeatPinScreen(
             AuthHeader(
                 modifier = Modifier,
                 header = stringResource(R.string.repeat_your_pin),
-                body = stringResource(R.string.enter_yourPin_again)
-            ) { createPinModifier ->
+                body = buildAnnotatedString { append(stringResource(R.string.enter_yourPin_again)) }
+            ) { repeatPinModifier ->
                 PinBody(
-                    modifier = createPinModifier.fillMaxWidth(),
+                    modifier = repeatPinModifier.fillMaxWidth(),
                     basePinUiState = repeatPinUiState,
                     pinActions = pinActions
                 )

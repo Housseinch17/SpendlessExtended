@@ -1,5 +1,8 @@
 package com.example.spendless.core.presentation.ui
 
+import java.util.Locale
+
+
 fun amountFormatter(
     total: String,
     currencySymbol: String,
@@ -42,4 +45,10 @@ fun amountFormatter(
         expensesFormat.startsWith("(") -> "($withCurrency)"
         else -> withCurrency
     }
+}
+
+fun Int.formatCounter(): String {
+    val minutes = this / 60
+    val secs = this % 60   // ✅ works fine with Long
+    return String.format(Locale.US,"%02d:%02d", minutes, secs)
 }

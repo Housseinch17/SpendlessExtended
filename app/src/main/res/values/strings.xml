@@ -44,5 +44,18 @@
     <string name="new_to_spendless">New to SpendLess?</string>
     <string name="pin">PIN</string>
     <string name="incorrect_pin">Incorrect pin!</string>
+    <string name="fingerPrint">FingerPrint</string>
+    <string name="logout">LogOut</string>
+    <string name="hello">"Hello, "</string>
+    <string name="enter_your_pin">Enter your PIN</string>
+    <string name="too_many_failed_attempts">Too many failed attempts</string>
+
+    <string name="biometric_verification">Biometric Verification!</string>
+    <string name="use_biometric_for_verification">Use Biometric for verification!</string>
+    <string name="biometric_error_hw_unavailable">Hardware unavailable. Try again.</string>
+    <string name="biometric_error_no_hardware">No biometric hardware found.</string>
+    <string name="biometric_auth_failed">Not recognized. Try again.</string>
+    <string name="biometric_auth_error">Authentication error: %1$s.</string>
+
 
 </resources>

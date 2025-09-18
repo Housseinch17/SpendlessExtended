@@ -1,0 +1,238 @@
+package com.example.spendless.features.auth.presentation.ui.pinPrompt
+
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.spendless.R
+import com.example.spendless.core.presentation.ui.UiText
+import com.example.spendless.core.presentation.ui.formatCounter
+import com.example.spendless.features.auth.domain.BiometricRepository
+import com.example.spendless.features.auth.presentation.designsystem.Constants.DELETE_CHAR
+import com.example.spendless.features.auth.presentation.designsystem.Constants.FINGERPRINT
+import com.example.spendless.features.auth.presentation.ui.common.PinActions
+import com.example.spendless.features.auth.presentation.ui.common.PinActions.PromptPinActions
+import com.example.spendless.features.auth.presentation.ui.common.PinEvents
+import com.example.spendless.features.auth.presentation.ui.common.PinEvents.PinPromptEvents
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
+
+@HiltViewModel
+class PinPromptViewModel @Inject constructor(
+    private val biometricRepository: BiometricRepository
+) : ViewModel() {
+    private val _state = MutableStateFlow(PinPromptUIState())
+    val state = _state.asStateFlow()
+
+    private val _events = Channel<PinEvents>()
+    val events = _events.receiveAsFlow()
+
+    private var job: Job? = null
+
+    private var counter: Job? = null
+
+    fun onActions(pinActions: PinActions) {
+        when (pinActions) {
+            PromptPinActions.LogOut -> logOut()
+
+            is PinActions.UpdatePin -> {
+                updatePin(
+                    newPin = pinActions.newPin,
+                    activity = pinActions.activity
+                )
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun logOut() {
+        viewModelScope.launch {
+            _events.send(PinPromptEvents.NavigateToLogIn)
+        }
+    }
+
+    private fun updatePin(
+        newPin: String,
+        activity: AppCompatActivity?
+    ) {
+        if (newPin != FINGERPRINT) {
+            val currentPin = _state.value.pinPromptPin
+            val pinPromptPin = when {
+                newPin == DELETE_CHAR -> currentPin.dropLast(1)
+                currentPin.length < 5 -> currentPin + newPin
+                else -> currentPin
+            }
+
+            _state.update { newState ->
+                newState.copy(
+                    pinPromptPin = pinPromptPin
+                )
+            }
+
+            if (pinPromptPin.length == 5) {
+                //pin sent from createPin screen
+                val pin = _state.value.pin
+                viewModelScope.launch {
+                    if (pinPromptPin == pin) {
+                        //the action
+                    } else {
+                        incrementPinCounter()
+                        showBanner(
+                            uiText = UiText.StringResource(R.string.pins_dont_match_try_again)
+                        )
+                        if (_state.value.pinErrorCounter == 3) {
+                            startCounter()
+                        }
+                    }
+                }
+            }
+        } else {
+            viewModelScope.launch {
+                Timber.tag("MyTag").d("FingerPrint")
+                val biometricResult = biometricRepository.showBiometricPrompt(
+                    activity = activity!!,
+                    title = UiText.StringResource(R.string.biometric_verification),
+                    subtitle = UiText.StringResource(R.string.use_biometric_for_verification)
+                )
+                when (biometricResult) {
+                    is PinEvents.BiometricResult.AuthenticationError -> {
+                        //biometric error, increment biometric counter
+                        incrementBiometricCounter()
+                        showBanner(
+                            uiText = UiText.StringResource(
+                                R.string.biometric_auth_error,
+                                biometricResult.error
+                            )
+                        )
+                        if (_state.value.biometricErrorCounter == 3) {
+                            startCounter()
+                        }
+                    }
+
+                    PinEvents.BiometricResult.AuthenticationFailed -> {
+                        //biometric error, increment biometric counter
+                        incrementBiometricCounter()
+                        showBanner(
+                            uiText = UiText.StringResource(R.string.biometric_auth_failed)
+                        )
+                        if (_state.value.biometricErrorCounter == 3) {
+                            startCounter()
+                        }
+                    }
+
+                    PinEvents.BiometricResult.AuthenticationNotSet -> {
+                        _events.send(PinEvents.BiometricResult.AuthenticationNotSet)
+                    }
+
+                    PinEvents.BiometricResult.AuthenticationSuccess -> {
+                        _events.send(PinEvents.BiometricResult.AuthenticationSuccess)
+                    }
+
+                    PinEvents.BiometricResult.FeatureUnavailable -> {
+                        showBanner(
+                            uiText = UiText.StringResource(R.string.biometric_error_no_hardware)
+                        )
+                    }
+
+                    PinEvents.BiometricResult.HardwareUnavailable -> {
+                        showBanner(
+                            uiText = UiText.StringResource(R.string.biometric_error_hw_unavailable)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun incrementPinCounter() {
+        _state.update { newState ->
+            newState.copy(
+                pinErrorCounter = newState.pinErrorCounter + 1
+            )
+        }
+        Timber.tag("MyTag").d("counter: ${_state.value.pinErrorCounter}")
+    }
+
+    private fun incrementBiometricCounter() {
+        _state.update { newState ->
+            newState.copy(
+                biometricErrorCounter = newState.biometricErrorCounter + 1
+            )
+        }
+        Timber.tag("MyTag").d("counter: ${_state.value.biometricErrorCounter}")
+    }
+
+
+    private fun showBanner(
+        uiText: UiText,
+    ) {
+        job?.cancel()
+        job = viewModelScope.launch {
+            _state.update { newState ->
+                newState.copy(
+                    bannerText = uiText,
+                    pinPromptPin = ""
+                )
+            }
+            //show banner for 2 seconds
+            delay(2.seconds)
+            _state.update { newState ->
+                newState.copy(
+                    bannerText = null
+                )
+            }
+        }
+    }
+
+    private fun startCounter() {
+        val oldHeaderText = _state.value.headerText
+        val oldHeaderUiText = _state.value.headerUiText
+
+        val newHeaderUiText = UiText.StringResource(R.string.too_many_failed_attempts)
+        val newHeaderText = null
+        _state.update { newState ->
+            newState.copy(
+                enabledButtons = false,
+                headerUiText = newHeaderUiText,
+                headerText = newHeaderText
+            )
+        }
+
+        val counterByTimeUnit = _state.value.counterPerTimeUnit
+        val totalSeconds =
+            counterByTimeUnit.timeUnit.toSeconds(counterByTimeUnit.counter.toLong()).toInt()
+
+        counter = viewModelScope.launch {
+            for (seconds in totalSeconds downTo 0) {
+                Timber.tag("MyTag").d("counter: $seconds")
+                _state.update { newState ->
+                    newState.copy(
+                        counter = seconds.formatCounter()
+                    )
+                }
+                //delay 1 seconds after showing the first counter
+                delay(1.seconds)
+            }
+
+            _state.update { newState ->
+                newState.copy(
+                    enabledButtons = true, counter = null, pinErrorCounter = 0,
+                    biometricErrorCounter = 0,
+                    headerText = oldHeaderText,
+                    headerUiText = oldHeaderUiText
+                )
+            }
+        }
+    }
+
+}

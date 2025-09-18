@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ fun LogInScreen(
                 .verticalScroll(state = state)
                 .padding(bottom = innerPadding.calculateBottomPadding()),
             header = stringResource(R.string.welcome_back),
-            body = stringResource(R.string.enter_your_login_details)
+            body = buildAnnotatedString { append(stringResource(R.string.enter_your_login_details))}
         ) { logInModifier ->
             LogInBody(
                 modifier = logInModifier.fillMaxWidth(),
@@ -158,13 +159,15 @@ fun LogInTextField(
         horizontalAlignment = Alignment.Start
     ) {
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().shadow(
-                elevation = 4.dp,
-                shape = MaterialTheme.shapes.medium,
-                clip = true,
-                ambientColor = Color.Transparent,
-                spotColor = MaterialTheme.colorScheme.onSurface
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 4.dp,
+                    shape = MaterialTheme.shapes.medium,
+                    clip = true,
+                    ambientColor = Color.Transparent,
+                    spotColor = MaterialTheme.colorScheme.onSurface
+                ),
             shape = MaterialTheme.shapes.medium,
             value = value,
             onValueChange = { newValue ->
@@ -210,7 +213,7 @@ fun LogInTextField(
             maxLines = 1
         )
 
-        if(isError){
+        if (isError) {
             Text(
                 modifier = Modifier.padding(start = 4.dp, top = 4.dp),
                 text = errorText,

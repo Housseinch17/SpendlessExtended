@@ -29,6 +29,7 @@ import com.example.spendless.core.presentation.designsystem.SpendLessIcons
 import com.example.spendless.core.presentation.designsystem.onPrimaryFixed
 import com.example.spendless.core.presentation.designsystem.onSurfaceOpacity12
 import com.example.spendless.core.presentation.designsystem.primaryFixed
+import com.example.spendless.features.auth.presentation.designsystem.Constants.FINGERPRINT
 import com.example.spendless.features.auth.presentation.designsystem.Constants.DELETE_CHAR
 
 
@@ -36,7 +37,10 @@ import com.example.spendless.features.auth.presentation.designsystem.Constants.D
 fun SpendlessKeyboard(
     modifier: Modifier = Modifier,
     keys: List<String?>,
+    //this is used to disabled buttons without the remove/delete button when pin.length is 5
     isEnabled: Boolean,
+    //this is used to disable all buttons in pinPrompt when pin entered 3 times wrong
+    enabledButtons: Boolean,
     isBackspaceEnabled: Boolean,
     onItemClick: (String) -> Unit,
 ) {
@@ -51,7 +55,7 @@ fun SpendlessKeyboard(
             KeyboardItem(
                 modifier = Modifier.fillMaxWidth(),
                 text = key,
-                isEnabled = isEnabled,
+                isEnabled = isEnabled && enabledButtons,
                 isBackspaceEnabled = isBackspaceEnabled,
                 onItemClick = { key ->
                     onItemClick(key)
@@ -88,7 +92,7 @@ fun KeyboardItem(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            if(key != DELETE_CHAR) {
+            if (key != DELETE_CHAR && key != FINGERPRINT) {
                 Text(
                     modifier = Modifier,
                     text = key,
@@ -97,11 +101,13 @@ fun KeyboardItem(
                         letterSpacing = 0.1.sp
                     )
                 )
-            }else{
+            } else {
                 Icon(
                     modifier = Modifier.size(50.dp),
-                    imageVector = SpendLessIcons.Backspace,
-                    contentDescription = stringResource(R.string.backspace),
+                    imageVector = if (key == DELETE_CHAR) SpendLessIcons.Backspace else SpendLessIcons.FingerPrint,
+                    contentDescription = if (key == DELETE_CHAR) stringResource(R.string.backspace) else stringResource(
+                        R.string.fingerPrint
+                    ),
                     tint = MaterialTheme.colorScheme.onPrimaryFixed
                 )
             }

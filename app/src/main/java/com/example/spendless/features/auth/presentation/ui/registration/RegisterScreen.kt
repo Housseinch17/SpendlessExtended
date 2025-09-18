@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.spendless.R
@@ -50,7 +51,7 @@ fun RegisterScreen(
                 .fillMaxWidth()
                 .padding(bottom = innerPadding.calculateBottomPadding()),
             header = stringResource(R.string.register_header),
-            body = stringResource(R.string.register_body)
+            body = buildAnnotatedString { append(stringResource(R.string.register_body)) }
         ) { registerBodyModifier ->
             RegisterBody(
                 modifier = registerBodyModifier.fillMaxWidth(),

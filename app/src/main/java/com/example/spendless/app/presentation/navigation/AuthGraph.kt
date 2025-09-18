@@ -1,5 +1,11 @@
 package com.example.spendless.app.presentation.navigation
 
+import android.content.Intent
+import android.hardware.biometrics.BiometricManager
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,11 +24,14 @@ import com.example.spendless.features.auth.presentation.ui.logIn.LogInViewModel
 import com.example.spendless.features.auth.presentation.ui.onBoarding.OnBoardingEvents
 import com.example.spendless.features.auth.presentation.ui.onBoarding.OnBoardingScreen
 import com.example.spendless.features.auth.presentation.ui.onBoarding.OnBoardingViewModel
+import com.example.spendless.features.auth.presentation.ui.pinPrompt.PinPromptScreen
+import com.example.spendless.features.auth.presentation.ui.pinPrompt.PinPromptViewModel
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterEvents
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterScreen
 import com.example.spendless.features.auth.presentation.ui.registration.RegisterViewModel
 import com.example.spendless.features.auth.presentation.ui.repeatPin.RepeatPinScreen
 import com.example.spendless.features.auth.presentation.ui.repeatPin.RepeatPinViewModel
+import timber.log.Timber
 
 fun NavGraphBuilder.authGraph(
     modifier: Modifier = Modifier,
@@ -36,7 +45,7 @@ fun NavGraphBuilder.authGraph(
             ObserveAsEvents(logInViewModel.events) { events ->
                 when (events) {
                     is LogInEvents.NavigateToDashboard -> navHostController.navigate(
-                        NavigationScreens.Dashboard(username = events.username)
+                        NavigationScreens.Dashboard
                     ) {
                         //remove all backstack, keep Dashboard only
                         popUpTo(0) {
@@ -101,10 +110,12 @@ fun NavGraphBuilder.authGraph(
 
             ObserveAsEvents(createPinViewModel.events) { events ->
                 when (events) {
-                    PinEvents.CreatePinEvents.NavigateBack -> navHostController.navigateUp()
-                    is PinEvents.CreatePinEvents.NavigateToRepeatPin -> navHostController.navigate(
+                    PinEvents.NavigateBack -> navHostController.navigateUp()
+                    is PinEvents.NavigateToRepeatPin -> navHostController.navigate(
                         NavigationScreens.RepeatPin(username = events.username, pin = events.pin)
                     )
+
+                    else -> {}
                 }
             }
 
@@ -121,7 +132,7 @@ fun NavGraphBuilder.authGraph(
 
             ObserveAsEvents(repeatPinViewModel.events) { events ->
                 when (events) {
-                    PinEvents.RepeatPinEvents.NavigateBack -> navHostController.navigateUp()
+                    PinEvents.NavigateBack -> navHostController.navigateUp()
                     is PinEvents.RepeatPinEvents.NavigateToOnBoarding -> navHostController.navigate(
                         NavigationScreens.Onboarding(username = events.username, pin = events.pin)
                     ) {
@@ -129,6 +140,8 @@ fun NavGraphBuilder.authGraph(
                             inclusive = true
                         }
                     }
+
+                    else -> {}
                 }
             }
 
@@ -146,10 +159,9 @@ fun NavGraphBuilder.authGraph(
             ObserveAsEvents(onBoardingViewModel.events) { events ->
                 when (events) {
                     is OnBoardingEvents.Dashboard -> navHostController.navigate(
-                        NavigationScreens.Dashboard(
-                            username = events.username
-                        )
+                        NavigationScreens.Dashboard
                     ) {
+                        //remove all backstack, keep Dashboard only
                         popUpTo(0) {
                             inclusive = true
                         }
@@ -163,11 +175,56 @@ fun NavGraphBuilder.authGraph(
                 onBoardingUiState = onBoardingUiState,
                 onBoardingActions = onBoardingViewModel::onActions
             )
-
         }
 
-        composable<NavigationScreens.VerifyPin> {
+        composable<NavigationScreens.PinPrompt> {
+            val enrollLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult(),
+                onResult = {
+                    Timber.tag("MyTag").d("Activity result: $it")
+                }
+            )
 
+            val pinPromptViewmodel = hiltViewModel<PinPromptViewModel>()
+            val pinPromptUiState by pinPromptViewmodel.state.collectAsStateWithLifecycle()
+
+            ObserveAsEvents(pinPromptViewmodel.events) { events ->
+                when (events) {
+                    PinEvents.PinPromptEvents.NavigateToLogIn -> navHostController.navigate(
+                        NavigationScreens.Login
+                    ) {
+                        //remove all backstack, keep Login only
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+
+                    PinEvents.BiometricResult.AuthenticationNotSet -> {
+                        Timber.tag("MyTag").d("AuthenticationNotSet")
+                        if (Build.VERSION.SDK_INT >= 30) {
+                            val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                                putExtra(
+                                    Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                                    BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                                )
+                            }
+                            enrollLauncher.launch(enrollIntent)
+                        }
+                    }
+
+                    PinEvents.BiometricResult.AuthenticationSuccess -> {
+                        Timber.tag("MyTag").d("AuthenticationSuccess")
+                    }
+
+                    else -> {}
+                }
+            }
+
+            PinPromptScreen(
+                modifier = modifier,
+                promptUIState = pinPromptUiState,
+                pinActions = pinPromptViewmodel::onActions
+            )
         }
     }
 }

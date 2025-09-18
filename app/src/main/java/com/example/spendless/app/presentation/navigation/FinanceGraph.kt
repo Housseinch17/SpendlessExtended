@@ -13,17 +13,19 @@ import androidx.navigation.navigation
 fun NavGraphBuilder.financeGraph(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-){
-    navigation<NavigationGraphs.FinanceGraph>(startDestination = NavigationScreens.Dashboard()){
+) {
+    navigation<NavigationGraphs.FinanceGraph>(startDestination = NavigationScreens.Dashboard) {
         composable<NavigationScreens.Dashboard> {
             Box(
                 modifier = modifier,
                 contentAlignment = Alignment.Center
-            ){
-                Text("This is DashBoard",
+            ) {
+                Text(
+                    "This is DashBoard",
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = MaterialTheme.colorScheme.primary
-                    ))
+                    )
+                )
             }
         }
 

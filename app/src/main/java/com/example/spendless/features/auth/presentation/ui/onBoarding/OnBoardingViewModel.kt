@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 
 sealed interface OnBoardingEvents {
     data object NavigateBack : OnBoardingEvents
-    data class Dashboard(val username: String) : OnBoardingEvents
+    data object Dashboard : OnBoardingEvents
 }
 
 sealed interface OnBoardingActions {
@@ -157,7 +157,7 @@ class OnBoardingViewModel @Inject constructor(
                     _state.update { newState->
                         newState.copy(isButtonLoading = false)
                     }
-                    _events.send(OnBoardingEvents.Dashboard(username = username))
+                    _events.send(OnBoardingEvents.Dashboard)
                 }
             }
         }

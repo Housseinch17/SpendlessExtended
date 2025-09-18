@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import com.example.spendless.R
 import com.example.spendless.features.auth.presentation.designsystem.components.AuthHeader
 import com.example.spendless.features.auth.presentation.designsystem.components.PinBody
@@ -23,7 +24,7 @@ fun CreatePinScreen(
         AuthHeader(
             modifier = Modifier.fillMaxWidth(),
             header = stringResource(R.string.create_pin),
-            body = stringResource(R.string.use_pin_to_login)
+            body = buildAnnotatedString { append(stringResource(R.string.use_pin_to_login)) }
         ) { createPinModifier ->
             PinBody(
                 modifier = createPinModifier.fillMaxWidth(),

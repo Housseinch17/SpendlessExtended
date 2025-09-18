@@ -1,20 +1,22 @@
 package com.example.spendless.features.auth.presentation.ui.common
 
 import com.example.spendless.features.auth.presentation.designsystem.Constants
+import com.example.spendless.features.auth.presentation.designsystem.Constants.keysWithFingerPrint
 
 open class BasePinUiState(
     open val username: String = "",
     open val pinValue: String = "",
-    val keys: List<String?> = Constants.keys
+    open val withBiometric: Boolean = false,
+    open val enabledButtons: Boolean = true,
 ) {
-    val ellipsesList: List<Boolean>
-        get() = List(5) { index ->
-            pinValue.length >= index + 1
-        }
-    val isEnabled: Boolean
-        get() = pinValue.length < 5
+    val keys: List<String?> = if(!withBiometric) Constants.keys else keysWithFingerPrint
 
-    val isBackspaceEnabled: Boolean
-        get() = pinValue.isNotEmpty()
+    val ellipsesList: List<Boolean> = List(5) { index ->
+        pinValue.length >= index + 1
+    }
+
+    val isEnabled: Boolean = pinValue.length < 5
+
+    val isBackspaceEnabled: Boolean = pinValue.isNotEmpty()
 }
 

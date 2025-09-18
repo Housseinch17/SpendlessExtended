@@ -106,4 +106,9 @@ dependencies {
 
     //Timber
     implementation(libs.timber)
+
+    //Biometric
+    implementation(libs.androidx.biometric)
+    //AppCompactActivity
+    implementation(libs.androidx.appcompat)
 }
