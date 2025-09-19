@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
+import com.example.spendless.core.domain.auth.SessionStorage
+import com.example.spendless.core.domain.util.DataError
+import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.core.presentation.ui.formatCounter
 import com.example.spendless.features.auth.domain.BiometricRepository
@@ -28,7 +31,8 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class PinPromptViewModel @Inject constructor(
-    private val biometricRepository: BiometricRepository
+    private val biometricRepository: BiometricRepository,
+    private val sessionStorage: SessionStorage,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PinPromptUIState())
     val state = _state.asStateFlow()
@@ -56,8 +60,38 @@ class PinPromptViewModel @Inject constructor(
     }
 
     private fun logOut() {
+        _state.update { newState->
+            newState.copy(
+                enabledButtons = false,
+            )
+        }
         viewModelScope.launch {
-            _events.send(PinPromptEvents.NavigateToLogIn)
+            val result = sessionStorage.clearAuthInfo()
+            when(result){
+
+                is Result.Error -> {
+                    if(result.error is DataError.Local.Unknown) {
+                        showBanner(uiText = UiText.DynamicString(result.error.unknownError))
+                    }
+                    else{
+                        showBanner(uiText = UiText.DynamicString(result.error.toString()))
+                    }
+                    _state.update { newState->
+                        newState.copy(
+                            enabledButtons = true
+                        )
+                    }
+                }
+                is Result.Success -> {
+                    _state.update { newState->
+                        newState.copy(
+                            enabledButtons = true
+                        )
+                    }
+                    _events.send(PinPromptEvents.NavigateToLogIn)
+                }
+            }
+
         }
     }
 

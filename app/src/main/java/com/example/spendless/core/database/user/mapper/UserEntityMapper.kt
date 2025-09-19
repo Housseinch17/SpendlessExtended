@@ -8,7 +8,8 @@ fun UserEntity.toUser(): User{
         username = username,
         pin = pin,
         total = total,
-        preferences = preferences
+        preferences = preferences,
+        security = security
     )
 }
 
@@ -17,6 +18,7 @@ fun User.toUserEntity(): UserEntity{
         username = username,
         pin = pin,
         total = total,
-        preferences = preferences
+        preferences = preferences,
+        security = security
     )
 }

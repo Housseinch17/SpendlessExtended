@@ -1,0 +1,10 @@
+package com.example.spendless.core.domain.auth
+
+import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.database.user.model.Security
+
+data class AuthInfo(
+    val username: String = "",
+    val security: Security = Security(),
+    val preferencesFormat: PreferencesFormat = PreferencesFormat()
+)

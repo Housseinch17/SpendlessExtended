@@ -4,6 +4,8 @@ import com.example.spendless.core.data.encryption.EncryptionHelper
 import com.example.spendless.core.database.user.dao.UserDao
 import com.example.spendless.core.database.user.mapper.toUser
 import com.example.spendless.core.database.user.mapper.toUserEntity
+import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.database.user.model.Security
 import com.example.spendless.core.domain.model.User
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
@@ -63,6 +65,30 @@ class UserImpl @Inject constructor(
                 throw e
             }
             Timber.tag("MyTag").e("doesUserExist: error: ${e.localizedMessage}")
+            Result.Error(error = DataError.Local.Unknown(unknownError = e.localizedMessage ?: ""))
+        }
+    }
+
+    override suspend fun getSecurityByUsername(username: String): Result<Security, DataError.Local> {
+        return try {
+            val security = userDao.getSecurityByUsername(username)
+            Result.Success(security)
+        } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
+            Result.Error(error = DataError.Local.Unknown(unknownError = e.localizedMessage ?: ""))
+        }
+    }
+
+    override suspend fun getPreferencesByUsername(username: String): Result<PreferencesFormat, DataError.Local> {
+        return try {
+            val preferencesFormat = userDao.getPreferencesByUsername(username)
+            Result.Success(preferencesFormat)
+        } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
             Result.Error(error = DataError.Local.Unknown(unknownError = e.localizedMessage ?: ""))
         }
     }

@@ -4,7 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.core.database.user.model.Currency
+import com.example.spendless.core.database.user.model.Security
+import com.example.spendless.core.domain.auth.AuthInfo
+import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.model.User
+import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.features.auth.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +44,7 @@ sealed interface OnBoardingActions {
 class OnBoardingViewModel @Inject constructor(
     private val saveHandleStateHandle: SavedStateHandle,
     private val userRepository: UserRepository,
+    private val sessionStorage: SessionStorage,
 ) : ViewModel() {
     private val _state = MutableStateFlow(OnBoardingUiState())
     val state = _state.asStateFlow()
@@ -126,7 +131,7 @@ class OnBoardingViewModel @Inject constructor(
 
 
     private fun startTracking() {
-        _state.update { newState->
+        _state.update { newState ->
             newState.copy(isButtonLoading = true)
         }
         val state = _state.value
@@ -134,12 +139,15 @@ class OnBoardingViewModel @Inject constructor(
         val pin = state.pin
         val total = state.total
         val preferencesFormat = state.preferencesFormat
+        //default value
+        val security = Security()
         viewModelScope.launch {
             val user = User(
                 username = username,
                 pin = pin,
                 total = total,
-                preferences = preferencesFormat
+                preferences = preferencesFormat,
+                security = security
             )
 
             //show circular progress indicator for 1 seconds
@@ -147,16 +155,33 @@ class OnBoardingViewModel @Inject constructor(
             val result = userRepository.insertUser(user = user)
             when (result) {
                 is Result.Error -> {
-                    Timber.tag("MyTag").e("startTracking: error: ${result.error}")
-                    _state.update { newState->
+                    if(result.error is DataError.Local.Unknown){
+                        Timber.tag("MyTag").e("startTracking: error: ${result.error.unknownError}")
+                    }else{
+                        Timber.tag("MyTag").e("startTracking: error: ${result.error}")
+                    }
+                    _state.update { newState ->
                         newState.copy(isButtonLoading = false)
                     }
                 }
+
                 is Result.Success -> {
                     Timber.tag("MyTag").d("startTracking(): success")
-                    _state.update { newState->
+                    val state = _state.value
+
+                    //default value for username
+                    sessionStorage.setAuthInfo(
+                        authInfo = AuthInfo(
+                            username = state.username,
+                            security = security,
+                            preferencesFormat = preferencesFormat,
+                        )
+                    )
+
+                    _state.update { newState ->
                         newState.copy(isButtonLoading = false)
                     }
+
                     _events.send(OnBoardingEvents.Dashboard)
                 }
             }

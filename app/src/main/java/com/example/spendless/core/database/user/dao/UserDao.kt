@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.database.user.model.Security
 import com.example.spendless.core.database.user.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -18,7 +19,14 @@ interface UserDao {
     @Query("Select pin From User Where username = :username Limit 1 ")
     suspend fun getPinByUsername(username: String): String
 
+    @Query("Select security from User Where username = :username Limit 1")
+    suspend fun getSecurityByUsername(username: String): Security
+
+    @Query("Select preferences from User Where username = :username Limit 1")
+    suspend fun getPreferencesByUsername(username: String): PreferencesFormat
+
     @Query("SELECT * FROM User WHERE username = :username LIMIT 1")
     fun getUserByUsername(username: String): Flow<UserEntity>
+
 
 }

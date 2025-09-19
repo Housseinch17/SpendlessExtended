@@ -3,13 +3,18 @@ package com.example.spendless.features.auth.presentation.ui.logIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
+import com.example.spendless.core.domain.auth.AuthInfo
+import com.example.spendless.core.domain.auth.SessionStorage
+import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.PatternValidator
 import com.example.spendless.features.auth.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +39,8 @@ sealed interface LogInActions {
 
 @HiltViewModel
 class LogInViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val sessionStorage: SessionStorage,
 ) : ViewModel() {
     private val _state = MutableStateFlow(LogInUiState())
     val state = _state.asStateFlow()
@@ -81,7 +87,7 @@ class LogInViewModel @Inject constructor(
     }
 
     private fun logIn() {
-        _state.update { newState->
+        _state.update { newState ->
             newState.copy(
                 isLogInButtonLoading = true
             )
@@ -96,7 +102,7 @@ class LogInViewModel @Inject constructor(
             when (doesUserExist) {
                 is Result.Error -> {
                     Timber.tag("MyTag").e("logIn: error: ${doesUserExist.error}")
-                    _state.update { newState->
+                    _state.update { newState ->
                         newState.copy(
                             isLogInButtonLoading = false
                         )
@@ -108,15 +114,36 @@ class LogInViewModel @Inject constructor(
                     if (doesUserExist.data) {
                         //show circular progress indicator for 1 seconds
                         delay(1.seconds)
-                        _state.update { newState->
+                        _state.update { newState ->
                             newState.copy(
                                 isLogInButtonLoading = false
                             )
                         }
 
-                        verifyPin(username = username, pin = pin) {
-                            _events.send(LogInEvents.NavigateToDashboard(username = username))
+                        //run concurrently(in parallel)
+                        val (security, preferencesFormat) = coroutineScope {
+                            val securityDeferred =
+                                async { userRepository.getSecurityByUsername(username) }
+                            val preferencesDeferred =
+                                async { userRepository.getPreferencesByUsername(username) }
+
+                            // Wait for both in parallel
+                            Pair(securityDeferred.await(), preferencesDeferred.await())
                         }
+                        if (security is Result.Success && preferencesFormat is Result.Success) {
+                            sessionStorage.setAuthInfo(
+                                authInfo = AuthInfo(
+                                    username = username,
+                                    security = security.data,
+                                    preferencesFormat = preferencesFormat.data
+                                )
+                            )
+                            verifyPin(username = username, pin = pin) {
+                                _events.send(LogInEvents.NavigateToDashboard(username = username))
+                            }
+                        }
+
+                        showBanner(bannerText = UiText.StringResource(R.string.failed_to_save_user))
                     } else {
                         showBanner(bannerText = UiText.StringResource(R.string.username_doesnt_exist))
                     }
@@ -130,8 +157,14 @@ class LogInViewModel @Inject constructor(
             val pinByUsername = userRepository.getPinByUsername(username = username)
             when (pinByUsername) {
                 is Result.Error -> {
-                    Timber.tag("MyTag").e("verifyPin: error: ${pinByUsername.error}")
-                    showBanner(bannerText = UiText.DynamicString(pinByUsername.error.toString()))
+                    if (pinByUsername.error is DataError.Local.Unknown) {
+                        Timber.tag("MyTag")
+                            .e("verifyPin: error: ${pinByUsername.error.unknownError}")
+                        showBanner(bannerText = UiText.DynamicString(pinByUsername.error.unknownError))
+                    } else {
+                        Timber.tag("MyTag").e("verifyPin: error: ${pinByUsername.error}")
+                        showBanner(bannerText = UiText.DynamicString(pinByUsername.error.toString()))
+                    }
                 }
 
                 is Result.Success -> {

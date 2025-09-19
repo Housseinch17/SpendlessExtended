@@ -40,22 +40,23 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val mainUiState by mainViewModel.state.collectAsStateWithLifecycle()
-
             navController = rememberNavController()
             navController.restoreState(restoreState)
 
             SpendlessTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-                    NavigationRoot(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        isLoggedInPreviously = mainUiState.isLoggedInPreviously,
-                        navHostController = navController
-                    )
+                if (!mainUiState.isCheckingAuth) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = MaterialTheme.colorScheme.background
+                    ) { innerPadding ->
+                        NavigationRoot(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            isLoggedInPreviously = mainUiState.isLoggedInPreviously,
+                            navHostController = navController
+                        )
+                    }
                 }
             }
         }

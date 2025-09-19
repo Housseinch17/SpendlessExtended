@@ -49,6 +49,6 @@ fun amountFormatter(
 
 fun Int.formatCounter(): String {
     val minutes = this / 60
-    val secs = this % 60   // ✅ works fine with Long
+    val secs = this % 60
     return String.format(Locale.US,"%02d:%02d", minutes, secs)
 }

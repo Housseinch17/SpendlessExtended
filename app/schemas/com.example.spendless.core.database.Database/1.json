@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d38cc3f002b92a96d65c61d3fb2cba4c",
+    "identityHash": "65f37c1895ef0985d5e6ad10cded4dba",
     "entities": [
       {
         "tableName": "User",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`username` TEXT NOT NULL, `pin` TEXT NOT NULL, `total` TEXT NOT NULL, `preferences` TEXT NOT NULL, PRIMARY KEY(`username`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`username` TEXT NOT NULL, `pin` TEXT NOT NULL, `total` TEXT NOT NULL, `preferences` TEXT NOT NULL, `security` TEXT NOT NULL, PRIMARY KEY(`username`))",
         "fields": [
           {
             "fieldPath": "username",
@@ -31,6 +31,12 @@
             "columnName": "preferences",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "security",
+            "columnName": "security",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -43,7 +49,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd38cc3f002b92a96d65c61d3fb2cba4c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '65f37c1895ef0985d5e6ad10cded4dba')"
     ]
   }
 }
