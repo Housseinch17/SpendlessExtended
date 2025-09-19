@@ -214,6 +214,7 @@ fun NavGraphBuilder.authGraph(
 
                     PinEvents.BiometricResult.AuthenticationSuccess -> {
                         Timber.tag("MyTag").d("AuthenticationSuccess")
+                        navHostController.navigateUp()
                     }
 
                     else -> {}

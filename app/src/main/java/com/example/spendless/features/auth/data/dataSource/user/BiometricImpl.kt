@@ -14,6 +14,7 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 
 class BiometricImpl @Inject constructor() : BiometricRepository {
+    lateinit var prompt: BiometricPrompt
     override suspend fun showBiometricPrompt(
         title: UiText,
         subtitle: UiText,
@@ -57,12 +58,15 @@ class BiometricImpl @Inject constructor() : BiometricRepository {
             }
 
             //after being able of using biometric check the result
-            val prompt = BiometricPrompt(
+            prompt = BiometricPrompt(
                 activity,
                 object : BiometricPrompt.AuthenticationCallback() {
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
-                        if (continuation.isActive) continuation.resume(BiometricResult.AuthenticationFailed)
+                        if (continuation.isActive) {
+                            continuation.resume(BiometricResult.AuthenticationFailed)
+                            prompt.cancelAuthentication()
+                        }
                     }
 
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -72,9 +76,10 @@ class BiometricImpl @Inject constructor() : BiometricRepository {
 
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                         super.onAuthenticationError(errorCode, errString)
-                        if (continuation.isActive) continuation.resume(
-                            BiometricResult.AuthenticationError(errString.toString())
-                        )
+                        if (continuation.isActive){
+                            continuation.resume(BiometricResult.AuthenticationError(errString.toString()))
+                            prompt.cancelAuthentication()
+                        }
                     }
                 }
             )

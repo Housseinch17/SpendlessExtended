@@ -10,6 +10,7 @@ import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.core.presentation.ui.formatCounter
 import com.example.spendless.features.auth.domain.BiometricRepository
+import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.auth.presentation.designsystem.Constants.DELETE_CHAR
 import com.example.spendless.features.auth.presentation.designsystem.Constants.FINGERPRINT
 import com.example.spendless.features.auth.presentation.ui.common.PinActions
@@ -33,6 +34,7 @@ import kotlin.time.Duration.Companion.seconds
 class PinPromptViewModel @Inject constructor(
     private val biometricRepository: BiometricRepository,
     private val sessionStorage: SessionStorage,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PinPromptUIState())
     val state = _state.asStateFlow()
@@ -43,6 +45,10 @@ class PinPromptViewModel @Inject constructor(
     private var job: Job? = null
 
     private var counter: Job? = null
+
+    init {
+        setUsername()
+    }
 
     fun onActions(pinActions: PinActions) {
         when (pinActions) {
@@ -58,6 +64,35 @@ class PinPromptViewModel @Inject constructor(
             else -> {}
         }
     }
+
+    private fun setUsername(){
+        viewModelScope.launch {
+            val user = sessionStorage.getAuthInfo()
+            val username = user?.username ?: ""
+
+            val pinResult = userRepository.getPinByUsername(username)
+            when(pinResult){
+                is Result.Error -> {
+                    if(pinResult.error is DataError.Local.Unknown){
+                        showBanner(uiText = UiText.DynamicString(pinResult.error.unknownError))
+                    }else{
+                        showBanner(uiText = UiText.DynamicString(pinResult.error.toString()))
+                    }
+                }
+                is Result.Success -> {
+                    Timber.tag("MyTag").d("authInfo: $username")
+                    _state.update { newState->
+                        newState.copy(
+                            username = username,
+                            headerText = "$username !",
+                            pin = pinResult.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun logOut() {
         _state.update { newState->
@@ -140,6 +175,7 @@ class PinPromptViewModel @Inject constructor(
                 )
                 when (biometricResult) {
                     is PinEvents.BiometricResult.AuthenticationError -> {
+                        Timber.tag("MyTag").e("AuthenticationError")
                         //biometric error, increment biometric counter
                         incrementBiometricCounter()
                         showBanner(
@@ -154,6 +190,7 @@ class PinPromptViewModel @Inject constructor(
                     }
 
                     PinEvents.BiometricResult.AuthenticationFailed -> {
+                        Timber.tag("MyTag").e("AuthenticationFailed")
                         //biometric error, increment biometric counter
                         incrementBiometricCounter()
                         showBanner(

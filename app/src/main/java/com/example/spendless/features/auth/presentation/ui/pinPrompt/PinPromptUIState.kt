@@ -6,7 +6,7 @@ import com.example.spendless.features.auth.presentation.ui.common.BasePinUiState
 import com.example.spendless.R
 
 data class PinPromptUIState(
-    override val username: String = "rockefeller74",
+    override val username: String = "",
     val pin: String = "",
     val pinPromptPin: String = "",
     private val _withBiometric: Boolean = true,
@@ -17,7 +17,7 @@ data class PinPromptUIState(
     val counterPerTimeUnit: CounterPerTimeUnit = CounterPerTimeUnit(),
 
     val headerUiText: UiText = UiText.StringResource(R.string.hello),
-    val headerText: String? = "$username!",
+    val headerText: String? = "",
     val bodyUiText: UiText = UiText.StringResource(R.string.enter_your_pin),
 
     val counter: String? = null,
