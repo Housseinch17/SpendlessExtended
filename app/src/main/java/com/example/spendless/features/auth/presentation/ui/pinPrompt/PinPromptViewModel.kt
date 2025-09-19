@@ -9,6 +9,7 @@ import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.core.presentation.ui.formatCounter
+import com.example.spendless.features.auth.data.model.CounterPerTimeUnit
 import com.example.spendless.features.auth.domain.BiometricRepository
 import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.auth.presentation.designsystem.Constants.DELETE_CHAR
@@ -69,6 +70,7 @@ class PinPromptViewModel @Inject constructor(
         viewModelScope.launch {
             val user = sessionStorage.getAuthInfo()
             val username = user?.username ?: ""
+            val counterPerTimeUnit = user?.security?.lockedOutDuration ?: CounterPerTimeUnit()
 
             val pinResult = userRepository.getPinByUsername(username)
             when(pinResult){
@@ -85,7 +87,8 @@ class PinPromptViewModel @Inject constructor(
                         newState.copy(
                             username = username,
                             headerText = "$username !",
-                            pin = pinResult.data
+                            pin = pinResult.data,
+                            counterPerTimeUnit = counterPerTimeUnit
                         )
                     }
                 }
