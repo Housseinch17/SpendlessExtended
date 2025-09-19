@@ -160,7 +160,7 @@ fun NavGraphBuilder.authGraph(
                 when (events) {
                     is OnBoardingEvents.Dashboard -> navHostController.navigate(
                         NavigationScreens.Dashboard
-                    ) {g
+                    ) {
                         //remove all backstack, keep Dashboard only
                         popUpTo(0) {
                             inclusive = true
