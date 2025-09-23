@@ -111,4 +111,8 @@ dependencies {
     implementation(libs.androidx.biometric)
     //AppCompactActivity
     implementation(libs.androidx.appcompat)
+
+    //Date Time for kotlin
+    implementation (libs.kotlinx.datetime)
+
 }

@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.createPin
+package com.example.spendless.features.auth.presentation.ui.screens.createPin
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

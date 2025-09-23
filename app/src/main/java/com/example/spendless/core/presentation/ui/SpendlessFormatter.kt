@@ -1,26 +1,24 @@
 package com.example.spendless.core.presentation.ui
 
+import com.example.spendless.core.database.user.model.PreferencesFormat
 import java.util.Locale
 
 
 fun amountFormatter(
     total: String,
-    currencySymbol: String,
-    expensesFormat: String,
-    decimalSeparatorFormat: String,
-    thousandsSeparatorFormat: String
+    preferencesFormat: PreferencesFormat
 ): String {
     //Parse total as Long
     val totalLong = total.toLongOrNull() ?: 0L
 
     //Determine decimal separator: "1.00" -> ".", "1,00" -> ","
-    val decimalSeparator = if (decimalSeparatorFormat.contains(",")) "," else "."
+    val decimalSeparator = if (preferencesFormat.decimalSeparator.contains(",")) "," else "."
 
     //Determine thousands separator
     val thousandsSeparator = when {
-        thousandsSeparatorFormat.contains(".") -> "."
-        thousandsSeparatorFormat.contains(",") -> ","
-        thousandsSeparatorFormat.contains(" ") -> " "
+        preferencesFormat.thousandsSeparator.contains(".") -> "."
+        preferencesFormat.thousandsSeparator.contains(",") -> ","
+        preferencesFormat.thousandsSeparator.contains(" ") -> " "
         else -> ","
     }
 
@@ -37,12 +35,12 @@ fun amountFormatter(
     val formattedNumber = "$formattedInteger$decimalSeparator$decimalPart"
 
     //Add currency symbol
-    val withCurrency = "$currencySymbol$formattedNumber"
+    val withCurrency = "${preferencesFormat.currency.symbol}$formattedNumber"
 
     //Apply expenses format
     return when {
-        expensesFormat.startsWith("-") -> "-$withCurrency"
-        expensesFormat.startsWith("(") -> "($withCurrency)"
+        preferencesFormat.expenses.startsWith("-") -> "-$withCurrency"
+        preferencesFormat.expenses.startsWith("(") -> "($withCurrency)"
         else -> withCurrency
     }
 }

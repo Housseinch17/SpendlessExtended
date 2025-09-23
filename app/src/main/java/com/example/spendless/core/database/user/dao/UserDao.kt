@@ -19,6 +19,9 @@ interface UserDao {
     @Query("Select pin From User Where username = :username Limit 1 ")
     suspend fun getPinByUsername(username: String): String
 
+    @Query("Select total From User Where username = :username Limit 1")
+    suspend fun getTotalByUsername(username: String): String
+
     @Query("Select security from User Where username = :username Limit 1")
     suspend fun getSecurityByUsername(username: String): Security
 

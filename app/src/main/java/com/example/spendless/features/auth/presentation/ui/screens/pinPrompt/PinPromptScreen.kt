@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.pinPrompt
+package com.example.spendless.features.auth.presentation.ui.screens.pinPrompt
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box

@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.pinPrompt
+package com.example.spendless.features.auth.presentation.ui.screens.pinPrompt
 
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.data.model.CounterPerTimeUnit

@@ -3,6 +3,7 @@ package com.example.spendless.core.data.constant
 import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.database.user.model.Currency
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
+import com.example.spendless.features.finance.data.model.CategoryItem
 
 object Constants {
     val currenciesList = listOf<Currency>(
@@ -15,28 +16,28 @@ object Constants {
 
     val categoriesList = listOf<Category>(
         Category(
-            icon = SpendLessIcons.Clothing,
-            categoryName = "Clothing"
+            image = SpendLessIcons.Food,
+            categoryName = CategoryItem.Food
         ),
         Category(
-            icon = SpendLessIcons.Accessories,
-            categoryName = "Accessories"
+            image = SpendLessIcons.Clothing,
+            categoryName = CategoryItem.Clothing
         ),
         Category(
-            icon = SpendLessIcons.Health,
-            categoryName = "Health"
+            image = SpendLessIcons.Accessories,
+            categoryName = CategoryItem.Accessories
         ),
         Category(
-            icon = SpendLessIcons.Food,
-            categoryName = "Food"
+            image = SpendLessIcons.Health,
+            categoryName = CategoryItem.Health
         ),
         Category(
-            icon = SpendLessIcons.Entertainment,
-            categoryName = "Entertainment"
+            image = SpendLessIcons.Entertainment,
+            categoryName = CategoryItem.Entertainment
         ),
         Category(
-            icon = SpendLessIcons.Education,
-            categoryName = "Education"
+            image = SpendLessIcons.Education,
+            categoryName = CategoryItem.Education
         )
     )
 

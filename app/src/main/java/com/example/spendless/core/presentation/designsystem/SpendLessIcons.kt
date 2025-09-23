@@ -86,10 +86,6 @@ object SpendLessIcons {
         @Composable
         get() = ImageVector.vectorResource(R.drawable.account_balance_wallet)
 
-    val FAB: ImageVector
-        @Composable
-        get() = ImageVector.vectorResource(R.drawable.floatingbutton)
-
     val EllipseOff: ImageVector
         @Composable
         get() = ImageVector.vectorResource(R.drawable.ellipse_off)
@@ -101,6 +97,10 @@ object SpendLessIcons {
     val HeaderImage: ImageVector
         @Composable
         get() = ImageVector.vectorResource(R.drawable.header_image)
+
+    val Vector: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(R.drawable.vector)
 
     val Clothing: Int = R.drawable.clothing
 

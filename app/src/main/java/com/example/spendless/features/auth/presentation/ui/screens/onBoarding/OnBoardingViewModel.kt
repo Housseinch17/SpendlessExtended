@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.onBoarding
+package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 
 sealed interface OnBoardingEvents {
     data object NavigateBack : OnBoardingEvents
-    data object Dashboard : OnBoardingEvents
+    data class Dashboard(val username: String) : OnBoardingEvents
 }
 
 sealed interface OnBoardingActions {
@@ -182,7 +182,7 @@ class OnBoardingViewModel @Inject constructor(
                         newState.copy(isButtonLoading = false)
                     }
 
-                    _events.send(OnBoardingEvents.Dashboard)
+                    _events.send(OnBoardingEvents.Dashboard(username = username))
                 }
             }
         }

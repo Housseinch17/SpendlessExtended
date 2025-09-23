@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.onBoarding
+package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween

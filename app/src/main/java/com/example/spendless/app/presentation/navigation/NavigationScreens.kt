@@ -4,6 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface NavigationScreens {
+
+    //Auth Graph
     @Serializable
     data object Register: NavigationScreens
 
@@ -22,6 +24,7 @@ sealed interface NavigationScreens {
     @Serializable
     data object PinPrompt: NavigationScreens
 
+    //Finance Graph
     @Serializable
     data object Dashboard: NavigationScreens
 
@@ -30,4 +33,5 @@ sealed interface NavigationScreens {
 
     @Serializable
     data object Settings: NavigationScreens
+
 }

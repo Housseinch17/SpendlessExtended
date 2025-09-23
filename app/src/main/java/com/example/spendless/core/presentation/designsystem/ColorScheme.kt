@@ -60,6 +60,10 @@ val ColorScheme.onPrimaryOpacity12: Color
     @Composable
     get() = OnPrimaryOpacity12
 
+val ColorScheme.onPrimaryOpacity20: Color
+    @Composable
+    get() = OnPrimaryOpacity20
+
 val ColorScheme.onBackgroundOpacity8: Color
     @Composable
     get() = OnBackgroundOpacity8

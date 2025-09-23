@@ -57,6 +57,27 @@
     <string name="biometric_auth_failed">Not recognized. Try again.</string>
     <string name="biometric_auth_error">Authentication error: %1$s.</string>
     <string name="failed_to_save_user">Failed to save user!</string>
+    <string name="export_data">Export data</string>
+    <string name="settings">Settings</string>
+    <string name="account_balance">Account Balance</string>
+    <string name="clothing">Clothing</string>
+    <string name="accessories">Accessories</string>
+    <string name="health"><![CDATA[Health & Wellnes]]></string>
+    <string name="food"><![CDATA[Food & Groceries]]></string>
+    <string name="entertainment">Entertainment</string>
+    <string name="education">Education</string>
+    <string name="most_popular_category">Most popular category</string>
+    <string name="create_transaction">Create Transaction!</string>
+    <string name="latest_transactions">Latest Transactions</string>
+    <string name="show_all">Show all</string>
+    <string name="vector">Vector</string>
+    <string name="money">Money</string>
+    <string name="no_transactions_to_show">No transactions to show</string>
+    <string name="previous_week">Previous week</string>
+    <string name="largest_transaction">Largest transaction</string>
+    <string name="your_largest_transaction_will_appear_here">Your largest transaction will appear here</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
 
 
 </resources>

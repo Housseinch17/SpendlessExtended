@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.repeatPin
+package com.example.spendless.features.auth.presentation.ui.screens.repeatPin
 
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.presentation.ui.common.BasePinUiState

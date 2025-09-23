@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.logIn
+package com.example.spendless.features.auth.presentation.ui.screens.logIn
 
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.PatternValidator

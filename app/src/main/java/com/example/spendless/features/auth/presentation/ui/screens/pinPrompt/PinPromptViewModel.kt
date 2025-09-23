@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.pinPrompt
+package com.example.spendless.features.auth.presentation.ui.screens.pinPrompt
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
@@ -205,20 +205,24 @@ class PinPromptViewModel @Inject constructor(
                     }
 
                     PinEvents.BiometricResult.AuthenticationNotSet -> {
+                        Timber.tag("MyTag").e("AuthenticationNotSet")
                         _events.send(PinEvents.BiometricResult.AuthenticationNotSet)
                     }
 
                     PinEvents.BiometricResult.AuthenticationSuccess -> {
+                        Timber.tag("MyTag").d("AuthenticationSuccess")
                         _events.send(PinEvents.BiometricResult.AuthenticationSuccess)
                     }
 
                     PinEvents.BiometricResult.FeatureUnavailable -> {
+                        Timber.tag("MyTag").e("FeatureUnavailable")
                         showBanner(
                             uiText = UiText.StringResource(R.string.biometric_error_no_hardware)
                         )
                     }
 
                     PinEvents.BiometricResult.HardwareUnavailable -> {
+                        Timber.tag("MyTag").e("HardwareUnavailable")
                         showBanner(
                             uiText = UiText.StringResource(R.string.biometric_error_hw_unavailable)
                         )

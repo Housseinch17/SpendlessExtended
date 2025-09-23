@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.createPin
+package com.example.spendless.features.auth.presentation.ui.screens.createPin
 
 import com.example.spendless.features.auth.presentation.ui.common.BasePinUiState
 

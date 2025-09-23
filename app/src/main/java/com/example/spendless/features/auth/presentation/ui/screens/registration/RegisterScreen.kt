@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.registration
+package com.example.spendless.features.auth.presentation.ui.screens.registration
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

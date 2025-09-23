@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.example.spendless.features.auth.presentation.designsystem.Constants.FINGERPRINT
 import com.example.spendless.features.auth.presentation.ui.common.PinActions
 import com.example.spendless.features.auth.presentation.ui.common.BasePinUiState
-import com.example.spendless.features.auth.presentation.ui.pinPrompt.PinPromptUIState
+import com.example.spendless.features.auth.presentation.ui.screens.pinPrompt.PinPromptUIState
 
 @SuppressLint("ContextCastToActivity")
 @Composable

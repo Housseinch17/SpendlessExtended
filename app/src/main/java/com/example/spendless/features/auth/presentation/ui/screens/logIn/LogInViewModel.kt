@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.logIn
+package com.example.spendless.features.auth.presentation.ui.screens.logIn
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -145,6 +145,11 @@ class LogInViewModel @Inject constructor(
 
                         showBanner(bannerText = UiText.StringResource(R.string.failed_to_save_user))
                     } else {
+                        _state.update { newState ->
+                            newState.copy(
+                                isLogInButtonLoading = false
+                            )
+                        }
                         showBanner(bannerText = UiText.StringResource(R.string.username_doesnt_exist))
                     }
                 }

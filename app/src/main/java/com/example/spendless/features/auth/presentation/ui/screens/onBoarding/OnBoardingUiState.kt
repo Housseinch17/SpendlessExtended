@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.onBoarding
+package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 
 import com.example.spendless.core.data.constant.Constants
 import com.example.spendless.core.database.user.model.Currency
@@ -15,10 +15,7 @@ data class OnBoardingUiState(
     val isButtonLoading: Boolean = false
 ) {
     val amountSpent: String = amountFormatter(
-            total = total,
-            currencySymbol = preferencesFormat.currency.symbol,
-            expensesFormat = preferencesFormat.expenses,
-            decimalSeparatorFormat = preferencesFormat.decimalSeparator,
-            thousandsSeparatorFormat = preferencesFormat.thousandsSeparator
-        )
+        total = total,
+        preferencesFormat = preferencesFormat,
+    )
 }

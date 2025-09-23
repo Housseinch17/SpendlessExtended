@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.logIn
+package com.example.spendless.features.auth.presentation.ui.screens.logIn
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column

@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.registration
+package com.example.spendless.features.auth.presentation.ui.screens.registration
 
 import com.example.spendless.core.presentation.ui.UiText
 

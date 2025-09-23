@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.createPin
+package com.example.spendless.features.auth.presentation.ui.screens.createPin
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth

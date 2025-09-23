@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.presentation.ui.repeatPin
+package com.example.spendless.features.auth.presentation.ui.screens.repeatPin
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
