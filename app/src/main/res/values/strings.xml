@@ -67,7 +67,7 @@
     <string name="entertainment">Entertainment</string>
     <string name="education">Education</string>
     <string name="most_popular_category">Most popular category</string>
-    <string name="create_transaction">Create Transaction!</string>
+    <string name="create_transaction">Create Transaction</string>
     <string name="latest_transactions">Latest Transactions</string>
     <string name="show_all">Show all</string>
     <string name="vector">Vector</string>
@@ -78,6 +78,23 @@
     <string name="your_largest_transaction_will_appear_here">Your largest transaction will appear here</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
+    <string name="navigate_back">Navigate Back</string>
+    <string name="all_transactions">All Transactions</string>
+    <string name="close">Close</string>
+    <string name="trendingDown">TrendingDown</string>
+    <string name="trendingUp">TrendingUp</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="receiver">Receiver</string>
+    <string name="sender">Sender</string>
+    <string name="add">Add</string>
+    <string name="add_note">Add Note</string>
+    <string name="does_not_repeat">"Does not repeat "</string>
+    <string name="daily">Daily</string>
+    <string name="weekly_on">Weekly on</string>
+    <string name="monthly_on_the">Monthly on the</string>
+    <string name="yearly_on">Yearly on</string>
+    <string name="create">Create</string>
 
 
 </resources>

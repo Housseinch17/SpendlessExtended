@@ -113,4 +113,6 @@ object SpendLessIcons {
     val Entertainment: Int = R.drawable.entertainment
 
     val Education: Int = R.drawable.education
+
+    val Recurrence: Int = R.drawable.recurrence
 }

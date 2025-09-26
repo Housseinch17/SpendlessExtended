@@ -4,6 +4,7 @@ import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.database.user.model.Currency
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
 import com.example.spendless.features.finance.data.model.CategoryItem
+import com.example.spendless.features.finance.data.model.PaymentRecurrence
 
 object Constants {
     val currenciesList = listOf<Currency>(
@@ -15,6 +16,10 @@ object Constants {
     )
 
     val categoriesList = listOf<Category>(
+        Category(
+            image = SpendLessIcons.Entertainment,
+            categoryName = CategoryItem.Entertainment
+        ),
         Category(
             image = SpendLessIcons.Food,
             categoryName = CategoryItem.Food
@@ -30,10 +35,6 @@ object Constants {
         Category(
             image = SpendLessIcons.Health,
             categoryName = CategoryItem.Health
-        ),
-        Category(
-            image = SpendLessIcons.Entertainment,
-            categoryName = CategoryItem.Entertainment
         ),
         Category(
             image = SpendLessIcons.Education,
@@ -55,5 +56,13 @@ object Constants {
         "1.000",
         "1,000",
         "1 000"
+    )
+
+    val paymentRecurrenceList = listOf<PaymentRecurrence>(
+        PaymentRecurrence.DoesNotRepeat,
+        PaymentRecurrence.Daily,
+        PaymentRecurrence.WeeklyOn,
+        PaymentRecurrence.MonthlyOnThe,
+        PaymentRecurrence.YearlyOnFeb
     )
 }

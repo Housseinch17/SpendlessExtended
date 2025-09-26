@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,19 +15,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +49,7 @@ import com.example.spendless.core.presentation.designsystem.secondaryFixed
 import com.example.spendless.core.presentation.designsystem.secondaryFixedDim
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.finance.data.model.TransactionItem
-import timber.log.Timber
+import com.example.spendless.features.finance.presentation.designsystem.components.TransactionsList
 
 @Composable
 fun DashboardScreen(
@@ -95,16 +91,17 @@ fun DashboardScreen(
             floatingActionButton = {
                 FloatingActionButton(
                     modifier = Modifier.size(64.dp),
+                    onClick = {
+                        dashboardActions(DashboardActions.CreateNewTransaction(true))
+                    },
                     shape = MaterialTheme.shapes.medium,
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    onClick = {
-                        Timber.tag("MyTag").d("floating clicked!")
-                    },
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ) {
                     Icon(
                         imageVector = SpendLessIcons.Add,
                         contentDescription = stringResource(R.string.create_transaction),
-                        tint = Color.Unspecified
+                        tint = LocalContentColor.current
                     )
                 }
             }
@@ -129,7 +126,9 @@ fun DashboardScreen(
 
                 DashboardBottom(
                     modifier = Modifier.weight(1f),
-                    onShowAllClick = {},
+                    onShowAllClick = {
+                        dashboardActions(DashboardActions.ShowAll)
+                    },
                     transactionsByDate = dashboardUiState.transactionsByDate,
                     selectedTransactionItem = dashboardUiState.selectedTransaction,
                     onSelectTransaction = { transactionItem ->
@@ -405,8 +404,6 @@ fun DashboardBottom(
     selectedTransactionItem: TransactionItem,
     onSelectTransaction: (TransactionItem) -> Unit
 ) {
-    val state = rememberLazyListState()
-
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -415,72 +412,14 @@ fun DashboardBottom(
         ),
     ) {
         if (!transactionsByDate.isEmpty()) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 12.dp),
-                state = state,
-                contentPadding = PaddingValues(bottom = 16.dp),
-            ) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = stringResource(R.string.latest_transactions),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-
-                        TextButton(
-                            modifier = Modifier,
-                            onClick = onShowAllClick
-                        ) {
-                            Text(
-                                modifier = Modifier,
-                                text = stringResource(R.string.show_all),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            )
-                        }
-                    }
-                }
-
-                transactionsByDate.forEach { date, transactionList ->
-                    item {
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp),
-                            text = date.asString(),
-                            style = MaterialTheme.typography.bodyXSmall.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                    }
-
-                    items(transactionList) { transactionItem ->
-                        TransactionItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 12.dp),
-                            transactionItem = transactionItem,
-                            selectedTransactionItem = selectedTransactionItem,
-                            onClick = {
-                                onSelectTransaction(transactionItem)
-                            }
-
-                        )
-                    }
-                }
-
-            }
+            TransactionsList(
+                modifier = Modifier,
+                onShowAllClick = onShowAllClick,
+                showTransactionText = true,
+                transactionsByDate = transactionsByDate,
+                selectedTransactionItem = selectedTransactionItem,
+                onSelectTransaction = onSelectTransaction
+            )
         } else {
             Box(
                 modifier = Modifier.fillMaxSize(),

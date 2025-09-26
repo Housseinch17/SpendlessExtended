@@ -23,12 +23,16 @@ import javax.inject.Inject
 sealed interface DashboardEvents {
     data object NavigateToExportData : DashboardEvents
     data object NavigateToSettings : DashboardEvents
+    data object NavigateToTransactions: DashboardEvents
+    data object NavigateToCreateTransactions: DashboardEvents
 }
 
 sealed interface DashboardActions {
     data object NavigateToExportData : DashboardActions
     data object NavigateToSettings : DashboardActions
     data class SelectedTransaction(val selectedTransactionItem: TransactionItem): DashboardActions
+    data object ShowAll: DashboardActions
+    data class CreateNewTransaction(val showBottomBar: Boolean): DashboardActions
 }
 
 @HiltViewModel
@@ -72,7 +76,9 @@ class DashboardViewModel @Inject constructor(
         when (dashboardActions) {
             DashboardActions.NavigateToExportData -> navigateToExportData()
             DashboardActions.NavigateToSettings -> navigateToSettings()
+            DashboardActions.ShowAll -> navigateToTransactions()
             is DashboardActions.SelectedTransaction -> setSelectedTransaction(dashboardActions.selectedTransactionItem)
+            is DashboardActions.CreateNewTransaction -> navigateToCreateTransactions()
         }
     }
 
@@ -129,6 +135,17 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    private fun navigateToCreateTransactions(){
+        viewModelScope.launch {
+            _events.send(DashboardEvents.NavigateToCreateTransactions)
+        }
+    }
+
+    private fun navigateToTransactions(){
+        viewModelScope.launch {
+            _events.send((DashboardEvents.NavigateToTransactions))
+        }
+    }
     private fun navigateToSettings() {
         viewModelScope.launch {
             _events.send(DashboardEvents.NavigateToSettings)

@@ -13,6 +13,9 @@ import androidx.compose.runtime.getValue
 import com.example.spendless.core.presentation.ui.ObserveAsEvents
 import com.example.spendless.features.finance.presentation.ui.screens.dashboard.DashboardEvents
 import com.example.spendless.features.finance.presentation.ui.screens.dashboard.DashboardUiState
+import com.example.spendless.features.finance.presentation.ui.screens.transactions.TransactionsEvents
+import com.example.spendless.features.finance.presentation.ui.screens.transactions.TransactionsScreen
+import com.example.spendless.features.finance.presentation.ui.screens.transactions.TransactionsViewModel
 
 fun NavGraphBuilder.financeGraph(
     modifier: Modifier = Modifier,
@@ -25,14 +28,22 @@ fun NavGraphBuilder.financeGraph(
                 initialValue = DashboardUiState()
             )
 
-            ObserveAsEvents(dashboardViewModel.events) { events->
-                when(events){
+            ObserveAsEvents(dashboardViewModel.events) { events ->
+                when (events) {
                     DashboardEvents.NavigateToExportData -> {
                         navHostController.navigate(NavigationScreens.Transactions)
                     }
+
                     DashboardEvents.NavigateToSettings -> {
                         navHostController.navigate(NavigationScreens.Settings)
                     }
+
+                    DashboardEvents.NavigateToTransactions -> {
+                        navHostController.navigate(NavigationScreens.Transactions(showBottomSheet = false))
+                    }
+
+                    is DashboardEvents.NavigateToCreateTransactions ->
+                        navHostController.navigate(NavigationScreens.Transactions(true))
                 }
             }
 
@@ -44,7 +55,20 @@ fun NavGraphBuilder.financeGraph(
         }
 
         composable<NavigationScreens.Transactions> {
+            val transactionsViewModel = hiltViewModel<TransactionsViewModel>()
+            val transactionsUiState by transactionsViewModel.state.collectAsStateWithLifecycle()
 
+            ObserveAsEvents(transactionsViewModel.events) { events ->
+                when (events) {
+                    TransactionsEvents.NavigateBack -> navHostController.navigateUp()
+                }
+            }
+
+            TransactionsScreen(
+                modifier = modifier,
+                transactionsUiState = transactionsUiState,
+                transactionsActions = transactionsViewModel::onActions
+            )
         }
 
         composable<NavigationScreens.Settings> {

@@ -8,7 +8,7 @@ import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
-import com.example.spendless.features.auth.domain.PatternValidator
+import com.example.spendless.core.domain.PatternValidator
 import com.example.spendless.features.auth.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job

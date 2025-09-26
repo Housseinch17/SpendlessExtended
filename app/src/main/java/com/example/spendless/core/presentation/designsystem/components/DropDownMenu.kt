@@ -113,7 +113,7 @@ fun <T> DropDownMenu(
                 ExposedDropdownMenu(
                     modifier = Modifier.clip(shape = MaterialTheme.shapes.medium),
                     expanded = isExpanded,
-                    onDismissRequest = {},
+                    onDismissRequest = closeExpand,
                     scrollState = scrollState,
                     matchTextFieldWidth = true,
                     shape = MaterialTheme.shapes.medium,

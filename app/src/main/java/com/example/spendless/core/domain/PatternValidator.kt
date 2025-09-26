@@ -1,8 +1,7 @@
-package com.example.spendless.features.auth.domain
+package com.example.spendless.core.domain
 
-import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.R
-import timber.log.Timber
+import com.example.spendless.core.presentation.ui.UiText
 
 object PatternValidator {
     val usernameRegex = "^[A-Za-z0-9]{3,14}$".toRegex()

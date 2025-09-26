@@ -6,7 +6,7 @@ import com.example.spendless.R
 import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
-import com.example.spendless.features.auth.domain.PatternValidator
+import com.example.spendless.core.domain.PatternValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
