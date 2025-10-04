@@ -58,8 +58,7 @@ class DashboardViewModel @Inject constructor(
                 setUsername()
                 setPreferencesFormat()
                 combineFlows()
-            } catch (e: Exception) {
-                Timber.tag("MyTag").e("onStart DashboardViewModel $e ${e.localizedMessage}")
+            } catch (_: Exception) {
                 hideLoader()
             }
         }
@@ -112,7 +111,7 @@ class DashboardViewModel @Inject constructor(
             }
             //map the date with their lists for example 9/10/2024 should have a list with key 9/10/2024 and value
             //all the transactionItems at this date
-            val groupTransactions = groupTransactionsByDate(transactions = transactionMap)
+            val groupTransactions = groupTransactionsByDate(transactions = transactionMap, showAllDates = false)
 
             Pair(uiState, groupTransactions)
         }.collect { (uiState, groupTransactions) ->
@@ -222,7 +221,6 @@ class DashboardViewModel @Inject constructor(
                 content = state.bottomSheetUiState.noteValue,
                 image = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.image else R.drawable.accessories
             )
-            Timber.tag("MyTag").d("onCreateClick $transactionItem")
             val result = transactionsRepository.insertTransaction(transactionItem)
             when (result) {
                 is Result.Error -> Timber.tag("MyTag").d("onCreateClick error: ${result.error}")
@@ -240,11 +238,13 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun onCreateLoading(onCreateLoading: Boolean){
-        _state.update { newState->
-            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(
-                isOnCreateLoading = onCreateLoading
-            ))
+    private fun onCreateLoading(onCreateLoading: Boolean) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    isOnCreateLoading = onCreateLoading
+                )
+            )
         }
     }
 
@@ -327,14 +327,18 @@ class DashboardViewModel @Inject constructor(
             val username = sessionStorage.getAuthInfo()!!.username
             val result = userRepository.getPreferencesByUsername(username)
             if (result is Result.Success) {
-                _state.update { newState ->
-                    newState.copy(
-                        bottomSheetUiState = newState.bottomSheetUiState.copy(
-                            preferencesFormat = result.data,
-                        )
-                    )
-                }
-                Timber.tag("MyTag").d("preferences: ${result.data}")
+                val preferences = result.data
+                transactionsRepository.getTotalSpentPreviousWeek(preferences)
+                    .collect { totalSpentPreviousWeek ->
+                        _state.update { newState ->
+                            newState.copy(
+                                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                                    preferencesFormat = preferences,
+                                ),
+                                previousWeekSpent = totalSpentPreviousWeek
+                            )
+                        }
+                    }
             }
         }
     }

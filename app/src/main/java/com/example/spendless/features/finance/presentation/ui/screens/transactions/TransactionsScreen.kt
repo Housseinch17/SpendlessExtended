@@ -71,7 +71,7 @@ fun TransactionsScreen(
                 .fillMaxWidth()
                 .padding(innerPadding),
             showTransactionText = false,
-            transactionsByDate = transactionsUiState.bottomSheetUiState.transactionsByDate,
+            transactionsByDate = transactionsUiState.transactionsByDate,
             selectedTransactionItem = transactionsUiState.bottomSheetUiState.selectedTransactionItem,
             onSelectTransaction = { transactionItem ->
                 transactionsActions(SharedActions.SelectedTransaction(transactionItem))

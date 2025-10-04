@@ -1,8 +1,10 @@
 package com.example.spendless.features.finance.data.datasource
 
+import com.example.spendless.core.database.user.model.PreferencesFormat
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
+import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.database.dao.TransactionDao
 import com.example.spendless.features.finance.database.mapper.toTransactionEntity
@@ -13,6 +15,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 class TransactionsImpl @Inject constructor(
@@ -75,4 +85,36 @@ class TransactionsImpl @Inject constructor(
             }
             emptyFlow()
         }
+
+    override suspend fun getTotalSpentPreviousWeek(preferencesFormat: PreferencesFormat): Flow<String> {
+        val username = sessionStorage.getAuthInfo()!!.username
+        return transactionDao.getAllTransactions(username)
+            .map { list ->
+                val transactions = list.orEmpty().map { it.toTransactionItem() }
+                val (start, end) = previousWeekRange()
+                val total = transactions
+                    .filter { it.isExpense }
+                    .mapNotNull { transactionItem ->
+                        val date = transactionItem.date.takeIf { it.isNotEmpty() }?.let { LocalDate.parse(it) }
+                        if (date != null && date in start..end) transactionItem.price.toDoubleOrNull() else null
+                    }
+                    .sumOf { it }
+                amountFormatter(total.toString(), preferencesFormat = preferencesFormat)
+            }
+    }
+
+
+    private fun previousWeekRange(
+        today: LocalDate = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault()).date
+    ): Pair<LocalDate, LocalDate> {
+        //Monday = 1, Tuesday = 2,... Sunday = 7
+        val dayOfWeek = today.dayOfWeek.isoDayNumber
+
+        val startOfCurrentWeek = today.minus(dayOfWeek - 1, DateTimeUnit.DAY)
+        val startOfPreviousWeek = startOfCurrentWeek.minus(7, DateTimeUnit.DAY)
+        val endOfPreviousWeek = startOfPreviousWeek.plus(6, DateTimeUnit.DAY)
+
+        return startOfPreviousWeek to endOfPreviousWeek
+    }
 }

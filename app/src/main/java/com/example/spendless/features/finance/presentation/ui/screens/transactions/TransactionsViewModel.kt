@@ -9,11 +9,13 @@ import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.domain.PatternValidator
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.Result
+import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.domain.TransactionsRepository
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions
+import com.example.spendless.features.finance.presentation.ui.common.groupTransactionsByDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +46,10 @@ class TransactionsViewModel @Inject constructor(
     val events = _events.receiveAsFlow()
 
     init {
-        setPreferencesFormat()
+        viewModelScope.launch {
+            setPreferencesFormat()
+            getAllTransactions()
+        }
     }
 
     fun onActions(transactionsActions: SharedActions) {
@@ -87,9 +92,52 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
+    private suspend fun setPreferencesFormat() {
+        val username = sessionStorage.getAuthInfo()!!.username
+        val result = userRepository.getPreferencesByUsername(username)
+        if (result is Result.Success) {
+            _state.update { newState ->
+                newState.copy(
+                    bottomSheetUiState = newState.bottomSheetUiState.copy(
+                        preferencesFormat = result.data,
+                    )
+                )
+            }
+            Timber.tag("MyTag").d("preferences: ${result.data}")
+        }
+    }
+
+    private suspend fun getAllTransactions() {
+        val transactionsList = transactionsRepository.getAllTransactions()
+        transactionsList.collect { transactionsList ->
+            val transactionMap = transactionsList.map {
+                it.copy(
+                    price = amountFormatter(
+                        total = it.price,
+                        isExpense = it.isExpense,
+                        preferencesFormat = _state.value.bottomSheetUiState.preferencesFormat
+                    )
+                )
+            }
+            //map the date with their lists for example 9/10/2024 should have a list with key 9/10/2024 and value
+            //all the transactionItems at this date
+            val groupTransactions = groupTransactionsByDate(transactions = transactionMap, showAllDates = true)
+            _state.update { newState ->
+                newState.copy(
+                    bottomSheetUiState = newState.bottomSheetUiState.copy(listOfTransactions = transactionsList),
+                    transactionsByDate = groupTransactions
+                )
+            }
+        }
+    }
+
     private fun showFloatingActionButton(isVisible: Boolean) {
         _state.update { newState ->
-            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(isFloatingActionButtonVisible = isVisible))
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    isFloatingActionButtonVisible = isVisible
+                )
+            )
         }
     }
 
@@ -130,18 +178,22 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private fun onCreateLoading(onCreateLoading: Boolean){
-        _state.update { newState->
-            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(
-                isOnCreateLoading = onCreateLoading
-            ))
+    private fun onCreateLoading(onCreateLoading: Boolean) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    isOnCreateLoading = onCreateLoading
+                )
+            )
         }
     }
 
     private fun updateDropDownPaymentRecurrenceExpand(isExpand: Boolean) {
         _state.update { newState ->
             newState.copy(
-                bottomSheetUiState = newState.bottomSheetUiState.copy(isDropDownPaymentRecurrenceExpand = isExpand)
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    isDropDownPaymentRecurrenceExpand = isExpand
+                )
             )
         }
     }
@@ -179,14 +231,18 @@ class TransactionsViewModel @Inject constructor(
     }
 
     private fun updateAmountTextFieldValue(amountTextFieldValue: TextFieldValue) {
-        if(!(amountTextFieldValue.text.startsWith("0"))) {
+        if (!(amountTextFieldValue.text.startsWith("0"))) {
             //to not use the format and only digits and only 8 length
             val digitsOnly = amountTextFieldValue.text.filter { it.isDigit() }.take(8)
             //set textField cursor to the end
             val textFieldValue =
                 TextFieldValue(text = digitsOnly, selection = TextRange(digitsOnly.length))
             _state.update { newState ->
-                newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(amountTextFieldValue = textFieldValue))
+                newState.copy(
+                    bottomSheetUiState = newState.bottomSheetUiState.copy(
+                        amountTextFieldValue = textFieldValue
+                    )
+                )
             }
         }
     }
@@ -198,28 +254,11 @@ class TransactionsViewModel @Inject constructor(
         _state.update { newState ->
             newState.copy(
                 bottomSheetUiState = newState.bottomSheetUiState.copy(
-                textFieldValue = textFieldValue,
-                isTextFieldError = (!isTextFieldValid && !textFieldValue.isEmpty()),
-                textFieldError = textFieldError,
+                    textFieldValue = textFieldValue,
+                    isTextFieldError = (!isTextFieldValid && !textFieldValue.isEmpty()),
+                    textFieldError = textFieldError,
                 )
             )
-        }
-    }
-
-    private fun setPreferencesFormat() {
-        viewModelScope.launch {
-            val username = sessionStorage.getAuthInfo()!!.username
-            val result = userRepository.getPreferencesByUsername(username)
-            if (result is Result.Success) {
-                _state.update { newState ->
-                    newState.copy(
-                        bottomSheetUiState = newState.bottomSheetUiState.copy(
-                        preferencesFormat = result.data,
-                    )
-                    )
-                }
-                Timber.tag("MyTag").d("preferences: ${result.data}")
-            }
         }
     }
 
@@ -261,14 +300,14 @@ class TransactionsViewModel @Inject constructor(
 
     }
 
-    private fun resetTextFields(){
-        _state.update { newState->
+    private fun resetTextFields() {
+        _state.update { newState ->
             newState.copy(
                 bottomSheetUiState = newState.bottomSheetUiState.copy(
-                textFieldValue = "",
-                amountTextFieldValue = TextFieldValue(""),
-                noteValue = null
-            )
+                    textFieldValue = "",
+                    amountTextFieldValue = TextFieldValue(""),
+                    noteValue = null
+                )
             )
         }
     }

@@ -9,13 +9,28 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import timber.log.Timber
 
-fun groupTransactionsByDate(transactions: List<TransactionItem>): Map<UiText, List<TransactionItem>> {
+fun groupTransactionsByDate(transactions: List<TransactionItem>, showAllDates: Boolean = true): Map<UiText, List<TransactionItem>> {
     if (transactions.isNotEmpty()) {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         val yesterday = today.minus(1, DateTimeUnit.DAY)
 
-        val grouped = transactions.groupBy { LocalDate.parse(it.date) }
+        Timber.tag("MyTag").d("showAllDates: $showAllDates")
+        //show all dates
+        val transactionsToGroup = if (showAllDates) {
+            transactions
+        } else {
+            //filter only today/yesterday is not show all
+            transactions.filter {
+                val transactionDate = LocalDate.parse(it.date)
+                transactionDate == today || transactionDate == yesterday
+            }
+        }
+        Timber.tag("MyTag").d("${transactionsToGroup == transactions}")
+
+        val grouped = transactionsToGroup.groupBy { LocalDate.parse(it.date) }
+
         return grouped.mapKeys { (itemDate, _) ->
             when (itemDate) {
                 today -> UiText.StringResource(R.string.today)

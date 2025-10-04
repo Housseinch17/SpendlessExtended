@@ -37,8 +37,6 @@ data class BottomSheetUiState(
         total = "0",
         preferencesFormat = preferencesFormat
     )
-    val transactionsByDate: Map<UiText, List<TransactionItem>> =
-        groupTransactionsByDate(transactions = listOfTransactions)
 
     val placeHolder: Int = if (isExpense) R.string.receiver else R.string.sender
 
