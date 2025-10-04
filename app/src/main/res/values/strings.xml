@@ -95,6 +95,7 @@
     <string name="monthly_on_the">Monthly on the</string>
     <string name="yearly_on">Yearly on</string>
     <string name="create">Create</string>
+    <string name="reached_end">You\'ve reached the end!</string>
 
 
 </resources>

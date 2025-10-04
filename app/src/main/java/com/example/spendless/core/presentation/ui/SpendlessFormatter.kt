@@ -1,54 +1,46 @@
 package com.example.spendless.core.presentation.ui
-
 import com.example.spendless.core.database.user.model.PreferencesFormat
 import java.util.Locale
 
 
 fun amountFormatter(
     total: String,
-    preferencesFormat: PreferencesFormat
+    preferencesFormat: PreferencesFormat,
+    isExpense: Boolean = true,
 ): String {
-    if(total.isNotEmpty()) {
-        //Parse total as Long
-        val totalLong = total.toLongOrNull() ?: 0L
+    if (total.isEmpty()) return ""
 
-        //Determine decimal separator: "1.00" -> ".", "1,00" -> ","
-        val decimalSeparator = if (preferencesFormat.decimalSeparator.contains(",")) "," else "."
+    val totalLong = total.toLongOrNull() ?: 0L
 
-        //Determine thousands separator
-        val thousandsSeparator = when {
-            preferencesFormat.thousandsSeparator.contains(".") -> "."
-            preferencesFormat.thousandsSeparator.contains(",") -> ","
-            preferencesFormat.thousandsSeparator.contains(" ") -> " "
-            else -> ","
-        }
+    val decimalSeparator = if (preferencesFormat.decimalSeparator.contains(",")) "," else "."
 
-        //Split total into integer part and decimal part (last 2 digits are decimals)
-        val integerPart = (totalLong / 100).toString() //1038245 / 100 = 10382
-        val decimalPart = (totalLong % 100).toString().padStart(2, '0') //45
-
-        //Format integer part with thousands separator
-        val formattedInteger = integerPart.reversed()
-            .chunked(3)
-            .joinToString(thousandsSeparator)
-            .reversed()
-
-        val formattedNumber = "$formattedInteger$decimalSeparator$decimalPart"
-
-        //Add currency symbol
-        val withCurrency = "${preferencesFormat.currency.symbol}$formattedNumber"
-
-        //Apply expenses format
-        return when {
-            preferencesFormat.expenses.startsWith("-") -> "-$withCurrency"
-            preferencesFormat.expenses.startsWith("(") -> "($withCurrency)"
-            else -> withCurrency
-        }
+    val thousandsSeparator = when {
+        preferencesFormat.thousandsSeparator.contains(".") -> "."
+        preferencesFormat.thousandsSeparator.contains(",") -> ","
+        preferencesFormat.thousandsSeparator.contains(" ") -> " "
+        else -> ","
     }
-    else{
-        return ""
+
+    val integerPart = (totalLong / 100).toString()
+    val decimalPart = (totalLong % 100).toString().padStart(2, '0')
+
+    val formattedInteger = integerPart.reversed()
+        .chunked(3)
+        .joinToString(thousandsSeparator)
+        .reversed()
+
+    val formattedNumber = "$formattedInteger$decimalSeparator$decimalPart"
+    val withCurrency = "${preferencesFormat.currency.symbol}$formattedNumber"
+
+    return when {
+        preferencesFormat.expenses.startsWith("-") -> if (isExpense) "-$withCurrency" else withCurrency
+        preferencesFormat.expenses.startsWith("(") -> if (isExpense) "-($withCurrency)" else "($withCurrency)"
+        else -> withCurrency
     }
 }
+
+
+
 
 fun Int.formatCounter(): String {
     val minutes = this / 60

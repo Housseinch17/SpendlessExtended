@@ -11,7 +11,6 @@ data class UserEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo("username") val username: String,
     @ColumnInfo("pin") val pin: String,
-    @ColumnInfo("total") val total: String,
     @ColumnInfo("preferences") val preferences: PreferencesFormat,
     @ColumnInfo("security") val security: Security
 )

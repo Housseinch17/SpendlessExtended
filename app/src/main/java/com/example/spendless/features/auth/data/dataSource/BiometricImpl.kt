@@ -1,14 +1,12 @@
-package com.example.spendless.features.auth.data.dataSource.user
+package com.example.spendless.features.auth.data.dataSource
 
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
-import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.BiometricRepository
-import com.example.spendless.features.auth.presentation.ui.common.PinEvents.BiometricResult
+import com.example.spendless.features.auth.presentation.ui.common.PinEvents
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -19,13 +17,13 @@ class BiometricImpl @Inject constructor() : BiometricRepository {
         title: UiText,
         subtitle: UiText,
         activity: AppCompatActivity
-    ): BiometricResult =
+    ): PinEvents.BiometricResult =
         suspendCancellableCoroutine { continuation ->
 
             val manager = BiometricManager.from(activity)
             val authenticators =
-                if (Build.VERSION.SDK_INT >= 30) BIOMETRIC_STRONG or DEVICE_CREDENTIAL
-                else BIOMETRIC_STRONG
+                if (Build.VERSION.SDK_INT >= 30) BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                else BiometricManager.Authenticators.BIOMETRIC_STRONG
 
             val promptInfo = BiometricPrompt.PromptInfo.Builder()
                 .setTitle(title.asString(activity))
@@ -40,17 +38,17 @@ class BiometricImpl @Inject constructor() : BiometricRepository {
             //if biometric not set we will request to set one
             when (manager.canAuthenticate(authenticators)) {
                 BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-                    continuation.resume(BiometricResult.HardwareUnavailable)
+                    continuation.resume(PinEvents.BiometricResult.HardwareUnavailable)
                     return@suspendCancellableCoroutine
                 }
 
                 BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
-                    continuation.resume(BiometricResult.FeatureUnavailable)
+                    continuation.resume(PinEvents.BiometricResult.FeatureUnavailable)
                     return@suspendCancellableCoroutine
                 }
 
                 BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-                    continuation.resume(BiometricResult.AuthenticationNotSet)
+                    continuation.resume(PinEvents.BiometricResult.AuthenticationNotSet)
                     return@suspendCancellableCoroutine
                 }
 
@@ -64,20 +62,24 @@ class BiometricImpl @Inject constructor() : BiometricRepository {
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
                         if (continuation.isActive) {
-                            continuation.resume(BiometricResult.AuthenticationFailed)
+                            continuation.resume(PinEvents.BiometricResult.AuthenticationFailed)
                             prompt.cancelAuthentication()
                         }
                     }
 
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
-                        if (continuation.isActive) continuation.resume(BiometricResult.AuthenticationSuccess)
+                        if (continuation.isActive) continuation.resume(PinEvents.BiometricResult.AuthenticationSuccess)
                     }
 
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                         super.onAuthenticationError(errorCode, errString)
-                        if (continuation.isActive){
-                            continuation.resume(BiometricResult.AuthenticationError(errString.toString()))
+                        if (continuation.isActive) {
+                            continuation.resume(
+                                PinEvents.BiometricResult.AuthenticationError(
+                                    errString.toString()
+                                )
+                            )
                             prompt.cancelAuthentication()
                         }
                     }

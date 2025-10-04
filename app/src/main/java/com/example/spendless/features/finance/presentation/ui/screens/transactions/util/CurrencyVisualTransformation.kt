@@ -26,37 +26,46 @@ class CurrencyVisualTransformation(
             ""
         }
 
-        // If not an expense, remove only leading "-" but keep parentheses
+        //If not an expense, remove only leading "-" but keep parentheses
         if (!isExpense && formatted.startsWith("-")) {
             formatted = formatted.removePrefix("-")
         }
 
         val annotated = buildAnnotatedString {
+            val containsParanthesis = formatted.contains("(")
             when {
                 formatted.startsWith("-") -> {
-                    // Expense negative formatting
+                    //Expense negative formatting
+                    val count = if(containsParanthesis) 3 else 2
                     pushStyle(SpanStyle(color = negativeColor))
-                    append(formatted.take(2)) // "-$"
+                    append(formatted.take(count))
                     pop()
-                    append(formatted.drop(2))
-                }
-                formatted.startsWith("(") && formatted.endsWith(")") -> {
-                    // Parentheses formatting (kept even if isExpense = false)
-                    pushStyle(SpanStyle(color = if (isExpense) negativeColor else positiveColor))
-                    append(formatted.take(2)) // "($"
-                    pop()
-                    append(formatted.substring(2, formatted.length - 1)) // digits
-                    pushStyle(SpanStyle(color = if (isExpense) negativeColor else positiveColor))
-                    append(formatted.last()) // ")"
-                    pop()
+                    if(containsParanthesis){
+                        append(formatted.substring(count, formatted.length - 1))
+                    }else{
+                        append(formatted.drop(count))
+                    }
+                    if(formatted.endsWith(")")){
+                        pushStyle(SpanStyle(color = negativeColor))
+                        append(formatted.last())
+                        pop()
+                    }
                 }
 
                 else -> {
-                    // Positive number, optionally color currency symbol
-                    pushStyle(SpanStyle(color = if (isExpense) negativeColor else positiveColor))
-                    append(formatted.take(1)) // currency symbol
+                    val count = if(containsParanthesis) 2 else 1
+                    pushStyle(SpanStyle(color = positiveColor))
+                    append(formatted.take(count))
                     pop()
-                    append(formatted.drop(1)) // rest of digits
+                    if(containsParanthesis){
+                        append(formatted.substring(count, formatted.length - 1))
+                    }else{
+                        append(formatted.drop(count))
+                    }
+                    if(containsParanthesis){
+                        pushStyle(SpanStyle(color = positiveColor))
+                        append(formatted.last())
+                    }
                 }
             }
         }

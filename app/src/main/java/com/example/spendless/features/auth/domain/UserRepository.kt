@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 interface UserRepository {
     suspend fun insertUser(user: User): Result<Unit, DataError.Local>
     suspend fun getPinByUsername(username: String): Result<String, DataError.Local>
-    suspend fun getTotalByUsername(username: String): Result<String, DataError.Local>
     suspend fun doesUserExist(username: String): Result<Boolean, DataError.Local>
     suspend fun getSecurityByUsername(username: String): Result<Security, DataError.Local>
     suspend fun getPreferencesByUsername(username: String): Result<PreferencesFormat, DataError.Local>

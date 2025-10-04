@@ -1,12 +1,19 @@
 package com.example.spendless.features.finance.presentation.ui.screens.transactions
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.spendless.R
 import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.domain.PatternValidator
+import com.example.spendless.core.domain.auth.SessionStorage
+import com.example.spendless.core.domain.util.Result
+import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
+import com.example.spendless.features.finance.domain.TransactionsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +21,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import timber.log.Timber
 import javax.inject.Inject
 
 sealed interface TransactionsEvents {
@@ -30,18 +41,26 @@ sealed interface TransactionsActions {
     data object ShowBottomBar : TransactionsActions
     data class UpdateExpense(val isExpense: Boolean) : TransactionsActions
     data class UpdateTextFieldValue(val textFieldValue: String) : TransactionsActions
-    data class UpdateAmountTextFieldValue(val amountTextFieldValue: String) : TransactionsActions
+    data class UpdateAmountTextFieldValue(val amountTextFieldValue: TextFieldValue) :
+        TransactionsActions
+
     data class UpdateNote(val noteValue: String) : TransactionsActions
     data class UpdateSelectedCategory(val category: Category) : TransactionsActions
-    data class UpdateDropDownCategoryExpand(val isExpand: Boolean): TransactionsActions
-    data class UpdateSelectedPaymentRecurrence(val paymentRecurrence: PaymentRecurrence) : TransactionsActions
-    data class UpdateDropDownPaymentRecurrenceExpand(val isExpand: Boolean): TransactionsActions
-    data object OnCreateClick: TransactionsActions
+    data class UpdateDropDownCategoryExpand(val isExpand: Boolean) : TransactionsActions
+    data class UpdateSelectedPaymentRecurrence(val paymentRecurrence: PaymentRecurrence) :
+        TransactionsActions
+
+    data class UpdateDropDownPaymentRecurrenceExpand(val isExpand: Boolean) : TransactionsActions
+    data object OnCreateClick : TransactionsActions
+    data class ShowFloatingActionButton(val isVisible: Boolean) : TransactionsActions
 }
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
-    private val saveStateHandle: SavedStateHandle
+    private val saveStateHandle: SavedStateHandle,
+    private val sessionStorage: SessionStorage,
+    private val transactionsRepository: TransactionsRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(TransactionsUiState())
     val state = _state.asStateFlow()
@@ -50,6 +69,7 @@ class TransactionsViewModel @Inject constructor(
     val events = _events.receiveAsFlow()
 
     init {
+        setPreferencesFormat()
         setShowBottomBar()
     }
 
@@ -73,26 +93,72 @@ class TransactionsViewModel @Inject constructor(
                 transactionsActions.category
             )
 
-            is TransactionsActions.UpdateDropDownCategoryExpand -> updateDropDownCategoryExpand(transactionsActions.isExpand)
-            is TransactionsActions.UpdateSelectedPaymentRecurrence -> updateSelectedPaymentRecurrence(transactionsActions.paymentRecurrence)
-            is TransactionsActions.UpdateDropDownPaymentRecurrenceExpand -> updateDropDownPaymentRecurrenceExpand(transactionsActions.isExpand)
+            is TransactionsActions.UpdateDropDownCategoryExpand -> updateDropDownCategoryExpand(
+                transactionsActions.isExpand
+            )
 
+            is TransactionsActions.UpdateSelectedPaymentRecurrence -> updateSelectedPaymentRecurrence(
+                transactionsActions.paymentRecurrence
+            )
+
+            is TransactionsActions.UpdateDropDownPaymentRecurrenceExpand -> updateDropDownPaymentRecurrenceExpand(
+                transactionsActions.isExpand
+            )
+
+            is TransactionsActions.ShowFloatingActionButton -> showFloatingActionButton(
+                transactionsActions.isVisible
+            )
         }
     }
 
-    private fun onCreateClick(){
-
+    private fun showFloatingActionButton(isVisible: Boolean) {
+        _state.update { newState ->
+            newState.copy(isFloatingActionButtonVisible = isVisible)
+        }
     }
 
-    private fun updateDropDownPaymentRecurrenceExpand(isExpand: Boolean){
-        _state.update { newState->
+    private fun onCreateClick() {
+        viewModelScope.launch {
+            val timeNow = Clock.System
+                .now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+            val state = _state.value
+            val transactionItem = state.selectedTransactionItem.copy(
+                category = state.selectedCategory,
+                title = state.textFieldValue,
+                isExpense = state.isExpense,
+                description = if (state.isExpense) state.selectedCategory.categoryName.categoryRes else R.string.income,
+                price = state.amountTextFieldValue.text,
+                date = timeNow.toString(),
+                content = state.noteValue,
+                image = if (state.isExpense) state.selectedCategory.image else R.drawable.accessories
+            )
+            Timber.tag("MyTag").d("onCreateClick $transactionItem")
+            val result = transactionsRepository.insertTransaction(transactionItem)
+            when (result) {
+                is Result.Error -> Timber.tag("MyTag").d("onCreateClick error: ${result.error}")
+                is Result.Success -> {
+                    _state.update { newState ->
+                        newState.copy(
+                            showBottomSheet = false
+                        )
+                    }
+                    resetTextFields()
+                }
+            }
+        }
+    }
+
+    private fun updateDropDownPaymentRecurrenceExpand(isExpand: Boolean) {
+        _state.update { newState ->
             newState.copy(
                 isDropDownPaymentRecurrenceExpand = isExpand
             )
         }
     }
 
-    private fun updateSelectedPaymentRecurrence(paymentRecurrence: PaymentRecurrence){
+    private fun updateSelectedPaymentRecurrence(paymentRecurrence: PaymentRecurrence) {
         _state.update { newState ->
             newState.copy(
                 selectedPaymentRecurrence = paymentRecurrence
@@ -100,8 +166,8 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private fun updateDropDownCategoryExpand(isExpand: Boolean){
-        _state.update { newState->
+    private fun updateDropDownCategoryExpand(isExpand: Boolean) {
+        _state.update { newState ->
             newState.copy(
                 isDropDownCategoryExpand = isExpand
             )
@@ -124,9 +190,17 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private fun updateAmountTextFieldValue(amountTextFieldValue: String) {
-        _state.update { newState ->
-            newState.copy(amountTextFieldValue = amountTextFieldValue)
+    private fun updateAmountTextFieldValue(amountTextFieldValue: TextFieldValue) {
+        if(!(amountTextFieldValue.text.startsWith("0"))) {
+            //to not use the format and only digits and only 8 length
+            val digitsOnly = amountTextFieldValue.text.filter { it.isDigit() }.take(8)
+            //set textField cursor to the end
+            Timber.tag("MyTag").d("digits: $digitsOnly")
+            val textFieldValue =
+                TextFieldValue(text = digitsOnly, selection = TextRange(digitsOnly.length))
+            _state.update { newState ->
+                newState.copy(amountTextFieldValue = textFieldValue)
+            }
         }
     }
 
@@ -140,6 +214,21 @@ class TransactionsViewModel @Inject constructor(
                 isTextFieldError = (!isTextFieldValid && !textFieldValue.isEmpty()),
                 textFieldError = textFieldError,
             )
+        }
+    }
+
+    private fun setPreferencesFormat() {
+        viewModelScope.launch {
+            val username = sessionStorage.getAuthInfo()!!.username
+            val result = userRepository.getPreferencesByUsername(username)
+            if (result is Result.Success) {
+                _state.update { newState ->
+                    newState.copy(
+                        preferencesFormat = result.data,
+                    )
+                }
+                Timber.tag("MyTag").d("preferences: ${result.data}")
+            }
         }
     }
 
@@ -189,5 +278,15 @@ class TransactionsViewModel @Inject constructor(
 
     private fun exportData() {
 
+    }
+
+    private fun resetTextFields(){
+        _state.update { newState->
+            newState.copy(
+                textFieldValue = "",
+                amountTextFieldValue = TextFieldValue(""),
+                noteValue = null
+            )
+        }
     }
 }

@@ -58,7 +58,8 @@ fun CurrenciesDropDownMenu(
         },
         isExpanded = isExpanded,
         onExpand = onExpand,
-        closeExpand = closeExpand
+        closeExpand = closeExpand,
+        showLeading = true
     )
 }
 
@@ -73,6 +74,7 @@ fun <T> DropDownMenu(
     isExpanded: Boolean,
     onExpand: () -> Unit,
     closeExpand: () -> Unit,
+    showLeading: Boolean,
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -126,7 +128,8 @@ fun <T> DropDownMenu(
                         onSelectItem = onSelectItem,
                         closeExpand = closeExpand,
                         text = text,
-                        leading = leading
+                        leading = leading,
+                        showLeading = showLeading
                     )
                 }
             }
@@ -143,6 +146,7 @@ fun <T> DropDownMenuItemsList(
     closeExpand: () -> Unit,
     text: @Composable (T) -> Unit,
     leading: @Composable ((T) -> Unit),
+    showLeading: Boolean,
 ) {
     itemsList.forEach { item ->
         DropDownMenuItem(
@@ -152,7 +156,8 @@ fun <T> DropDownMenuItemsList(
             onSelectItem = onSelectItem,
             closeExpand = closeExpand,
             text = text,
-            leading = leading
+            leading = leading,
+            showLeading = showLeading
         )
     }
 }
@@ -165,7 +170,8 @@ fun <T> DropDownMenuItem(
     onSelectItem: (T) -> Unit,
     closeExpand: () -> Unit,
     text: @Composable (T) -> Unit,
-    leading: @Composable (T) -> Unit
+    leading: @Composable (T) -> Unit,
+    showLeading: Boolean,
 ) {
     DropdownMenuItem(
         modifier = modifier,
@@ -178,7 +184,9 @@ fun <T> DropDownMenuItem(
             closeExpand()
         },
         leadingIcon = {
-            leading(item)
+            if(showLeading) {
+                leading(item)
+            }
         },
         trailingIcon = {
             if (selectedItem == item) {

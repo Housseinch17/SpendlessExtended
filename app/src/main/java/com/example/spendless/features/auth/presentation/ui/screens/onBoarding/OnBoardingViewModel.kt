@@ -11,7 +11,9 @@ import com.example.spendless.core.domain.model.User
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.features.auth.domain.UserRepository
+import com.example.spendless.features.finance.domain.TransactionsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +47,7 @@ class OnBoardingViewModel @Inject constructor(
     private val saveHandleStateHandle: SavedStateHandle,
     private val userRepository: UserRepository,
     private val sessionStorage: SessionStorage,
+    private val transactionsRepository: TransactionsRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(OnBoardingUiState())
     val state = _state.asStateFlow()
@@ -53,7 +56,13 @@ class OnBoardingViewModel @Inject constructor(
     val events = _events.receiveAsFlow()
 
     init {
-        saveUsernameAndPin()
+        viewModelScope.launch {
+            launch {
+                saveUsernameAndPin()
+            }
+            getUserTotal()
+        }
+
     }
 
     private fun saveUsernameAndPin() {
@@ -64,6 +73,34 @@ class OnBoardingViewModel @Inject constructor(
                 username = username,
                 pin = pin
             )
+        }
+    }
+
+    private fun getUserTotal() {
+        viewModelScope.launch {
+            val authInfo = sessionStorage.getAuthInfo()
+            when (authInfo) {
+                null -> {
+                    Timber.tag("MyTag").d("here: null")
+                    _state.update { newState ->
+                        newState.copy(
+                            total = "1038245"
+                        )
+                    }
+                }
+                else -> {
+                    Timber.tag("MyTag").d("here: note")
+                    val total = transactionsRepository.getNetTotalForUser()
+                    total.collect { total ->
+                        _state.update { newState ->
+                            newState.copy(
+                                total = total
+                            )
+                        }
+
+                    }
+                }
+            }
         }
     }
 
@@ -137,7 +174,6 @@ class OnBoardingViewModel @Inject constructor(
         val state = _state.value
         val username = state.username
         val pin = state.pin
-        val total = state.total
         val preferencesFormat = state.preferencesFormat
         //default value
         val security = Security()
@@ -145,7 +181,6 @@ class OnBoardingViewModel @Inject constructor(
             val user = User(
                 username = username,
                 pin = pin,
-                total = total,
                 preferences = preferencesFormat,
                 security = security
             )
@@ -155,9 +190,9 @@ class OnBoardingViewModel @Inject constructor(
             val result = userRepository.insertUser(user = user)
             when (result) {
                 is Result.Error -> {
-                    if(result.error is DataError.Local.Unknown){
+                    if (result.error is DataError.Local.Unknown) {
                         Timber.tag("MyTag").e("startTracking: error: ${result.error.unknownError}")
-                    }else{
+                    } else {
                         Timber.tag("MyTag").e("startTracking: error: ${result.error}")
                     }
                     _state.update { newState ->
@@ -169,18 +204,20 @@ class OnBoardingViewModel @Inject constructor(
                     Timber.tag("MyTag").d("startTracking(): success")
                     val state = _state.value
 
-                    //default value for username
-                    sessionStorage.setAuthInfo(
-                        authInfo = AuthInfo(
-                            username = state.username,
-                            security = security,
-                            preferencesFormat = preferencesFormat,
+                    async {
+                        //default value for username
+                        sessionStorage.setAuthInfo(
+                            authInfo = AuthInfo(
+                                username = state.username,
+                                security = security,
+                                preferencesFormat = preferencesFormat,
+                            )
                         )
-                    )
 
-                    _state.update { newState ->
-                        newState.copy(isButtonLoading = false)
-                    }
+                        _state.update { newState ->
+                            newState.copy(isButtonLoading = false)
+                        }
+                    }.await()
 
                     _events.send(OnBoardingEvents.Dashboard(username = username))
                 }

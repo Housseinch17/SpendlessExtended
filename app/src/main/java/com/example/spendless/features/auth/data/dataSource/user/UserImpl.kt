@@ -50,18 +50,6 @@ class UserImpl @Inject constructor(
         }
     }
 
-    override suspend fun getTotalByUsername(username: String): Result<String, DataError.Local> {
-        return try {
-            val total = userDao.getTotalByUsername(username)
-            Result.Success(total)
-        } catch (e: Exception) {
-            if (e is CancellationException) {
-                throw e
-            }
-            Result.Error(DataError.Local.Unknown(unknownError = e.localizedMessage ?: ""))
-        }
-    }
-
     override suspend fun doesUserExist(username: String): Result<Boolean, DataError.Local> {
         return try {
             val result = userDao.doesUserExist(username = username)

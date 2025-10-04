@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PreferencesFormat(
     val currency: Currency = currenciesList.first(),
-    val expenses: String = expensesFormatList.last(),
-    val decimalSeparator: String = decimalSeparatorList.last(),
-    val thousandsSeparator: String = thousandsSeparatorList.last(),
+    val expenses: String = expensesFormatList.first(),
+    val decimalSeparator: String = decimalSeparatorList.first(),
+    val thousandsSeparator: String = thousandsSeparatorList[1],
 )

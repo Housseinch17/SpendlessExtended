@@ -5,7 +5,6 @@ import com.example.spendless.core.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.finance.data.model.TransactionItem
-import com.example.spendless.features.finance.presentation.ui.common.groupTransactionsByDate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -18,18 +17,23 @@ import kotlinx.datetime.toLocalDateTime
 
 data class DashboardUiState(
     val username: String = "",
+    val isLoading: Boolean = true,
     val preferencesFormat: PreferencesFormat = PreferencesFormat(),
     val total: String = "${preferencesFormat.currency.symbol}0.00",
     val largestTransaction: TransactionItem? = null,
     val listOfTransactions: List<TransactionItem> = emptyList<TransactionItem>(),
-    val selectedTransaction: TransactionItem = TransactionItem()
-) {
-    val amountSpent: String = amountFormatter(
-        total = total,
-        preferencesFormat = preferencesFormat
-    )
+    val selectedTransaction: TransactionItem = TransactionItem(),
+    val transactionsByDate: Map<UiText, List<TransactionItem>> = emptyMap(),
 
+    val isFloatingActionButtonVisible: Boolean = true,
+) {
     val largestCategoryExpense: Category? = largestTransaction?.category
+
+    val amountSpent: String = amountFormatter(
+        total = if (total.startsWith("-")) total.drop(1) else total,
+        isExpense = total.startsWith("-"),
+        preferencesFormat = preferencesFormat,
+    )
 
     val largestTransactionAmount: String =
         amountFormatter(
@@ -38,15 +42,13 @@ data class DashboardUiState(
         )
 
     val previousWeekSpent: String =
-        if (listOfTransactions.isEmpty()) preferencesFormat.currency.symbol + "0" else totalSpentPreviousWeek(
+        if (listOfTransactions.isEmpty()) amountFormatter(
+            total = largestTransaction?.price ?: "0.00",
+            preferencesFormat = preferencesFormat,
+        ) else totalSpentPreviousWeek(
             listOfTransactions,
             preferencesFormat
         )
-
-    val transactionsByDate: Map<UiText, List<TransactionItem>> =
-        groupTransactionsByDate(transactions = listOfTransactions)
-
-
 
     private fun previousWeekRange(
         today: LocalDate = Clock.System.now()
@@ -62,7 +64,6 @@ data class DashboardUiState(
         return startOfPreviousWeek to endOfPreviousWeek
     }
 
-
     //total spent previous week
     private fun totalSpentPreviousWeek(
         transactions: List<TransactionItem>,
@@ -72,11 +73,12 @@ data class DashboardUiState(
 
         val total = transactions
             .filter { it.isExpense }
-            .filter {
-                val itemDate = LocalDate.parse(it.date)
-                itemDate in start..end
+            .mapNotNull { transaction ->
+                val date = transaction.date.takeIf { it.isNotEmpty() }?.let { LocalDate.parse(it) }
+                if (date != null && date in start..end) transaction.price.toDoubleOrNull() else null
             }
-            .sumOf { it.price.toDoubleOrNull() ?: 0.0 } // use Double
+            .sumOf { it }
+
         return amountFormatter(total.toString(), preferencesFormat = preferencesFormat)
     }
 }

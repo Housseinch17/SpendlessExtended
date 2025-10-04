@@ -19,23 +19,40 @@ object BuildStyledAmount {
         }
 
         return buildAnnotatedString {
+            val containsParanthesis = displayText.contains("(")
             when {
                 displayText.startsWith("-") -> {
+                    //for example if starts with -$ only color -$ but if starts with -($ should color -($
+                    val count = if(containsParanthesis) 3 else 2
                     pushStyle(SpanStyle(color = color))
-                    append(displayText.take(2)) // "-$"
+                    append(displayText.take(count))
                     pop()
-                    append(displayText.drop(2)) // rest
+                    if(containsParanthesis){
+                        append(displayText.substring(count, displayText.length - 1))
+                    }else{
+                        append(displayText.drop(count))
+                    }
+                    if(displayText.endsWith(")")){
+                        pushStyle(SpanStyle(color = color))
+                        append(displayText.last())
+                        pop()
+                    }
                 }
-                displayText.startsWith("(") && displayText.endsWith(")") -> {
+                else -> {
+                    val count = if(containsParanthesis) 2 else 1
                     pushStyle(SpanStyle(color = color))
-                    append(displayText.take(2)) // "($"
+                    append(displayText.take(count))
                     pop()
-                    append(displayText.substring(2, displayText.length - 1)) // digits
-                    pushStyle(SpanStyle(color = color))
-                    append(displayText.last()) // ")"
-                    pop()
+                    if(containsParanthesis){
+                        append(displayText.substring(count, displayText.length - 1))
+                    }else{
+                        append(displayText.drop(count))
+                    }
+                    if(containsParanthesis){
+                        pushStyle(SpanStyle(color = color))
+                        append(displayText.last())
+                    }
                 }
-                else -> append(displayText)
             }
         }
     }

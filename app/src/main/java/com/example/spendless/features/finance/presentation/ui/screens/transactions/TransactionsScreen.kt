@@ -39,7 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.spendless.R
@@ -56,6 +58,7 @@ import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.presentation.designsystem.components.TransactionsList
 import com.example.spendless.features.finance.presentation.ui.screens.transactions.util.BuildStyledAmount
 import com.example.spendless.features.finance.presentation.ui.screens.transactions.util.CurrencyVisualTransformation
+import timber.log.Timber
 
 @Composable
 fun TransactionsScreen(
@@ -105,7 +108,10 @@ fun TransactionsScreen(
             selectedTransactionItem = transactionsUiState.selectedTransactionItem,
             onSelectTransaction = { transactionItem ->
                 transactionsActions(TransactionsActions.SelectedTransaction(transactionItem))
-            }
+            },
+            showFloatingActionButton = { showFab->
+                transactionsActions(TransactionsActions.ShowFloatingActionButton(showFab))
+            },
         )
         CreateTransactionModalBottomSheet(
             modifier = Modifier
@@ -255,7 +261,7 @@ fun CreateTransactionModalBottomSheet(
 
                 AddNote(
                     modifier = Modifier.fillMaxWidth(),
-                    note = transactionsUiState.noteValue,
+                    note = transactionsUiState.noteValue ?: "",
                     onNoteChange = { newNote ->
                         transactionsActions(TransactionsActions.UpdateNote(newNote))
                     },
@@ -352,7 +358,8 @@ fun PaymentRecurrenceDropDownMenu(
         },
         closeExpand = {
             onExpand(false)
-        }
+        },
+        showLeading = false
     )
 }
 
@@ -392,7 +399,8 @@ fun ExpenseDropDownMenu(
         },
         closeExpand = {
             onExpand(false)
-        }
+        },
+        showLeading = true
     )
 }
 
@@ -453,18 +461,16 @@ fun AddNote(
 fun AmountSpentTextField(
     modifier: Modifier = Modifier,
     isExpense: Boolean,
-    amountValue: String,
+    amountValue: TextFieldValue,
     amountPlaceHolder: String,
     preferencesFormat: PreferencesFormat,
-    onAmountValueChange: (String) -> Unit,
+    onAmountValueChange: (TextFieldValue) -> Unit,
 ) {
     TextField(
         modifier = modifier,
         value = amountValue,
         onValueChange = { newValue ->
-            //to not use the format and only digits
-            val digitsOnly = newValue.filter { it.isDigit() }
-            onAmountValueChange(digitsOnly)
+            onAmountValueChange(newValue)
         },
         placeholder = {
             Text(

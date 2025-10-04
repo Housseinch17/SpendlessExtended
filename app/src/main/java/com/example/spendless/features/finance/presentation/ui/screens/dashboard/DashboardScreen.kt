@@ -1,8 +1,14 @@
 package com.example.spendless.features.finance.presentation.ui.screens.dashboard
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +24,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -26,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -47,6 +55,7 @@ import com.example.spendless.core.presentation.designsystem.onPrimaryOpacity20
 import com.example.spendless.core.presentation.designsystem.primaryFixed
 import com.example.spendless.core.presentation.designsystem.secondaryFixed
 import com.example.spendless.core.presentation.designsystem.secondaryFixedDim
+import com.example.spendless.core.presentation.designsystem.success
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.presentation.designsystem.components.TransactionsList
@@ -69,72 +78,86 @@ fun DashboardScreen(
             ),
         contentAlignment = Alignment.TopStart
     ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.Transparent,
-            topBar = {
-                DashboardTopBar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(top = 8.dp)
-                        .padding(horizontal = 16.dp),
-                    username = dashboardUiState.username,
-                    onExportClick = {
-                        dashboardActions(DashboardActions.NavigateToExportData)
-                    },
-                    onSettingsClick = {
-                        dashboardActions(DashboardActions.NavigateToSettings)
+        if (dashboardUiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.Center),
+                color = MaterialTheme.colorScheme.surfaceContainerLowest
+            )
+        } else {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = Color.Transparent,
+                topBar = {
+                    DashboardTopBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(top = 8.dp)
+                            .padding(horizontal = 16.dp),
+                        username = dashboardUiState.username,
+                        onExportClick = {
+                            dashboardActions(DashboardActions.NavigateToExportData)
+                        },
+                        onSettingsClick = {
+                            dashboardActions(DashboardActions.NavigateToSettings)
+                        }
+                    )
+                },
+                floatingActionButton = {
+                    if (dashboardUiState.isFloatingActionButtonVisible) {
+                        FloatingActionButton(
+                            modifier = Modifier.size(64.dp),
+                            onClick = {
+                                dashboardActions(DashboardActions.CreateNewTransaction(true))
+                            },
+                            shape = MaterialTheme.shapes.medium,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ) {
+                            Icon(
+                                imageVector = SpendLessIcons.Add,
+                                contentDescription = stringResource(R.string.create_transaction),
+                                tint = LocalContentColor.current
+                            )
+                        }
                     }
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    modifier = Modifier.size(64.dp),
-                    onClick = {
-                        dashboardActions(DashboardActions.CreateNewTransaction(true))
-                    },
-                    shape = MaterialTheme.shapes.medium,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                }
+            ) { innerPadding ->
+                Column(
+                    modifier = modifier
+                        .padding(top = innerPadding.calculateTopPadding()),
                 ) {
-                    Icon(
-                        imageVector = SpendLessIcons.Add,
-                        contentDescription = stringResource(R.string.create_transaction),
-                        tint = LocalContentColor.current
+                    DashboardHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        amountSpent = dashboardUiState.amountSpent,
+                    )
+
+                    DashboardBody(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        dashboardUiState = dashboardUiState
+                    )
+
+                    DashboardBottom(
+                        modifier = Modifier.weight(1f),
+                        onShowAllClick = {
+                            dashboardActions(DashboardActions.ShowAll)
+                        },
+                        transactionsByDate = dashboardUiState.transactionsByDate,
+                        selectedTransactionItem = dashboardUiState.selectedTransaction,
+                        onSelectTransaction = { transactionItem ->
+                            dashboardActions(DashboardActions.SelectedTransaction(transactionItem))
+                        },
+                        showFloatingActionButton = { showFab ->
+                            dashboardActions(DashboardActions.ShowFloatingActionButton(showFab))
+                        }
                     )
                 }
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = modifier
-                    .padding(top = innerPadding.calculateTopPadding()),
-            ) {
-                DashboardHeader(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    amountSpent = dashboardUiState.amountSpent,
-                )
-
-                DashboardBody(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    dashboardUiState = dashboardUiState
-                )
-
-                DashboardBottom(
-                    modifier = Modifier.weight(1f),
-                    onShowAllClick = {
-                        dashboardActions(DashboardActions.ShowAll)
-                    },
-                    transactionsByDate = dashboardUiState.transactionsByDate,
-                    selectedTransactionItem = dashboardUiState.selectedTransaction,
-                    onSelectTransaction = { transactionItem ->
-                        dashboardActions(DashboardActions.SelectedTransaction(transactionItem))
-                    }
-                )
             }
         }
     }
@@ -402,7 +425,8 @@ fun DashboardBottom(
     onShowAllClick: () -> Unit,
     transactionsByDate: Map<UiText, List<TransactionItem>>,
     selectedTransactionItem: TransactionItem,
-    onSelectTransaction: (TransactionItem) -> Unit
+    onSelectTransaction: (TransactionItem) -> Unit,
+    showFloatingActionButton: (Boolean) -> Unit,
 ) {
     Card(
         modifier = modifier,
@@ -418,7 +442,8 @@ fun DashboardBottom(
                 showTransactionText = true,
                 transactionsByDate = transactionsByDate,
                 selectedTransactionItem = selectedTransactionItem,
-                onSelectTransaction = onSelectTransaction
+                onSelectTransaction = onSelectTransaction,
+                showFloatingActionButton = showFloatingActionButton
             )
         } else {
             Box(
@@ -456,8 +481,9 @@ fun TransactionItem(
     onClick: () -> Unit,
 ) {
     val isSelected = transactionItem == selectedTransactionItem
+    val interactionSource = remember { MutableInteractionSource() }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .shadow(
                 elevation = if (!isSelected) 0.dp else 2.dp,
                 shape = if (!isSelected) RectangleShape else MaterialTheme.shapes.medium
@@ -466,12 +492,16 @@ fun TransactionItem(
                 color = if (!isSelected) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLowest,
                 shape = if (!isSelected) RectangleShape else MaterialTheme.shapes.medium
             )
-            .clickable {
-                onClick()
-            },
+            .clickable(
+                onClick = onClick,
+                interactionSource = interactionSource,
+                indication = null
+            ),
     ) {
         Row(
-            modifier = modifier.padding(4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 4.dp, top = 4.dp, bottom = 4.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -480,25 +510,22 @@ fun TransactionItem(
                 Image(
                     modifier = Modifier.matchParentSize(),
                     painter = painterResource(transactionItem.image),
-                    contentDescription = transactionItem.description
+                    contentDescription = stringResource(transactionItem.description),
                 )
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .shadow(
-                            shape = MaterialTheme.shapes.extraSmall,
-                            elevation = 2.dp,
-                            clip = true,
-                        ),
-                    shape = MaterialTheme.shapes.extraSmall,
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest
-                ) {
-                    Icon(
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp),
-                        imageVector = SpendLessIcons.Vector,
-                        contentDescription = stringResource(R.string.vector),
-                        tint = if (transactionItem.isExpense) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryFixedDim
-                    )
+                if (transactionItem.content != null) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd),
+                        shape = MaterialTheme.shapes.extraSmall,
+                        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    ) {
+                        Icon(
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp),
+                            imageVector = SpendLessIcons.Vector,
+                            contentDescription = stringResource(R.string.vector),
+                            tint = if (transactionItem.isExpense) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryFixedDim
+                        )
+                    }
                 }
             }
 
@@ -517,9 +544,9 @@ fun TransactionItem(
 
                 Text(
                     modifier = Modifier,
-                    text = transactionItem.description,
+                    text = stringResource(transactionItem.description),
                     style = MaterialTheme.typography.bodyXSmall.copy(
-                        MaterialTheme.colorScheme.onSurface
+                        color = if (transactionItem.isExpense) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.success
                     )
                 )
             }
@@ -528,23 +555,25 @@ fun TransactionItem(
                 modifier = Modifier,
                 text = transactionItem.price,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = if (transactionItem.isExpense) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.success
                 )
             )
         }
 
-        if (isSelected) {
-            transactionItem.content?.let { content ->
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 6.dp, bottom = 10.dp, start = 52.dp, end = 12.dp),
-                    text = content,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+        AnimatedVisibility(
+            visible = isSelected && transactionItem.content != null,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp, start = 58.dp, end = 12.dp),
+                text = transactionItem.content ?: "",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-            }
+            )
         }
     }
 }
