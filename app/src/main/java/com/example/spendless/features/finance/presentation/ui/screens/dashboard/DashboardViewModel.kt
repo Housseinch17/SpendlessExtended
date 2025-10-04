@@ -1,14 +1,21 @@
 package com.example.spendless.features.finance.presentation.ui.screens.dashboard
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.spendless.R
+import com.example.spendless.core.data.model.Category
+import com.example.spendless.core.domain.PatternValidator
 import com.example.spendless.core.domain.auth.SessionStorage
-import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.auth.domain.UserRepository
+import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.domain.TransactionsRepository
+import com.example.spendless.features.finance.presentation.ui.common.SharedActions
+import com.example.spendless.features.finance.presentation.ui.common.SharedActions.DashboardActions
 import com.example.spendless.features.finance.presentation.ui.common.groupTransactionsByDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -20,6 +27,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,16 +37,6 @@ sealed interface DashboardEvents {
     data object NavigateToExportData : DashboardEvents
     data object NavigateToSettings : DashboardEvents
     data object NavigateToTransactions : DashboardEvents
-    data object NavigateToCreateTransactions : DashboardEvents
-}
-
-sealed interface DashboardActions {
-    data object NavigateToExportData : DashboardActions
-    data object NavigateToSettings : DashboardActions
-    data class SelectedTransaction(val selectedTransactionItem: TransactionItem) : DashboardActions
-    data object ShowAll : DashboardActions
-    data class CreateNewTransaction(val showBottomBar: Boolean) : DashboardActions
-    data class ShowFloatingActionButton(val isVisible: Boolean) : DashboardActions
 }
 
 @HiltViewModel
@@ -52,15 +52,16 @@ class DashboardViewModel @Inject constructor(
         initialValue = DashboardUiState()
     ).onStart {
         viewModelScope.launch {
-            //getPreferencesFormat() & getTotal() depends on setUsername()
-            //so they have to run sequentially with setUsername()
-            //while getPreferencesFormat() & getTotal() doesn't depends on each other
-            //so they can run concurrently(in parallel)
-            setUsername()
-            launch {
-                getPreferencesFormat()
-            }.join()
-            combineFlows()
+            try {
+                //they should work sequentially because getPreferencesFormat() depends on username from setUsername()
+                //and combineFlows() depends on preferencesFormat from getPreferencesFormat()
+                setUsername()
+                setPreferencesFormat()
+                combineFlows()
+            } catch (e: Exception) {
+                Timber.tag("MyTag").e("onStart DashboardViewModel $e ${e.localizedMessage}")
+                hideLoader()
+            }
         }
     }
 
@@ -83,30 +84,6 @@ class DashboardViewModel @Inject constructor(
             newState.copy(username = username)
         }
         Timber.tag("MyTag").d("setUsername done")
-    }
-
-    private suspend fun getPreferencesFormat() {
-        Timber.tag("MyTag").d("getPreferencesFormat")
-        val username = _state.value.username
-        val result = userRepository.getPreferencesByUsername(username)
-        when (result) {
-            is Result.Error -> {
-                if (result.error is DataError.Local.Unknown) {
-                    Timber.tag("MyTag").e("getPreferencesFormat: ${result.error.unknownError}")
-                } else {
-                    Timber.tag("MyTag").e("getPreferencesFormat: ${result.error}")
-                }
-            }
-
-            is Result.Success -> {
-                _state.update { newState ->
-                    newState.copy(
-                        preferencesFormat = result.data
-                    )
-                }
-            }
-        }
-        Timber.tag("MyTag").d("getPreferencesFormat finished")
     }
 
     private suspend fun combineFlows() {
@@ -152,37 +129,49 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun onActions(dashboardActions: DashboardActions) {
+    fun onActions(dashboardActions: SharedActions) {
         when (dashboardActions) {
             DashboardActions.NavigateToExportData -> navigateToExportData()
             DashboardActions.NavigateToSettings -> navigateToSettings()
             DashboardActions.ShowAll -> navigateToTransactions()
             is DashboardActions.SelectedTransaction -> setSelectedTransaction(dashboardActions.selectedTransactionItem)
-            is DashboardActions.CreateNewTransaction -> navigateToCreateTransactions()
             is DashboardActions.ShowFloatingActionButton -> showFloatingActionButton(
                 dashboardActions.isVisible
             )
-        }
-    }
 
-    private fun showFloatingActionButton(isVisible: Boolean) {
-        _state.update { newState ->
-            newState.copy(isFloatingActionButtonVisible = isVisible)
-        }
-    }
+            SharedActions.DismissBottomSheet -> dismissBottomSheet()
+            SharedActions.ShowBottomBar -> showBottomBar()
+            SharedActions.OnCreateClick -> onCreateClick()
 
-    private fun setSelectedTransaction(selectedTransaction: TransactionItem) {
-        val alreadySelectedTransaction = _state.value.selectedTransaction == selectedTransaction
-        _state.update { newState ->
-            newState.copy(
-                selectedTransaction = if (alreadySelectedTransaction) TransactionItem() else selectedTransaction
+            is SharedActions.SelectedTransaction -> setSelectedTransaction(dashboardActions.selectedTransactionItem)
+            is SharedActions.UpdateExpense -> updateExpense(dashboardActions.isExpense)
+            is SharedActions.UpdateTextFieldValue -> updateTextFieldValue(dashboardActions.textFieldValue)
+            is SharedActions.UpdateAmountTextFieldValue -> updateAmountTextFieldValue(
+                dashboardActions.amountTextFieldValue
             )
-        }
-    }
 
-    private fun navigateToCreateTransactions() {
-        viewModelScope.launch {
-            _events.send(DashboardEvents.NavigateToCreateTransactions)
+            is SharedActions.UpdateNote -> updateNote(note = dashboardActions.noteValue)
+            is SharedActions.UpdateSelectedCategory -> updateSelectedCategory(
+                dashboardActions.category
+            )
+
+            is SharedActions.UpdateDropDownCategoryExpand -> updateDropDownCategoryExpand(
+                dashboardActions.isExpand
+            )
+
+            is SharedActions.UpdateSelectedPaymentRecurrence -> updateSelectedPaymentRecurrence(
+                dashboardActions.paymentRecurrence
+            )
+
+            is SharedActions.UpdateDropDownPaymentRecurrenceExpand -> updateDropDownPaymentRecurrenceExpand(
+                dashboardActions.isExpand
+            )
+
+            is SharedActions.ShowFloatingActionButton -> showFloatingActionButton(
+                dashboardActions.isVisible
+            )
+
+            else -> {}
         }
     }
 
@@ -204,4 +193,189 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    //shared actions for bottom sheet
+    private fun showFloatingActionButton(isVisible: Boolean) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    isFloatingActionButtonVisible = isVisible
+                )
+            )
+        }
+    }
+
+    private fun onCreateClick() {
+        viewModelScope.launch {
+            onCreateLoading(true)
+            val timeNow = Clock.System
+                .now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+            val state = _state.value
+            val transactionItem = state.bottomSheetUiState.selectedTransactionItem.copy(
+                category = state.bottomSheetUiState.selectedCategory,
+                title = state.bottomSheetUiState.textFieldValue,
+                isExpense = state.bottomSheetUiState.isExpense,
+                description = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.categoryName.categoryRes else R.string.income,
+                price = state.bottomSheetUiState.amountTextFieldValue.text,
+                date = timeNow.toString(),
+                content = state.bottomSheetUiState.noteValue,
+                image = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.image else R.drawable.accessories
+            )
+            Timber.tag("MyTag").d("onCreateClick $transactionItem")
+            val result = transactionsRepository.insertTransaction(transactionItem)
+            when (result) {
+                is Result.Error -> Timber.tag("MyTag").d("onCreateClick error: ${result.error}")
+                is Result.Success -> {
+                    _state.update { newState ->
+                        newState.copy(
+                            bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = false)
+                        )
+                    }
+                    resetTextFields()
+                    onCreateLoading(false)
+                    dismissBottomSheet()
+                }
+            }
+        }
+    }
+
+    private fun onCreateLoading(onCreateLoading: Boolean){
+        _state.update { newState->
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(
+                isOnCreateLoading = onCreateLoading
+            ))
+        }
+    }
+
+    private fun updateDropDownPaymentRecurrenceExpand(isExpand: Boolean) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    isDropDownPaymentRecurrenceExpand = isExpand
+                )
+            )
+        }
+    }
+
+    private fun updateSelectedPaymentRecurrence(paymentRecurrence: PaymentRecurrence) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedPaymentRecurrence = paymentRecurrence)
+            )
+        }
+    }
+
+    private fun updateDropDownCategoryExpand(isExpand: Boolean) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(isDropDownCategoryExpand = isExpand)
+            )
+        }
+    }
+
+    private fun updateSelectedCategory(selectedCategory: Category) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedCategory = selectedCategory)
+            )
+        }
+    }
+
+    private fun updateNote(note: String) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(noteValue = note)
+            )
+        }
+    }
+
+    private fun updateAmountTextFieldValue(amountTextFieldValue: TextFieldValue) {
+        if (!(amountTextFieldValue.text.startsWith("0"))) {
+            //to not use the format and only digits and only 8 length
+            val digitsOnly = amountTextFieldValue.text.filter { it.isDigit() }.take(8)
+            //set textField cursor to the end
+            val textFieldValue =
+                TextFieldValue(text = digitsOnly, selection = TextRange(digitsOnly.length))
+            _state.update { newState ->
+                newState.copy(
+                    bottomSheetUiState = newState.bottomSheetUiState.copy(
+                        amountTextFieldValue = textFieldValue
+                    )
+                )
+            }
+        }
+    }
+
+    private fun updateTextFieldValue(textFieldValue: String) {
+        val isTextFieldValid = PatternValidator.isUsernameValid(textFieldValue)
+        //username error will only show in ui when username is not valid
+        val textFieldError = PatternValidator.getUsernameError(username = textFieldValue)
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    textFieldValue = textFieldValue,
+                    isTextFieldError = (!isTextFieldValid && !textFieldValue.isEmpty()),
+                    textFieldError = textFieldError,
+                )
+            )
+        }
+    }
+
+    private fun setPreferencesFormat() {
+        viewModelScope.launch {
+            val username = sessionStorage.getAuthInfo()!!.username
+            val result = userRepository.getPreferencesByUsername(username)
+            if (result is Result.Success) {
+                _state.update { newState ->
+                    newState.copy(
+                        bottomSheetUiState = newState.bottomSheetUiState.copy(
+                            preferencesFormat = result.data,
+                        )
+                    )
+                }
+                Timber.tag("MyTag").d("preferences: ${result.data}")
+            }
+        }
+    }
+
+    private fun showBottomBar() {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = true)
+            )
+        }
+    }
+
+    private fun updateExpense(isExpense: Boolean) {
+        _state.update { newState ->
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(isExpense = isExpense))
+        }
+    }
+
+    private fun dismissBottomSheet() {
+        _state.update { newState ->
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = false))
+        }
+    }
+
+    private fun setSelectedTransaction(selectedTransaction: TransactionItem) {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = selectedTransaction)
+            )
+        }
+    }
+
+    private fun resetTextFields() {
+        _state.update { newState ->
+            newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
+                    textFieldValue = "",
+                    amountTextFieldValue = TextFieldValue(""),
+                    noteValue = null
+                )
+            )
+        }
+    }
 }

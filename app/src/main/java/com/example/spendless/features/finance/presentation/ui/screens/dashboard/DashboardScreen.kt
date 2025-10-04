@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -58,13 +59,16 @@ import com.example.spendless.core.presentation.designsystem.secondaryFixedDim
 import com.example.spendless.core.presentation.designsystem.success
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.finance.data.model.TransactionItem
+import com.example.spendless.features.finance.presentation.designsystem.components.CreateTransactionModalBottomSheet
 import com.example.spendless.features.finance.presentation.designsystem.components.TransactionsList
+import com.example.spendless.features.finance.presentation.ui.common.SharedActions
+import com.example.spendless.features.finance.presentation.ui.common.SharedActions.DashboardActions
 
 @Composable
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     dashboardUiState: DashboardUiState,
-    dashboardActions: (DashboardActions) -> Unit
+    dashboardActions: (SharedActions) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -110,7 +114,7 @@ fun DashboardScreen(
                         FloatingActionButton(
                             modifier = Modifier.size(64.dp),
                             onClick = {
-                                dashboardActions(DashboardActions.CreateNewTransaction(true))
+                                dashboardActions(SharedActions.ShowBottomBar)
                             },
                             shape = MaterialTheme.shapes.medium,
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -158,6 +162,16 @@ fun DashboardScreen(
                         }
                     )
                 }
+
+                CreateTransactionModalBottomSheet(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .statusBarsPadding()
+                        .imePadding()
+                        .padding(top = 10.dp),
+                    transactionsUiState = dashboardUiState.bottomSheetUiState,
+                    transactionsActions = dashboardActions,
+                )
             }
         }
     }

@@ -39,11 +39,8 @@ fun NavGraphBuilder.financeGraph(
                     }
 
                     DashboardEvents.NavigateToTransactions -> {
-                        navHostController.navigate(NavigationScreens.Transactions(showBottomSheet = false))
+                        navHostController.navigate(NavigationScreens.Transactions)
                     }
-
-                    is DashboardEvents.NavigateToCreateTransactions ->
-                        navHostController.navigate(NavigationScreens.Transactions(true))
                 }
             }
 

@@ -2,7 +2,6 @@ package com.example.spendless.features.finance.presentation.ui.screens.transacti
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
@@ -14,6 +13,7 @@ import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.domain.TransactionsRepository
+import com.example.spendless.features.finance.presentation.ui.common.SharedActions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,33 +31,8 @@ sealed interface TransactionsEvents {
     data object NavigateBack : TransactionsEvents
 }
 
-sealed interface TransactionsActions {
-    data object NavigateBack : TransactionsActions
-    data object ExportData : TransactionsActions
-    data class SelectedTransaction(val selectedTransactionItem: TransactionItem) :
-        TransactionsActions
-
-    data object DismissBottomSheet : TransactionsActions
-    data object ShowBottomBar : TransactionsActions
-    data class UpdateExpense(val isExpense: Boolean) : TransactionsActions
-    data class UpdateTextFieldValue(val textFieldValue: String) : TransactionsActions
-    data class UpdateAmountTextFieldValue(val amountTextFieldValue: TextFieldValue) :
-        TransactionsActions
-
-    data class UpdateNote(val noteValue: String) : TransactionsActions
-    data class UpdateSelectedCategory(val category: Category) : TransactionsActions
-    data class UpdateDropDownCategoryExpand(val isExpand: Boolean) : TransactionsActions
-    data class UpdateSelectedPaymentRecurrence(val paymentRecurrence: PaymentRecurrence) :
-        TransactionsActions
-
-    data class UpdateDropDownPaymentRecurrenceExpand(val isExpand: Boolean) : TransactionsActions
-    data object OnCreateClick : TransactionsActions
-    data class ShowFloatingActionButton(val isVisible: Boolean) : TransactionsActions
-}
-
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
-    private val saveStateHandle: SavedStateHandle,
     private val sessionStorage: SessionStorage,
     private val transactionsRepository: TransactionsRepository,
     private val userRepository: UserRepository,
@@ -70,69 +45,72 @@ class TransactionsViewModel @Inject constructor(
 
     init {
         setPreferencesFormat()
-        setShowBottomBar()
     }
 
-    fun onActions(transactionsActions: TransactionsActions) {
+    fun onActions(transactionsActions: SharedActions) {
         when (transactionsActions) {
-            TransactionsActions.ExportData -> exportData()
-            TransactionsActions.NavigateBack -> navigateBack()
-            TransactionsActions.DismissBottomSheet -> dismissBottomSheet()
-            TransactionsActions.ShowBottomBar -> showBottomBar()
-            TransactionsActions.OnCreateClick -> onCreateClick()
+            SharedActions.TransactionsActions.ExportData -> exportData()
+            SharedActions.TransactionsActions.NavigateBack -> navigateBack()
+            SharedActions.DismissBottomSheet -> dismissBottomSheet()
+            SharedActions.ShowBottomBar -> showBottomBar()
+            SharedActions.OnCreateClick -> onCreateClick()
 
-            is TransactionsActions.SelectedTransaction -> setSelectedTransaction(transactionsActions.selectedTransactionItem)
-            is TransactionsActions.UpdateExpense -> updateExpense(transactionsActions.isExpense)
-            is TransactionsActions.UpdateTextFieldValue -> updateTextFieldValue(transactionsActions.textFieldValue)
-            is TransactionsActions.UpdateAmountTextFieldValue -> updateAmountTextFieldValue(
+            is SharedActions.SelectedTransaction -> setSelectedTransaction(transactionsActions.selectedTransactionItem)
+            is SharedActions.UpdateExpense -> updateExpense(transactionsActions.isExpense)
+            is SharedActions.UpdateTextFieldValue -> updateTextFieldValue(transactionsActions.textFieldValue)
+            is SharedActions.UpdateAmountTextFieldValue -> updateAmountTextFieldValue(
                 transactionsActions.amountTextFieldValue
             )
 
-            is TransactionsActions.UpdateNote -> updateNote(note = transactionsActions.noteValue)
-            is TransactionsActions.UpdateSelectedCategory -> updateSelectedCategory(
+            is SharedActions.UpdateNote -> updateNote(note = transactionsActions.noteValue)
+            is SharedActions.UpdateSelectedCategory -> updateSelectedCategory(
                 transactionsActions.category
             )
 
-            is TransactionsActions.UpdateDropDownCategoryExpand -> updateDropDownCategoryExpand(
+            is SharedActions.UpdateDropDownCategoryExpand -> updateDropDownCategoryExpand(
                 transactionsActions.isExpand
             )
 
-            is TransactionsActions.UpdateSelectedPaymentRecurrence -> updateSelectedPaymentRecurrence(
+            is SharedActions.UpdateSelectedPaymentRecurrence -> updateSelectedPaymentRecurrence(
                 transactionsActions.paymentRecurrence
             )
 
-            is TransactionsActions.UpdateDropDownPaymentRecurrenceExpand -> updateDropDownPaymentRecurrenceExpand(
+            is SharedActions.UpdateDropDownPaymentRecurrenceExpand -> updateDropDownPaymentRecurrenceExpand(
                 transactionsActions.isExpand
             )
 
-            is TransactionsActions.ShowFloatingActionButton -> showFloatingActionButton(
+            is SharedActions.ShowFloatingActionButton -> showFloatingActionButton(
                 transactionsActions.isVisible
             )
+
+            else -> {}
         }
     }
 
     private fun showFloatingActionButton(isVisible: Boolean) {
         _state.update { newState ->
-            newState.copy(isFloatingActionButtonVisible = isVisible)
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(isFloatingActionButtonVisible = isVisible))
         }
     }
 
     private fun onCreateClick() {
         viewModelScope.launch {
+            //show loader for on create button
+            onCreateLoading(true)
             val timeNow = Clock.System
                 .now()
                 .toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
             val state = _state.value
-            val transactionItem = state.selectedTransactionItem.copy(
-                category = state.selectedCategory,
-                title = state.textFieldValue,
-                isExpense = state.isExpense,
-                description = if (state.isExpense) state.selectedCategory.categoryName.categoryRes else R.string.income,
-                price = state.amountTextFieldValue.text,
+            val transactionItem = state.bottomSheetUiState.selectedTransactionItem.copy(
+                category = state.bottomSheetUiState.selectedCategory,
+                title = state.bottomSheetUiState.textFieldValue,
+                isExpense = state.bottomSheetUiState.isExpense,
+                description = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.categoryName.categoryRes else R.string.income,
+                price = state.bottomSheetUiState.amountTextFieldValue.text,
                 date = timeNow.toString(),
-                content = state.noteValue,
-                image = if (state.isExpense) state.selectedCategory.image else R.drawable.accessories
+                content = state.bottomSheetUiState.noteValue,
+                image = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.image else R.drawable.accessories
             )
             Timber.tag("MyTag").d("onCreateClick $transactionItem")
             val result = transactionsRepository.insertTransaction(transactionItem)
@@ -141,19 +119,29 @@ class TransactionsViewModel @Inject constructor(
                 is Result.Success -> {
                     _state.update { newState ->
                         newState.copy(
-                            showBottomSheet = false
+                            bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = false)
                         )
                     }
                     resetTextFields()
+                    onCreateLoading(false)
+                    dismissBottomSheet()
                 }
             }
+        }
+    }
+
+    private fun onCreateLoading(onCreateLoading: Boolean){
+        _state.update { newState->
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(
+                isOnCreateLoading = onCreateLoading
+            ))
         }
     }
 
     private fun updateDropDownPaymentRecurrenceExpand(isExpand: Boolean) {
         _state.update { newState ->
             newState.copy(
-                isDropDownPaymentRecurrenceExpand = isExpand
+                bottomSheetUiState = newState.bottomSheetUiState.copy(isDropDownPaymentRecurrenceExpand = isExpand)
             )
         }
     }
@@ -161,7 +149,7 @@ class TransactionsViewModel @Inject constructor(
     private fun updateSelectedPaymentRecurrence(paymentRecurrence: PaymentRecurrence) {
         _state.update { newState ->
             newState.copy(
-                selectedPaymentRecurrence = paymentRecurrence
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedPaymentRecurrence = paymentRecurrence)
             )
         }
     }
@@ -169,7 +157,7 @@ class TransactionsViewModel @Inject constructor(
     private fun updateDropDownCategoryExpand(isExpand: Boolean) {
         _state.update { newState ->
             newState.copy(
-                isDropDownCategoryExpand = isExpand
+                bottomSheetUiState = newState.bottomSheetUiState.copy(isDropDownCategoryExpand = isExpand)
             )
         }
     }
@@ -177,7 +165,7 @@ class TransactionsViewModel @Inject constructor(
     private fun updateSelectedCategory(selectedCategory: Category) {
         _state.update { newState ->
             newState.copy(
-                selectedCategory = selectedCategory
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedCategory = selectedCategory)
             )
         }
     }
@@ -185,7 +173,7 @@ class TransactionsViewModel @Inject constructor(
     private fun updateNote(note: String) {
         _state.update { newState ->
             newState.copy(
-                noteValue = note
+                bottomSheetUiState = newState.bottomSheetUiState.copy(noteValue = note)
             )
         }
     }
@@ -195,11 +183,10 @@ class TransactionsViewModel @Inject constructor(
             //to not use the format and only digits and only 8 length
             val digitsOnly = amountTextFieldValue.text.filter { it.isDigit() }.take(8)
             //set textField cursor to the end
-            Timber.tag("MyTag").d("digits: $digitsOnly")
             val textFieldValue =
                 TextFieldValue(text = digitsOnly, selection = TextRange(digitsOnly.length))
             _state.update { newState ->
-                newState.copy(amountTextFieldValue = textFieldValue)
+                newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(amountTextFieldValue = textFieldValue))
             }
         }
     }
@@ -210,9 +197,11 @@ class TransactionsViewModel @Inject constructor(
         val textFieldError = PatternValidator.getUsernameError(username = textFieldValue)
         _state.update { newState ->
             newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
                 textFieldValue = textFieldValue,
                 isTextFieldError = (!isTextFieldValid && !textFieldValue.isEmpty()),
                 textFieldError = textFieldError,
+                )
             )
         }
     }
@@ -224,7 +213,9 @@ class TransactionsViewModel @Inject constructor(
             if (result is Result.Success) {
                 _state.update { newState ->
                     newState.copy(
+                        bottomSheetUiState = newState.bottomSheetUiState.copy(
                         preferencesFormat = result.data,
+                    )
                     )
                 }
                 Timber.tag("MyTag").d("preferences: ${result.data}")
@@ -232,40 +223,30 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private fun setShowBottomBar() {
-        val showBottomSheet = saveStateHandle.get<Boolean>("showBottomSheet") == true
-        _state.update { newState ->
-            newState.copy(
-                showBottomSheet = showBottomSheet
-            )
-        }
-    }
-
     private fun showBottomBar() {
         _state.update { newState ->
             newState.copy(
-                showBottomSheet = true
+                bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = true)
             )
         }
     }
 
     private fun updateExpense(isExpense: Boolean) {
         _state.update { newState ->
-            newState.copy(isExpense = isExpense)
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(isExpense = isExpense))
         }
     }
 
     private fun dismissBottomSheet() {
         _state.update { newState ->
-            newState.copy(showBottomSheet = false)
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = false))
         }
-
     }
 
     private fun setSelectedTransaction(selectedTransaction: TransactionItem) {
         _state.update { newState ->
             newState.copy(
-                selectedTransactionItem = selectedTransaction
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = selectedTransaction)
             )
         }
     }
@@ -283,9 +264,11 @@ class TransactionsViewModel @Inject constructor(
     private fun resetTextFields(){
         _state.update { newState->
             newState.copy(
+                bottomSheetUiState = newState.bottomSheetUiState.copy(
                 textFieldValue = "",
                 amountTextFieldValue = TextFieldValue(""),
                 noteValue = null
+            )
             )
         }
     }

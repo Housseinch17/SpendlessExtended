@@ -5,6 +5,7 @@ import com.example.spendless.core.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.finance.data.model.TransactionItem
+import com.example.spendless.features.finance.presentation.ui.common.BottomSheetUiState
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -26,6 +27,8 @@ data class DashboardUiState(
     val transactionsByDate: Map<UiText, List<TransactionItem>> = emptyMap(),
 
     val isFloatingActionButtonVisible: Boolean = true,
+    val bottomSheetUiState: BottomSheetUiState = BottomSheetUiState(),
+
 ) {
     val largestCategoryExpense: Category? = largestTransaction?.category
 
