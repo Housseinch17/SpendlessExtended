@@ -7,6 +7,7 @@ enum class CategoryItem(@StringRes val categoryRes: Int) {
     Clothing(R.string.clothing),
     Accessories(R.string.accessories),
     Health(R.string.health),
+    Home(R.string.home),
     Food(R.string.food),
     Entertainment(R.string.entertainment),
     Education(R.string.education)

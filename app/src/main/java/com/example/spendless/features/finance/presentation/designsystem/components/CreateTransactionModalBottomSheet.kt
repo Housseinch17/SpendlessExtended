@@ -368,11 +368,11 @@ fun AddNote(
             unfocusedIndicatorColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
         ),
-        textStyle = MaterialTheme.typography.displayMedium.copy(
+        textStyle = MaterialTheme.typography.titleMedium.copy(
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         ),
-        maxLines = 3,
+        maxLines = 2,
     )
 }
 

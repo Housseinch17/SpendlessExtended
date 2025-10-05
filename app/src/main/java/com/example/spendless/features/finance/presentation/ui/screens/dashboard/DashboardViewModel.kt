@@ -333,6 +333,7 @@ class DashboardViewModel @Inject constructor(
                                 bottomSheetUiState = newState.bottomSheetUiState.copy(
                                     preferencesFormat = preferences,
                                 ),
+                                preferencesFormat = preferences,
                                 previousWeekSpent = totalSpentPreviousWeek
                             )
                         }
@@ -362,9 +363,11 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun setSelectedTransaction(selectedTransaction: TransactionItem) {
+        val isSelected =
+            selectedTransaction == _state.value.bottomSheetUiState.selectedTransactionItem
         _state.update { newState ->
             newState.copy(
-                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = selectedTransaction)
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = if (isSelected) TransactionItem() else selectedTransaction)
             )
         }
     }

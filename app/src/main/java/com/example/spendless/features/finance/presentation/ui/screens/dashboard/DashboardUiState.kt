@@ -15,7 +15,6 @@ data class DashboardUiState(
     val total: String = "${preferencesFormat.currency.symbol}0.00",
     val largestTransaction: TransactionItem? = null,
     val listOfTransactions: List<TransactionItem> = emptyList<TransactionItem>(),
-    val selectedTransaction: TransactionItem = TransactionItem(),
     val transactionsByDate: Map<UiText, List<TransactionItem>> = emptyMap(),
     val previousWeekSpent: String = "${preferencesFormat.currency.symbol}0.00",
     val bottomSheetUiState: BottomSheetUiState = BottomSheetUiState(),

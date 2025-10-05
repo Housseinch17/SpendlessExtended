@@ -156,7 +156,7 @@ fun DashboardScreen(
                             dashboardActions(DashboardActions.ShowAll)
                         },
                         transactionsByDate = dashboardUiState.transactionsByDate,
-                        selectedTransactionItem = dashboardUiState.selectedTransaction,
+                        selectedTransactionItem = dashboardUiState.bottomSheetUiState.selectedTransactionItem,
                         onSelectTransaction = { transactionItem ->
                             dashboardActions(DashboardActions.SelectedTransaction(transactionItem))
                         },

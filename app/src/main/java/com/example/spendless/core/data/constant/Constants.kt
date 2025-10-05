@@ -29,6 +29,10 @@ object Constants {
             categoryName = CategoryItem.Clothing
         ),
         Category(
+            image = SpendLessIcons.Home,
+            categoryName = CategoryItem.Home
+        ),
+        Category(
             image = SpendLessIcons.Accessories,
             categoryName = CategoryItem.Accessories
         ),
@@ -39,7 +43,7 @@ object Constants {
         Category(
             image = SpendLessIcons.Education,
             categoryName = CategoryItem.Education
-        )
+        ),
     )
 
     val expensesFormatList = listOf<String>(

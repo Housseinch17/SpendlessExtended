@@ -283,12 +283,14 @@ class TransactionsViewModel @Inject constructor(
     }
 
     private fun setSelectedTransaction(selectedTransaction: TransactionItem) {
+        val isSelected = selectedTransaction == _state.value.bottomSheetUiState.selectedTransactionItem
         _state.update { newState ->
             newState.copy(
-                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = selectedTransaction)
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = if(isSelected) TransactionItem() else selectedTransaction)
             )
         }
     }
+
 
     private fun navigateBack() {
         viewModelScope.launch {
