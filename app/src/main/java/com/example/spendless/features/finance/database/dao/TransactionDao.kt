@@ -11,12 +11,19 @@ interface TransactionDao {
     @Insert
     suspend fun insertTransaction(transactionEntity: TransactionEntity)
 
-    @Query("SELECT * FROM Transactions Where username = :username")
+    @Query("SELECT * FROM Transactions Where username = :username ORDER BY date DESC")
     fun getAllTransactions(username: String): Flow<List<TransactionEntity>?>
 
+    @Query("SELECT * FROM Transactions WHERE username = :username AND date IN (:today, :yesterday)     ORDER BY date DESC")
+    fun getTransactionsForTodayAndYesterday(
+        username: String,
+        today: String,
+        yesterday: String
+    ): Flow<List<TransactionEntity>?>
+
+    //""" is used when we have multi-lines
     @Query(
-        """
-        SELECT IFNULL(
+        """SELECT IFNULL(
             CAST(SUM(
                 CASE 
                     WHEN isExpense = 1 THEN -CAST(price AS INTEGER) 

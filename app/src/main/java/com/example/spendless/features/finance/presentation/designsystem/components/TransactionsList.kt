@@ -1,6 +1,7 @@
 package com.example.spendless.features.finance.presentation.designsystem.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,93 +55,94 @@ fun TransactionsList(
     LaunchedEffect(showFab) {
         showFloatingActionButton(showFab)
     }
-
-    LazyColumn(
-        modifier = modifier
+    Column(
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp, horizontal = 12.dp),
-        state = state,
-        contentPadding = PaddingValues(bottom = 16.dp),
+            .padding(vertical = 16.dp, horizontal = 12.dp)
     ) {
         if (showTransactionText) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(R.string.latest_transactions),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+
+                TextButton(
+                    modifier = Modifier,
+                    onClick = onShowAllClick
                 ) {
                     Text(
-                        modifier = Modifier.weight(1f),
-                        text = stringResource(R.string.latest_transactions),
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurface
+                        modifier = Modifier,
+                        text = stringResource(R.string.show_all),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            color = MaterialTheme.colorScheme.primary
                         )
                     )
-
-                    TextButton(
-                        modifier = Modifier,
-                        onClick = onShowAllClick
-                    ) {
-                        Text(
-                            modifier = Modifier,
-                            text = stringResource(R.string.show_all),
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        )
-                    }
                 }
             }
         }
 
-        transactionsByDate.forEach { date, transactionList ->
-            item {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            top = 4.dp,
-                            bottom = 12.dp
-                        ),
-                    text = date.asString(),
-                    style = MaterialTheme.typography.bodyXSmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-            }
-
-            items(transactionList) { transactionItem ->
-                TransactionItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp),
-                    transactionItem = transactionItem,
-                    selectedTransactionItem = selectedTransactionItem,
-                    onClick = {
-                        if (transactionItem.content != null) {
-                            onSelectTransaction(transactionItem)
-                        }
-                    }
-                )
-            }
-        }
-
-        if (isLastItemVisible) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+        LazyColumn(
+            modifier = modifier
+                .fillMaxWidth(),
+            state = state,
+            contentPadding = PaddingValues(bottom = 16.dp),
+        ) {
+            transactionsByDate.forEach { date, transactionList ->
+                item {
                     Text(
-                        modifier = Modifier,
-                        text = stringResource(R.string.reached_end),
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = MaterialTheme.colorScheme.primary
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = 4.dp,
+                                bottom = 12.dp
+                            ),
+                        text = date.asString(),
+                        style = MaterialTheme.typography.bodyXSmall.copy(
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     )
+                }
+
+                items(transactionList) { transactionItem ->
+                    TransactionItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp),
+                        transactionItem = transactionItem,
+                        selectedTransactionItem = selectedTransactionItem,
+                        onClick = {
+                            if (transactionItem.content != null) {
+                                onSelectTransaction(transactionItem)
+                            }
+                        }
+                    )
+                }
+            }
+
+            if (isLastItemVisible) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            text = stringResource(R.string.reached_end),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        )
+                    }
                 }
             }
         }

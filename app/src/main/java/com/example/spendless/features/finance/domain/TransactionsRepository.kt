@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface TransactionsRepository {
     suspend fun insertTransaction(transactionItem: TransactionItem): Result<Unit, DataError.Local>
     suspend fun getAllTransactions(): Flow<List<TransactionItem>>
+    suspend fun getTransactionsForTodayAndYesterday(): Flow<List<TransactionItem>>
     suspend fun getNetTotalForUser(): Flow<String>
     suspend fun getLargestTransaction(): Flow<TransactionItem?>
     suspend fun getTotalSpentPreviousWeek(preferencesFormat: PreferencesFormat): Flow<String>

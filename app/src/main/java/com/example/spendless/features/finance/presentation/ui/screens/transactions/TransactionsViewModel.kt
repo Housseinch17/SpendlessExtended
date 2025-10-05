@@ -121,7 +121,7 @@ class TransactionsViewModel @Inject constructor(
             }
             //map the date with their lists for example 9/10/2024 should have a list with key 9/10/2024 and value
             //all the transactionItems at this date
-            val groupTransactions = groupTransactionsByDate(transactions = transactionMap, showAllDates = true)
+            val groupTransactions = groupTransactionsByDate(transactions = transactionMap)
             _state.update { newState ->
                 newState.copy(
                     bottomSheetUiState = newState.bottomSheetUiState.copy(listOfTransactions = transactionsList),

@@ -77,17 +77,15 @@ class DashboardViewModel @Inject constructor(
     }
 
     private suspend fun setUsername() {
-        Timber.tag("MyTag").d("setUsername")
         val username = sessionStorage.getAuthInfo()?.username ?: ""
         _state.update { newState ->
             newState.copy(username = username)
         }
-        Timber.tag("MyTag").d("setUsername done")
     }
 
     private suspend fun combineFlows() {
         val total = transactionsRepository.getNetTotalForUser()
-        val transactionsList = transactionsRepository.getAllTransactions()
+        val transactionsList = transactionsRepository.getTransactionsForTodayAndYesterday()
         val largestTransaction = transactionsRepository.getLargestTransaction()
         combine(
             total,
@@ -111,7 +109,7 @@ class DashboardViewModel @Inject constructor(
             }
             //map the date with their lists for example 9/10/2024 should have a list with key 9/10/2024 and value
             //all the transactionItems at this date
-            val groupTransactions = groupTransactionsByDate(transactions = transactionMap, showAllDates = false)
+            val groupTransactions = groupTransactionsByDate(transactions = transactionMap)
 
             Pair(uiState, groupTransactions)
         }.collect { (uiState, groupTransactions) ->

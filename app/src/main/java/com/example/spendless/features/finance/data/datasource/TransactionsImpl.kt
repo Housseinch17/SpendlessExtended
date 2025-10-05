@@ -46,6 +46,19 @@ class TransactionsImpl @Inject constructor(
         }
     }
 
+    override suspend fun getNetTotalForUser(): Flow<String> =
+        try {
+            val username = sessionStorage.getAuthInfo()!!.username
+            transactionDao.getNetTotalForUser(username).map {
+                it.orEmpty()
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
+            emptyFlow()
+        }
+
     override suspend fun getAllTransactions(): Flow<List<TransactionItem>> {
         return try {
             val username = sessionStorage.getAuthInfo()!!.username
@@ -60,11 +73,19 @@ class TransactionsImpl @Inject constructor(
         }
     }
 
-    override suspend fun getNetTotalForUser(): Flow<String> =
+    override suspend fun getTransactionsForTodayAndYesterday(): Flow<List<TransactionItem>> =
         try {
             val username = sessionStorage.getAuthInfo()!!.username
-            transactionDao.getNetTotalForUser(username).map {
-                it.orEmpty()
+            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val yesterday = today.minus(1, DateTimeUnit.DAY)
+            transactionDao.getTransactionsForTodayAndYesterday(
+                username = username,
+                today = today.toString(),
+                yesterday = yesterday.toString()
+            ).map { list ->
+                list.orEmpty().map {
+                    it.toTransactionItem()
+                }
             }
         } catch (e: Exception) {
             if (e is CancellationException) {
@@ -95,7 +116,8 @@ class TransactionsImpl @Inject constructor(
                 val total = transactions
                     .filter { it.isExpense }
                     .mapNotNull { transactionItem ->
-                        val date = transactionItem.date.takeIf { it.isNotEmpty() }?.let { LocalDate.parse(it) }
+                        val date = transactionItem.date.takeIf { it.isNotEmpty() }
+                            ?.let { LocalDate.parse(it) }
                         if (date != null && date in start..end) transactionItem.price.toDoubleOrNull() else null
                     }
                     .sumOf { it }

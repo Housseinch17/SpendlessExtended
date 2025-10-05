@@ -36,20 +36,22 @@ fun TransactionsScreen(
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier.size(64.dp),
-                onClick = {
-                    transactionsActions(SharedActions.ShowBottomBar)
-                },
-                shape = MaterialTheme.shapes.medium,
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            ) {
-                Icon(
-                    imageVector = SpendLessIcons.Add,
-                    contentDescription = stringResource(R.string.create_transaction),
-                    tint = LocalContentColor.current
-                )
+            if(transactionsUiState.bottomSheetUiState.isFloatingActionButtonVisible) {
+                FloatingActionButton(
+                    modifier = Modifier.size(64.dp),
+                    onClick = {
+                        transactionsActions(SharedActions.ShowBottomBar)
+                    },
+                    shape = MaterialTheme.shapes.medium,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ) {
+                    Icon(
+                        imageVector = SpendLessIcons.Add,
+                        contentDescription = stringResource(R.string.create_transaction),
+                        tint = LocalContentColor.current
+                    )
+                }
             }
         },
         topBar = {

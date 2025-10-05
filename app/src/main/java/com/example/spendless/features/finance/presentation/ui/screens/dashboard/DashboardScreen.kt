@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -73,11 +74,13 @@ fun DashboardScreen(
     Box(
         modifier = modifier
             .background(
-                brush = Brush.verticalGradient(
+                brush = Brush.radialGradient(
                     colors = listOf(
                         MaterialTheme.colorScheme.primary,
                         MaterialTheme.colorScheme.onPrimaryFixed
-                    )
+                    ),
+                    center = Offset(0f,0f),
+                    radius = 1200f
                 )
             ),
         contentAlignment = Alignment.TopStart
@@ -110,7 +113,7 @@ fun DashboardScreen(
                     )
                 },
                 floatingActionButton = {
-                    if (dashboardUiState.isFloatingActionButtonVisible) {
+                    if (dashboardUiState.bottomSheetUiState.isFloatingActionButtonVisible) {
                         FloatingActionButton(
                             modifier = Modifier.size(64.dp),
                             onClick = {

@@ -18,7 +18,6 @@ data class DashboardUiState(
     val selectedTransaction: TransactionItem = TransactionItem(),
     val transactionsByDate: Map<UiText, List<TransactionItem>> = emptyMap(),
     val previousWeekSpent: String = "${preferencesFormat.currency.symbol}0.00",
-    val isFloatingActionButtonVisible: Boolean = true,
     val bottomSheetUiState: BottomSheetUiState = BottomSheetUiState(),
 ) {
     val largestCategoryExpense: Category? = largestTransaction?.category
