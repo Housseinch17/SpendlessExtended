@@ -1,6 +1,6 @@
-package com.example.spendless.core.database.user.mapper
+package com.example.spendless.core.data.database.user.mapper
 
-import com.example.spendless.core.database.user.model.UserEntity
+import com.example.spendless.core.data.database.user.model.UserEntity
 import com.example.spendless.core.domain.model.User
 
 fun UserEntity.toUser(): User{

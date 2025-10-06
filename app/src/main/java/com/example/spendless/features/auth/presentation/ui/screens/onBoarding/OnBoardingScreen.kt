@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spendless.R
 import com.example.spendless.core.data.constant.Constants
-import com.example.spendless.core.database.user.model.Currency
-import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.Currency
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.designsystem.components.CurrenciesDropDownMenu
 import com.example.spendless.core.presentation.designsystem.components.SpendlessButton
 import com.example.spendless.core.presentation.designsystem.primaryContainerOpacity8

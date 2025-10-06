@@ -22,7 +22,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.spendless.R
-import com.example.spendless.core.database.user.model.Currency
+import com.example.spendless.core.data.database.user.model.Currency
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
 
 @Composable

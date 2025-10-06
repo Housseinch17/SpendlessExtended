@@ -1,4 +1,4 @@
-package com.example.spendless.core.di
+package com.example.spendless.core.data.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -7,8 +7,8 @@ import androidx.room.Room
 import com.example.spendless.core.data.auth.AuthInfoSerializable
 import com.example.spendless.core.data.auth.AuthInfoSerializer
 import com.example.spendless.core.data.auth.SessionStorageImpl
-import com.example.spendless.core.database.Database
-import com.example.spendless.core.database.user.dao.UserDao
+import com.example.spendless.core.data.database.Database
+import com.example.spendless.core.data.database.user.dao.UserDao
 import com.example.spendless.core.domain.auth.SessionStorage
 import dagger.Binds
 import dagger.Module

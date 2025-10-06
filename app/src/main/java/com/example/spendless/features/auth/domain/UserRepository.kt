@@ -1,7 +1,7 @@
 package com.example.spendless.features.auth.domain
 
-import com.example.spendless.core.database.user.model.PreferencesFormat
-import com.example.spendless.core.database.user.model.Security
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.Security
 import com.example.spendless.core.domain.model.User
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result

@@ -1,5 +1,5 @@
 package com.example.spendless.core.presentation.ui
-import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import java.util.Locale
 
 

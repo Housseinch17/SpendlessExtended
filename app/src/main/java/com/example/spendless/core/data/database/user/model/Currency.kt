@@ -1,4 +1,4 @@
-package com.example.spendless.core.database.user.model
+package com.example.spendless.core.data.database.user.model
 
 import kotlinx.serialization.Serializable
 

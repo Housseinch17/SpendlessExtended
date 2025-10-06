@@ -1,11 +1,11 @@
-package com.example.spendless.core.database.user.dao
+package com.example.spendless.core.data.database.user.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.spendless.core.database.user.model.PreferencesFormat
-import com.example.spendless.core.database.user.model.Security
-import com.example.spendless.core.database.user.model.UserEntity
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.Security
+import com.example.spendless.core.data.database.user.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

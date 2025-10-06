@@ -1,4 +1,4 @@
-package com.example.spendless.core.database.user.model
+package com.example.spendless.core.data.database.user.model
 
 import com.example.spendless.features.auth.data.model.CounterPerTimeUnit
 import kotlinx.serialization.Serializable

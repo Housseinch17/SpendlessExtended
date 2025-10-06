@@ -1,7 +1,7 @@
 package com.example.spendless.features.finance.presentation.ui.screens.dashboard
 
 import com.example.spendless.core.data.model.Category
-import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.finance.data.model.TransactionItem
@@ -14,7 +14,6 @@ data class DashboardUiState(
     val preferencesFormat: PreferencesFormat = PreferencesFormat(),
     val total: String = "${preferencesFormat.currency.symbol}0.00",
     val largestTransaction: TransactionItem? = null,
-    val listOfTransactions: List<TransactionItem> = emptyList<TransactionItem>(),
     val transactionsByDate: Map<UiText, List<TransactionItem>> = emptyMap(),
     val previousWeekSpent: String = "${preferencesFormat.currency.symbol}0.00",
     val bottomSheetUiState: BottomSheetUiState = BottomSheetUiState(),

@@ -1,4 +1,4 @@
-package com.example.spendless.features.finance.database.model
+package com.example.spendless.features.finance.data.database.model
 
 import androidx.annotation.Keep
 import androidx.room.ColumnInfo

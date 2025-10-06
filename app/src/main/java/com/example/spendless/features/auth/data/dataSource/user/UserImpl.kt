@@ -1,11 +1,11 @@
 package com.example.spendless.features.auth.data.dataSource.user
 
 import com.example.spendless.core.data.encryption.EncryptionHelper
-import com.example.spendless.core.database.user.dao.UserDao
-import com.example.spendless.core.database.user.mapper.toUser
-import com.example.spendless.core.database.user.mapper.toUserEntity
-import com.example.spendless.core.database.user.model.PreferencesFormat
-import com.example.spendless.core.database.user.model.Security
+import com.example.spendless.core.data.database.user.dao.UserDao
+import com.example.spendless.core.data.database.user.mapper.toUser
+import com.example.spendless.core.data.database.user.mapper.toUserEntity
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.Security
 import com.example.spendless.core.domain.model.User
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result

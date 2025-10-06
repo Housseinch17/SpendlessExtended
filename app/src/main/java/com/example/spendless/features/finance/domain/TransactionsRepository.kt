@@ -1,6 +1,6 @@
 package com.example.spendless.features.finance.domain
 
-import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.features.finance.data.model.TransactionItem

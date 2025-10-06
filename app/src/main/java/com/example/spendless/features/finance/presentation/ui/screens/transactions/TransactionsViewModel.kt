@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
 import com.example.spendless.core.data.model.Category
-import com.example.spendless.core.domain.PatternValidator
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.amountFormatter
@@ -248,15 +247,10 @@ class TransactionsViewModel @Inject constructor(
     }
 
     private fun updateTextFieldValue(textFieldValue: String) {
-        val isTextFieldValid = PatternValidator.isUsernameValid(textFieldValue)
-        //username error will only show in ui when username is not valid
-        val textFieldError = PatternValidator.getUsernameError(username = textFieldValue)
         _state.update { newState ->
             newState.copy(
                 bottomSheetUiState = newState.bottomSheetUiState.copy(
                     textFieldValue = textFieldValue,
-                    isTextFieldError = (!isTextFieldValid && !textFieldValue.isEmpty()),
-                    textFieldError = textFieldError,
                 )
             )
         }

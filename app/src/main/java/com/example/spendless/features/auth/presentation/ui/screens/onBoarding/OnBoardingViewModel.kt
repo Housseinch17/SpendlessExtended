@@ -3,8 +3,8 @@ package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.spendless.core.database.user.model.Currency
-import com.example.spendless.core.database.user.model.Security
+import com.example.spendless.core.data.database.user.model.Currency
+import com.example.spendless.core.data.database.user.model.Security
 import com.example.spendless.core.domain.auth.AuthInfo
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.model.User

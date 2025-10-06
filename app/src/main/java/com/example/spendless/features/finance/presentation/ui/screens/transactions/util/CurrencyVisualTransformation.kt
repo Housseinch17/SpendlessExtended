@@ -7,7 +7,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.ui.amountFormatter
 
 class CurrencyVisualTransformation(

@@ -1,9 +1,9 @@
-package com.example.spendless.core.database.user.converters
+package com.example.spendless.core.data.database.user.converters
 
 import androidx.room.TypeConverter
-import com.example.spendless.core.database.user.model.Currency
-import com.example.spendless.core.database.user.model.PreferencesFormat
-import com.example.spendless.core.database.user.model.Security
+import com.example.spendless.core.data.database.user.model.Currency
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.Security
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 

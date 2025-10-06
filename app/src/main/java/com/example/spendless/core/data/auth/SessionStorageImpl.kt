@@ -1,7 +1,7 @@
 package com.example.spendless.core.data.auth
 
 import androidx.datastore.core.DataStore
-import com.example.spendless.core.di.AuthInfoDataStore
+import com.example.spendless.core.data.di.AuthInfoDataStore
 import com.example.spendless.core.domain.auth.AuthInfo
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.DataError

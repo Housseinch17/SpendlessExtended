@@ -1,4 +1,4 @@
-package com.example.spendless.features.finance.database.converters
+package com.example.spendless.features.finance.data.database.converters
 
 import androidx.room.TypeConverter
 import com.example.spendless.core.data.model.Category

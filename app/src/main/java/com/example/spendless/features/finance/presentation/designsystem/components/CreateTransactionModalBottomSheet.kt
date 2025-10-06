@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.spendless.R
 import com.example.spendless.core.data.model.Category
-import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
 import com.example.spendless.core.presentation.designsystem.components.DropDownMenu
 import com.example.spendless.core.presentation.designsystem.onPrimaryFixed
@@ -132,8 +132,6 @@ fun CreateTransactionModalBottomSheet(
                         .padding(top = 34.dp),
                     placeHolder = transactionsUiState.placeHolder,
                     value = transactionsUiState.textFieldValue,
-                    isError = transactionsUiState.isTextFieldError,
-                    errorText = transactionsUiState.textFieldError?.asString() ?: "",
                     onValueChange = { newValue ->
                         transactionsActions(SharedActions.UpdateTextFieldValue(newValue))
                     },
@@ -377,6 +375,53 @@ fun AddNote(
 }
 
 @Composable
+fun SenderOrReceiverTextField(
+    modifier: Modifier = Modifier,
+    @StringRes placeHolder: Int,
+    value: String,
+    onValueChange: (String) -> Unit,
+) {
+    TextField(
+        modifier = modifier,
+        value = value,
+        onValueChange = { newValue ->
+            onValueChange(newValue)
+        },
+        placeholder = {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(placeHolder),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceOpacity30,
+                    textAlign = TextAlign.Center
+                )
+            )
+        },
+        textStyle = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        ),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            errorContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedPlaceholderColor = Color.Transparent,
+            focusedPlaceholderColor = Color.Transparent,
+            disabledPlaceholderColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent,
+            errorSupportingTextColor = MaterialTheme.colorScheme.error
+        ),
+        maxLines = 2
+    )
+}
+
+@Composable
 fun AmountSpentTextField(
     modifier: Modifier = Modifier,
     isExpense: Boolean,
@@ -430,69 +475,6 @@ fun AmountSpentTextField(
             isExpense = isExpense,
             negativeColor = MaterialTheme.colorScheme.error,
             positiveColor = MaterialTheme.colorScheme.success
-        )
-    )
-}
-
-@Composable
-fun SenderOrReceiverTextField(
-    modifier: Modifier = Modifier,
-    @StringRes placeHolder: Int,
-    value: String,
-    isError: Boolean,
-    errorText: String,
-    onValueChange: (String) -> Unit,
-) {
-    TextField(
-        modifier = modifier,
-        value = value,
-        onValueChange = { newValue ->
-            onValueChange(newValue)
-        },
-        isError = isError,
-        supportingText =
-            if (isError) {
-                {
-                    Text(
-                        modifier = Modifier,
-                        text = errorText,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    )
-                }
-            } else {
-                null
-            },
-        placeholder = {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(placeHolder),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceOpacity30,
-                    textAlign = TextAlign.Center
-                )
-            )
-        },
-        textStyle = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        ),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            errorContainerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedPlaceholderColor = Color.Transparent,
-            focusedPlaceholderColor = Color.Transparent,
-            disabledPlaceholderColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent,
-            errorSupportingTextColor = MaterialTheme.colorScheme.error
         )
     )
 }

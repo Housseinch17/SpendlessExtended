@@ -1,4 +1,4 @@
-package com.example.spendless.core.database.user.model
+package com.example.spendless.core.data.database.user.model
 
 import androidx.annotation.Keep
 import androidx.room.ColumnInfo

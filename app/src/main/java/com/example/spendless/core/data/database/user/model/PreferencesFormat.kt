@@ -1,4 +1,4 @@
-package com.example.spendless.core.database.user.model
+package com.example.spendless.core.data.database.user.model
 
 import com.example.spendless.core.data.constant.Constants.currenciesList
 import com.example.spendless.core.data.constant.Constants.decimalSeparatorList

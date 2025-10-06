@@ -27,7 +27,6 @@ import com.example.spendless.core.presentation.designsystem.bodyXSmall
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.presentation.ui.screens.dashboard.TransactionItem
-import timber.log.Timber
 
 @Composable
 fun TransactionsList(
@@ -121,7 +120,6 @@ fun TransactionsList(
                         selectedTransactionItem = selectedTransactionItem,
                         onClick = {
                             if (transactionItem.content != null) {
-                                Timber.tag("MyTag").d("entered: ${transactionItem.title}")
                                 onSelectTransaction(transactionItem)
                             }
                         }

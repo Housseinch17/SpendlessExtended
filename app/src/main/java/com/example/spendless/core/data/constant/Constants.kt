@@ -1,7 +1,7 @@
 package com.example.spendless.core.data.constant
 
 import com.example.spendless.core.data.model.Category
-import com.example.spendless.core.database.user.model.Currency
+import com.example.spendless.core.data.database.user.model.Currency
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
 import com.example.spendless.features.finance.data.model.CategoryItem
 import com.example.spendless.features.finance.data.model.PaymentRecurrence

@@ -1,8 +1,8 @@
 package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 
 import com.example.spendless.core.data.constant.Constants
-import com.example.spendless.core.database.user.model.Currency
-import com.example.spendless.core.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.database.user.model.Currency
+import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.ui.amountFormatter
 
 data class OnBoardingUiState(

@@ -1,4 +1,4 @@
-package com.example.spendless.features.auth.di
+package com.example.spendless.features.auth.data.di
 
 import com.example.spendless.features.auth.data.dataSource.BiometricImpl
 import com.example.spendless.features.auth.data.dataSource.user.UserImpl

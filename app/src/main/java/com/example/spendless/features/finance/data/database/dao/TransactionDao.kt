@@ -1,9 +1,9 @@
-package com.example.spendless.features.finance.database.dao
+package com.example.spendless.features.finance.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.spendless.features.finance.database.model.TransactionEntity
+import com.example.spendless.features.finance.data.database.model.TransactionEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

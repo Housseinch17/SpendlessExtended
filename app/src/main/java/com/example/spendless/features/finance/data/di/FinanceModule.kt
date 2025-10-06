@@ -1,8 +1,8 @@
-package com.example.spendless.features.finance.di
+package com.example.spendless.features.finance.data.di
 
-import com.example.spendless.core.database.Database
+import com.example.spendless.core.data.database.Database
 import com.example.spendless.features.finance.data.datasource.TransactionsImpl
-import com.example.spendless.features.finance.database.dao.TransactionDao
+import com.example.spendless.features.finance.data.database.dao.TransactionDao
 import com.example.spendless.features.finance.domain.TransactionsRepository
 import dagger.Binds
 import dagger.Module

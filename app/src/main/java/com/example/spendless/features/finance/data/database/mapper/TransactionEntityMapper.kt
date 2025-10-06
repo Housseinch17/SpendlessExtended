@@ -1,7 +1,7 @@
-package com.example.spendless.features.finance.database.mapper
+package com.example.spendless.features.finance.data.database.mapper
 
 import com.example.spendless.features.finance.data.model.TransactionItem
-import com.example.spendless.features.finance.database.model.TransactionEntity
+import com.example.spendless.features.finance.data.database.model.TransactionEntity
 
 fun TransactionEntity.toTransactionItem(): TransactionItem {
     return TransactionItem(
