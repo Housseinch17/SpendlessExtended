@@ -102,6 +102,10 @@ object SpendLessIcons {
         @Composable
         get() = ImageVector.vectorResource(R.drawable.vector)
 
+    val ExportBack: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(R.drawable.export_back)
+
     val Clothing: Int = R.drawable.clothing
 
     val Accessories: Int = R.drawable.accessories

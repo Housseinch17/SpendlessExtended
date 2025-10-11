@@ -4,6 +4,8 @@ import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.data.database.user.model.Currency
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
 import com.example.spendless.features.finance.data.model.CategoryItem
+import com.example.spendless.features.finance.data.model.ExportFormat
+import com.example.spendless.features.finance.data.model.ExportRange
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 
 object Constants {
@@ -68,5 +70,18 @@ object Constants {
         PaymentRecurrence.WeeklyOn,
         PaymentRecurrence.MonthlyOnThe,
         PaymentRecurrence.YearlyOnFeb
+    )
+
+    val exportRangeList = listOf<ExportRange>(
+        ExportRange.CurrentMonth,
+        ExportRange.LastMonth,
+        ExportRange.LastThreeMonths,
+        ExportRange.AllData,
+        ExportRange.SpecificMonth()
+    )
+
+    val exportFormatList = listOf<ExportFormat>(
+        ExportFormat.CSV,
+        ExportFormat.PDF
     )
 }

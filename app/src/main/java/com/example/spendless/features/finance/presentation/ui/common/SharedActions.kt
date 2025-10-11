@@ -2,6 +2,8 @@ package com.example.spendless.features.finance.presentation.ui.common
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.example.spendless.core.data.model.Category
+import com.example.spendless.features.finance.data.model.ExportFormat
+import com.example.spendless.features.finance.data.model.ExportRange
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
 
@@ -29,6 +31,14 @@ sealed interface SharedActions {
     sealed interface TransactionsActions: SharedActions {
         data object NavigateBack : TransactionsActions
         data object ExportData : TransactionsActions
+        data object DismissExportBottomSheet : TransactionsActions
+        data object ShowExportBottomBar : TransactionsActions
+        data class UpdateSelectedExportRange(val exportRange: ExportRange): TransactionsActions
+        data class UpdateDropDownExportRangeExpand(val isExpand: Boolean) : TransactionsActions
+        data class UpdateSelectedExportFormat(val exportFormat: ExportFormat): TransactionsActions
+        data class UpdateDropDownExportFormatExpand(val isExpand: Boolean) : TransactionsActions
+        data object ShowExportRangeList: TransactionsActions
+
     }
 
     sealed interface DashboardActions: SharedActions {

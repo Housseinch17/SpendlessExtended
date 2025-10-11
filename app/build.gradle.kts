@@ -115,4 +115,8 @@ dependencies {
     //Date Time for kotlin
     implementation (libs.kotlinx.datetime)
 
+    //Document
+    implementation (libs.itextg)
+
+
 }

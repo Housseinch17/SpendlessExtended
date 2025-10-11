@@ -31,7 +31,7 @@ fun NavGraphBuilder.financeGraph(
             ObserveAsEvents(dashboardViewModel.events) { events ->
                 when (events) {
                     DashboardEvents.NavigateToExportData -> {
-                        navHostController.navigate(NavigationScreens.Transactions)
+                        navHostController.navigate(NavigationScreens.Transactions(true))
                     }
 
                     DashboardEvents.NavigateToSettings -> {
@@ -39,7 +39,7 @@ fun NavGraphBuilder.financeGraph(
                     }
 
                     DashboardEvents.NavigateToTransactions -> {
-                        navHostController.navigate(NavigationScreens.Transactions)
+                        navHostController.navigate(NavigationScreens.Transactions(false))
                     }
                 }
             }

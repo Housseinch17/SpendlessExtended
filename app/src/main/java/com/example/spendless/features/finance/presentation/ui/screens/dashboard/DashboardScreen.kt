@@ -172,7 +172,7 @@ fun DashboardScreen(
                         .statusBarsPadding()
                         .imePadding()
                         .padding(top = 10.dp),
-                    transactionsUiState = dashboardUiState.bottomSheetUiState,
+                    bottomSheetUiState = dashboardUiState.bottomSheetUiState,
                     transactionsActions = dashboardActions,
                 )
             }

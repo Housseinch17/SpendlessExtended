@@ -62,7 +62,7 @@
     <string name="account_balance">Account Balance</string>
     <string name="clothing">Clothing</string>
     <string name="accessories">Accessories</string>
-    <string name="health"><![CDATA[Health & Wellnes]]></string>
+    <string name="health"><![CDATA[Health & Wellness]]></string>
     <string name="food"><![CDATA[Food & Groceries]]></string>
     <string name="entertainment">Entertainment</string>
     <string name="education">Education</string>
@@ -97,6 +97,17 @@
     <string name="create">Create</string>
     <string name="reached_end">You\'ve reached the end!</string>
     <string name="home">Home</string>
+    <string name="last_three_months">Last three months</string>
+    <string name="last_month">Last Month</string>
+    <string name="current_month">Current Month</string>
+    <string name="export">Export</string>
+    <string name="export_transactions_to_csv_or_pdf_format">Export transactions to CSV or PDF format</string>
+    <string name="export_range">Export Range</string>
+    <string name="all_data">All Data</string>
+    <string name="CSV">CSV</string>
+    <string name="export_format">Export Format</string>
+    <string name="specific_month">Specific Month</string>
+    <string name="export_back">Export Back</string>
 
 
 </resources>

@@ -29,7 +29,7 @@ sealed interface NavigationScreens {
     data object Dashboard: NavigationScreens
 
     @Serializable
-    data object Transactions: NavigationScreens
+    data class Transactions(val showExportRange: Boolean = false): NavigationScreens
 
     @Serializable
     data object Settings: NavigationScreens

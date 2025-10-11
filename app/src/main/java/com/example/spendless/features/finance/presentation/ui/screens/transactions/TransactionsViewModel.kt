@@ -2,20 +2,27 @@ package com.example.spendless.features.finance.presentation.ui.screens.transacti
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
+import com.example.spendless.core.data.constant.Constants
 import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.auth.domain.UserRepository
+import com.example.spendless.features.finance.data.model.ExportFormat
+import com.example.spendless.features.finance.data.model.ExportRange
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.domain.TransactionsRepository
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions
 import com.example.spendless.features.finance.presentation.ui.common.groupTransactionsByDate
+import com.example.spendless.features.finance.presentation.ui.screens.transactions.util.FileExporter
+import com.example.spendless.features.finance.presentation.ui.screens.transactions.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,9 +41,11 @@ sealed interface TransactionsEvents {
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
+    private val saveStateHandle: SavedStateHandle,
     private val sessionStorage: SessionStorage,
     private val transactionsRepository: TransactionsRepository,
     private val userRepository: UserRepository,
+    private val fileExporter: FileExporter
 ) : ViewModel() {
     private val _state = MutableStateFlow(TransactionsUiState())
     val state = _state.asStateFlow()
@@ -44,10 +53,24 @@ class TransactionsViewModel @Inject constructor(
     private val _events = Channel<TransactionsEvents>()
     val events = _events.receiveAsFlow()
 
+    private var exportJob: Job? = null
+
     init {
         viewModelScope.launch {
+            initialSetUp()
             setPreferencesFormat()
             getAllTransactions()
+        }
+    }
+
+    private suspend fun initialSetUp() {
+        val showExportRange = saveStateHandle.get<Boolean>("showExportRange") == true
+        val username = sessionStorage.getAuthInfo()!!.username
+        _state.update { newState ->
+            newState.copy(
+                showExportBottomSheet = showExportRange,
+                username = username
+            )
         }
     }
 
@@ -87,12 +110,41 @@ class TransactionsViewModel @Inject constructor(
                 transactionsActions.isVisible
             )
 
+            SharedActions.TransactionsActions.DismissExportBottomSheet -> dismissExportBottomSheet()
+            SharedActions.TransactionsActions.ShowExportBottomBar -> showExportBottomBar()
+            is SharedActions.TransactionsActions.UpdateSelectedExportRange -> updateSelectedExportRange(
+                transactionsActions.exportRange
+            )
+
+            is SharedActions.TransactionsActions.UpdateDropDownExportRangeExpand -> updateDropDownExportRangeExpand(
+                transactionsActions.isExpand
+            )
+
+            is SharedActions.TransactionsActions.UpdateSelectedExportFormat -> updateSelectedExportFormat(
+                transactionsActions.exportFormat
+            )
+
+            is SharedActions.TransactionsActions.UpdateDropDownExportFormatExpand -> updateDropDownExportFormatExpand(
+                transactionsActions.isExpand
+            )
+
+            SharedActions.TransactionsActions.ShowExportRangeList -> showExportRangeList()
+
             else -> {}
         }
     }
 
+    private fun showExportRangeList() {
+        _state.update { newState ->
+            newState.copy(
+                exportRangeList = Constants.exportRangeList,
+                selectedExportRange = Constants.exportRangeList.first()
+            )
+        }
+    }
+
     private suspend fun setPreferencesFormat() {
-        val username = sessionStorage.getAuthInfo()!!.username
+        val username = _state.value.username
         val result = userRepository.getPreferencesByUsername(username)
         if (result is Result.Success) {
             _state.update { newState ->
@@ -124,7 +176,8 @@ class TransactionsViewModel @Inject constructor(
             _state.update { newState ->
                 newState.copy(
                     bottomSheetUiState = newState.bottomSheetUiState.copy(listOfTransactions = transactionsList),
-                    transactionsByDate = groupTransactions
+                    transactionsByDate = groupTransactions,
+                    isLoading = false
                 )
             }
         }
@@ -256,17 +309,63 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
+    private fun showExportBottomBar() {
+        _state.update { newState ->
+            newState.copy(
+                showExportBottomSheet = true
+            )
+        }
+    }
+
+    private fun updateSelectedExportRange(exportRange: ExportRange) {
+        if (exportRange !is ExportRange.SpecificMonth) {
+            _state.update { newState ->
+                newState.copy(
+                    selectedExportRange = exportRange
+                )
+            }
+        } else {
+            val getPast12Months = Utils.getPast12Months()
+            _state.update { newState ->
+                newState.copy(
+                    selectedExportRange = exportRange,
+                    exportRangeList = getPast12Months
+                )
+            }
+        }
+    }
+
+    private fun updateDropDownExportRangeExpand(isExpand: Boolean) {
+        _state.update { newState ->
+            newState.copy(isExportRangeExpand = isExpand)
+        }
+    }
+
+    private fun updateSelectedExportFormat(exportFormat: ExportFormat) {
+        _state.update { newState ->
+            newState.copy(
+                selectedExportFormat = exportFormat
+            )
+        }
+    }
+
+    private fun updateDropDownExportFormatExpand(isExpand: Boolean) {
+        _state.update { newState ->
+            newState.copy(isExportFormatExpand = isExpand)
+        }
+    }
+
+    private fun dismissExportBottomSheet() {
+        _state.update { newState ->
+            newState.copy(showExportBottomSheet = false)
+        }
+    }
+
     private fun showBottomBar() {
         _state.update { newState ->
             newState.copy(
                 bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = true)
             )
-        }
-    }
-
-    private fun updateExpense(isExpense: Boolean) {
-        _state.update { newState ->
-            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(isExpense = isExpense))
         }
     }
 
@@ -276,11 +375,18 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
+    private fun updateExpense(isExpense: Boolean) {
+        _state.update { newState ->
+            newState.copy(bottomSheetUiState = newState.bottomSheetUiState.copy(isExpense = isExpense))
+        }
+    }
+
     private fun setSelectedTransaction(selectedTransaction: TransactionItem) {
-        val isSelected = selectedTransaction == _state.value.bottomSheetUiState.selectedTransactionItem
+        val isSelected =
+            selectedTransaction == _state.value.bottomSheetUiState.selectedTransactionItem
         _state.update { newState ->
             newState.copy(
-                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = if(isSelected) TransactionItem() else selectedTransaction)
+                bottomSheetUiState = newState.bottomSheetUiState.copy(selectedTransactionItem = if (isSelected) TransactionItem() else selectedTransaction)
             )
         }
     }
@@ -292,10 +398,6 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private fun exportData() {
-
-    }
-
     private fun resetTextFields() {
         _state.update { newState ->
             newState.copy(
@@ -305,6 +407,122 @@ class TransactionsViewModel @Inject constructor(
                     noteValue = null
                 )
             )
+        }
+    }
+
+
+    private fun exportData() {
+        exportJob?.cancel()
+        exportJob = viewModelScope.launch {
+            val exportRange = _state.value.selectedExportRange
+            val exportFormat = _state.value.selectedExportFormat
+            try {
+                _state.update { newState ->
+                    newState.copy(isExportButtonLoading = true)
+                }
+                when (exportRange) {
+                    ExportRange.AllData -> exportDataForAllData()
+                    ExportRange.CurrentMonth -> exportDataForCurrentMonth()
+                    ExportRange.LastMonth -> exportDataForLastMonth()
+                    ExportRange.LastThreeMonths -> exportDataForLastThreeMonths()
+                    is ExportRange.SpecificMonth -> exportDataForSpecificMonth()
+                }
+                when (exportFormat) {
+                    ExportFormat.CSV -> {
+                        exportFormatCSV()
+                    }
+
+                    ExportFormat.PDF -> {
+                        exportFormatPDF()
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.tag("MyTag").e("$e: ${e.localizedMessage}")
+                _state.update { newState ->
+                    newState.copy(
+                        isExportButtonLoading = false,
+                        transactionsToExport = null
+                    )
+                }
+            } finally {
+                Timber.tag("MyTag").d("exportData completed!")
+                _state.update { newState ->
+                    newState.copy(
+                        isExportButtonLoading = false,
+                    )
+                }
+            }
+        }
+    }
+
+
+    private fun exportFormatCSV() {
+        val username = _state.value.username
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val safeFileName = "${username}_${today}"
+        val csvData = buildString {
+            appendLine("Title,Category,Price,Expense,Date")
+            _state.value.formattedTransactionToExport?.forEach {
+                appendLine(it.toCsv())
+            }
+        }
+        fileExporter.saveCsvToDownloads(fileName = safeFileName, csvData = csvData)
+    }
+
+    private fun exportFormatPDF() {
+        val username = _state.value.username
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val safeFileName = "${username}_${today}"
+        fileExporter.savePdfToDownloads(
+            fileName = safeFileName,
+            transactionList = _state.value.formattedTransactionToExport
+                ?: emptyList<TransactionItem>()
+        )
+    }
+
+    private suspend fun exportDataForAllData() {
+        val transactionList = transactionsRepository.getAllTransactionsForAllData()
+        Timber.tag("MyTag").d("allData: ${transactionList.size}")
+        _state.update { newState ->
+            newState.copy(transactionsToExport = transactionList)
+        }
+    }
+
+    private suspend fun exportDataForCurrentMonth() {
+        val transactionList = transactionsRepository.getTransactionsCurrentMonth()
+        Timber.tag("MyTag").d("getTransactionsCurrentMonth: ${transactionList.size}")
+        _state.update { newState ->
+            newState.copy(transactionsToExport = transactionList)
+        }
+    }
+
+    private suspend fun exportDataForLastMonth() {
+        val transactionList = transactionsRepository.getTransactionsLastMonth()
+        Timber.tag("MyTag").d("getTransactionsCurrentMonth: ${transactionList.size}")
+        _state.update { newState ->
+            newState.copy(transactionsToExport = transactionList)
+        }
+    }
+
+    private suspend fun exportDataForLastThreeMonths() {
+        val transactionList = transactionsRepository.getTransactionsLastThreeMonths()
+        Timber.tag("MyTag").d("getTransactionsLastThreeMonths: ${transactionList.size}")
+        _state.update { newState ->
+            newState.copy(transactionsToExport = transactionList)
+        }
+    }
+
+    private suspend fun exportDataForSpecificMonth() {
+        val selectedExportRange = _state.value.selectedExportRange as ExportRange.SpecificMonth
+        val specificMonth = selectedExportRange.monthNumber
+        val specificYear = selectedExportRange.year
+        val transactionList = transactionsRepository.getTransactionsSpecificMonth(
+            specificMonth = specificMonth,
+            specificYear = specificYear
+        )
+        Timber.tag("MyTag").d("exportDataForSpecificMonth: ${transactionList.size}")
+        _state.update { newState ->
+            newState.copy(transactionsToExport = transactionList)
         }
     }
 }

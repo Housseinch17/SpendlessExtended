@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,11 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,12 +38,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.spendless.R
-import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.data.database.user.model.PreferencesFormat
+import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
 import com.example.spendless.core.presentation.designsystem.components.DropDownMenu
 import com.example.spendless.core.presentation.designsystem.onPrimaryFixed
-import com.example.spendless.core.presentation.designsystem.onSurfaceOpacity12
 import com.example.spendless.core.presentation.designsystem.onSurfaceOpacity30
 import com.example.spendless.core.presentation.designsystem.primaryContainerOpacity8
 import com.example.spendless.core.presentation.designsystem.success
@@ -61,7 +56,7 @@ import com.example.spendless.features.finance.presentation.ui.screens.transactio
 @Composable
 fun CreateTransactionModalBottomSheet(
     modifier: Modifier = Modifier,
-    transactionsUiState: BottomSheetUiState,
+    bottomSheetUiState: BottomSheetUiState,
     transactionsActions: (SharedActions) -> Unit,
 ) {
     //skipPartiallyExpanded = false means it will show first the content as half of screen size
@@ -71,7 +66,7 @@ fun CreateTransactionModalBottomSheet(
 
     val verticalScroll = rememberScrollState()
 
-    if (transactionsUiState.showBottomSheet) {
+    if (bottomSheetUiState.showBottomSheet) {
         ModalBottomSheet(
             modifier = modifier,
             sheetState = sheetState,
@@ -120,7 +115,7 @@ fun CreateTransactionModalBottomSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 4.dp),
-                    isExpense = transactionsUiState.isExpense,
+                    isExpense = bottomSheetUiState.isExpense,
                     onClick = { isExpense ->
                         transactionsActions(SharedActions.UpdateExpense(isExpense))
                     },
@@ -130,8 +125,8 @@ fun CreateTransactionModalBottomSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 34.dp),
-                    placeHolder = transactionsUiState.placeHolder,
-                    value = transactionsUiState.textFieldValue,
+                    placeHolder = bottomSheetUiState.placeHolder,
+                    value = bottomSheetUiState.textFieldValue,
                     onValueChange = { newValue ->
                         transactionsActions(SharedActions.UpdateTextFieldValue(newValue))
                     },
@@ -140,10 +135,10 @@ fun CreateTransactionModalBottomSheet(
                 AmountSpentTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    amountValue = transactionsUiState.amountTextFieldValue,
-                    amountPlaceHolder = transactionsUiState.amountPlaceHolder,
-                    preferencesFormat = transactionsUiState.preferencesFormat,
-                    isExpense = transactionsUiState.isExpense,
+                    amountValue = bottomSheetUiState.amountTextFieldValue,
+                    amountPlaceHolder = bottomSheetUiState.amountPlaceHolder,
+                    preferencesFormat = bottomSheetUiState.preferencesFormat,
+                    isExpense = bottomSheetUiState.isExpense,
                     onAmountValueChange = { newValue ->
                         transactionsActions(SharedActions.UpdateAmountTextFieldValue(newValue))
                     },
@@ -151,17 +146,17 @@ fun CreateTransactionModalBottomSheet(
 
                 AddNote(
                     modifier = Modifier.fillMaxWidth(),
-                    note = transactionsUiState.noteValue ?: "",
+                    note = bottomSheetUiState.noteValue ?: "",
                     onNoteChange = { newNote ->
                         transactionsActions(SharedActions.UpdateNote(newNote))
                     },
                 )
 
-                if (transactionsUiState.isExpense) {
+                if (bottomSheetUiState.isExpense) {
                     ExpenseDropDownMenu(
                         modifier = Modifier.fillMaxWidth(),
-                        itemList = transactionsUiState.categoriesList,
-                        selectedItem = transactionsUiState.selectedCategory,
+                        itemList = bottomSheetUiState.categoriesList,
+                        selectedItem = bottomSheetUiState.selectedCategory,
                         onSelectItem = { selectedCategory ->
                             transactionsActions(
                                 SharedActions.UpdateSelectedCategory(
@@ -169,7 +164,7 @@ fun CreateTransactionModalBottomSheet(
                                 )
                             )
                         },
-                        isExpanded = transactionsUiState.isDropDownCategoryExpand,
+                        isExpanded = bottomSheetUiState.isDropDownCategoryExpand,
                         onExpand = { isExpand ->
                             transactionsActions(SharedActions.UpdateDropDownCategoryExpand(isExpand))
                         }
@@ -179,9 +174,9 @@ fun CreateTransactionModalBottomSheet(
                 PaymentRecurrenceDropDownMenu(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = if (transactionsUiState.isExpense) 8.dp else 0.dp),
-                    itemList = transactionsUiState.paymentRecurrenceList,
-                    selectedItem = transactionsUiState.selectedPaymentRecurrence,
+                        .padding(top = if (bottomSheetUiState.isExpense) 8.dp else 0.dp),
+                    itemList = bottomSheetUiState.paymentRecurrenceList,
+                    selectedItem = bottomSheetUiState.selectedPaymentRecurrence,
                     onSelectItem = { paymentRecurrence ->
                         transactionsActions(
                             SharedActions.UpdateSelectedPaymentRecurrence(
@@ -189,7 +184,7 @@ fun CreateTransactionModalBottomSheet(
                             )
                         )
                     },
-                    isExpanded = transactionsUiState.isDropDownPaymentRecurrenceExpand,
+                    isExpanded = bottomSheetUiState.isDropDownPaymentRecurrenceExpand,
                     onExpand = { isExpand ->
                         transactionsActions(
                             SharedActions.UpdateDropDownPaymentRecurrenceExpand(
@@ -198,41 +193,17 @@ fun CreateTransactionModalBottomSheet(
                         )
                     }
                 )
-
-                Button(
+                FeatureFinanceButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 12.dp),
+                    buttonResId = R.string.create,
+                    isButtonEnabled = bottomSheetUiState.isButtonEnabled,
+                    isButtonLoading = bottomSheetUiState.isOnCreateLoading,
                     onClick = {
                         transactionsActions(SharedActions.OnCreateClick)
-                    },
-                    enabled = transactionsUiState.isButtonEnabled,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor = MaterialTheme.colorScheme.onSurfaceOpacity12
-                    )
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (!(transactionsUiState.isOnCreateLoading)) {
-                            Text(
-                                modifier = Modifier,
-                                text = stringResource(R.string.create),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    color = LocalContentColor.current
-                                )
-                            )
-                        } else {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = LocalContentColor.current
-                            )
-                        }
                     }
-                }
+                )
             }
         }
     }

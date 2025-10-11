@@ -13,4 +13,9 @@ interface TransactionsRepository {
     suspend fun getNetTotalForUser(): Flow<String>
     suspend fun getLargestTransaction(): Flow<TransactionItem?>
     suspend fun getTotalSpentPreviousWeek(preferencesFormat: PreferencesFormat): Flow<String>
+    suspend fun getAllTransactionsForAllData(): List<TransactionItem>
+    suspend fun getTransactionsCurrentMonth(): List<TransactionItem>
+    suspend fun getTransactionsLastMonth(): List<TransactionItem>
+    suspend fun getTransactionsLastThreeMonths(): List<TransactionItem>
+    suspend fun getTransactionsSpecificMonth(specificMonth: Int, specificYear: Int): List<TransactionItem>
 }

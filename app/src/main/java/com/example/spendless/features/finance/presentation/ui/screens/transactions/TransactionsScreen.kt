@@ -1,5 +1,6 @@
 package com.example.spendless.features.finance.presentation.ui.screens.transactions
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +38,7 @@ fun TransactionsScreen(
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
-            if(transactionsUiState.bottomSheetUiState.isFloatingActionButtonVisible) {
+            if (transactionsUiState.bottomSheetUiState.isFloatingActionButtonVisible) {
                 FloatingActionButton(
                     modifier = Modifier.size(64.dp),
                     onClick = {
@@ -63,34 +65,58 @@ fun TransactionsScreen(
                     transactionsActions(TransactionsActions.NavigateBack)
                 },
                 onDownloadClick = {
-                    transactionsActions(TransactionsActions.ExportData)
+                    transactionsActions(TransactionsActions.ShowExportBottomBar)
                 }
             )
         },
     ) { innerPadding ->
-        TransactionsList(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(innerPadding),
-            showTransactionText = false,
-            transactionsByDate = transactionsUiState.transactionsByDate,
-            selectedTransactionItem = transactionsUiState.bottomSheetUiState.selectedTransactionItem,
-            onSelectTransaction = { transactionItem ->
-                transactionsActions(SharedActions.SelectedTransaction(transactionItem))
-            },
-            showFloatingActionButton = { showFab->
-                transactionsActions(SharedActions.ShowFloatingActionButton(showFab))
-            },
-        )
-        CreateTransactionModalBottomSheet(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .imePadding()
-                .padding(top = 10.dp),
-            transactionsUiState = transactionsUiState.bottomSheetUiState,
-            transactionsActions = transactionsActions,
-        )
+        if (transactionsUiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(200.dp)
+                        .align(Alignment.Center),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
+            TransactionsList(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(innerPadding),
+                showTransactionText = false,
+                transactionsByDate = transactionsUiState.transactionsByDate,
+                selectedTransactionItem = transactionsUiState.bottomSheetUiState.selectedTransactionItem,
+                onSelectTransaction = { transactionItem ->
+                    transactionsActions(SharedActions.SelectedTransaction(transactionItem))
+                },
+                showFloatingActionButton = { showFab ->
+                    transactionsActions(SharedActions.ShowFloatingActionButton(showFab))
+                },
+            )
+            CreateTransactionModalBottomSheet(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .imePadding()
+                    .padding(top = 10.dp),
+                bottomSheetUiState = transactionsUiState.bottomSheetUiState,
+                transactionsActions = transactionsActions,
+            )
+
+            ExportTransactions(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .padding(top = 10.dp),
+                transactionsUiState = transactionsUiState,
+                transactionsActions = transactionsActions
+            )
+        }
     }
 }
 
