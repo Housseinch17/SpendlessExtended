@@ -1,5 +1,6 @@
 package com.example.spendless.core.presentation.designsystem
 
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -29,10 +30,6 @@ object SpendLessIcons {
     val NavigateBefore: ImageVector
         @Composable
         get() = ImageVector.vectorResource(R.drawable.navigate_before)
-
-    val Lock: ImageVector
-        @Composable
-        get() = ImageVector.vectorResource(R.drawable.lock)
 
     val Logout: ImageVector
         @Composable
@@ -105,6 +102,11 @@ object SpendLessIcons {
     val ExportBack: ImageVector
         @Composable
         get() = ImageVector.vectorResource(R.drawable.export_back)
+
+    val LogoutAsImage: Int = R.drawable.logout
+    val Lock: Int = R.drawable.lock
+
+    val Preferences: Int = R.drawable.preferences
 
     val Clothing: Int = R.drawable.clothing
 

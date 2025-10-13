@@ -8,5 +8,5 @@ import java.util.concurrent.TimeUnit
 data class Security(
     val withBiometric: Boolean = true,
     val sessionExpiry: CounterPerTimeUnit = CounterPerTimeUnit(counter = 5, timeUnit = TimeUnit.MINUTES),
-    val lockedOutDuration: CounterPerTimeUnit = CounterPerTimeUnit(counter = 15, timeUnit = TimeUnit.SECONDS)
+    val lockedOutDuration: CounterPerTimeUnit = CounterPerTimeUnit(counter = 30, timeUnit = TimeUnit.SECONDS)
 )

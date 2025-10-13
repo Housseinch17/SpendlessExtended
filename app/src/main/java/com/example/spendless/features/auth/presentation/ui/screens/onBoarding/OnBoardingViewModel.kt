@@ -39,7 +39,6 @@ sealed interface OnBoardingActions {
     data class UpdateThousandsSeparator(val thousands: String) : OnBoardingActions
     data class UpdateSelectedCurrency(val currency: Currency) : OnBoardingActions
     data object CloseExpand : OnBoardingActions
-
 }
 
 @HiltViewModel
@@ -60,19 +59,42 @@ class OnBoardingViewModel @Inject constructor(
             launch {
                 saveUsernameAndPin()
             }
+            launch {
+                setInitialPreferencesFormat()
+            }
             getUserTotal()
         }
 
     }
 
-    private fun saveUsernameAndPin() {
-        val username = saveHandleStateHandle.get<String>("username") ?: ""
+    private suspend fun saveUsernameAndPin() {
+        //if i navigated from settings screen to onBoardingScreen send username and pin as null
+        //if username is sent as null we have to get current username from sessionStorage
+        val username = saveHandleStateHandle.get<String>("username")
+        val newUsername = username ?: sessionStorage.getAuthInfo()!!.username
         val pin = saveHandleStateHandle.get<String>("pin") ?: ""
         _state.update { newState ->
             newState.copy(
-                username = username,
+                username = newUsername,
                 pin = pin
             )
+        }
+    }
+
+    private suspend fun setInitialPreferencesFormat() {
+        val username = saveHandleStateHandle.get<String>("username")
+        val newUsername = username ?: sessionStorage.getAuthInfo()!!.username
+        if (username.isNullOrEmpty()) {
+            val result = userRepository.getPreferencesByUsername(
+                username = newUsername
+            )
+            if (result is Result.Success) {
+                _state.update { newState ->
+                    newState.copy(
+                        preferencesFormat = result.data
+                    )
+                }
+            }
         }
     }
 
@@ -80,6 +102,7 @@ class OnBoardingViewModel @Inject constructor(
         viewModelScope.launch {
             val authInfo = sessionStorage.getAuthInfo()
             when (authInfo) {
+                //if not logged in
                 null -> {
                     Timber.tag("MyTag").d("here: null")
                     _state.update { newState ->
@@ -88,10 +111,11 @@ class OnBoardingViewModel @Inject constructor(
                         )
                     }
                 }
+
                 else -> {
-                    Timber.tag("MyTag").d("here: note")
                     val total = transactionsRepository.getNetTotalForUser()
                     total.collect { total ->
+                        Timber.tag("MyTag").d("total: $total")
                         _state.update { newState ->
                             newState.copy(
                                 total = total
@@ -166,60 +190,89 @@ class OnBoardingViewModel @Inject constructor(
         }
     }
 
-
     private fun startTracking() {
-        _state.update { newState ->
-            newState.copy(isButtonLoading = true)
-        }
-        val state = _state.value
-        val username = state.username
-        val pin = state.pin
-        val preferencesFormat = state.preferencesFormat
-        //default value
-        val security = Security()
-        viewModelScope.launch {
-            val user = User(
-                username = username,
-                pin = pin,
-                preferences = preferencesFormat,
-                security = security
-            )
+        val userSent = saveHandleStateHandle.get<String>("username")
+        Timber.tag("MyTag").d("userSent: $userSent")
+        if (userSent.isNullOrEmpty()) {
+            updateUserPreferencesFormat()
+        } else {
+            _state.update { newState ->
+                newState.copy(isButtonLoading = true)
+            }
+            val state = _state.value
+            val username = state.username
+            val pin = state.pin
+            val preferencesFormat = state.preferencesFormat
+            //default value
+            val security = Security()
+            viewModelScope.launch {
+                val user = User(
+                    username = username,
+                    pin = pin,
+                    preferences = preferencesFormat,
+                    security = security
+                )
 
-            //show circular progress indicator for 1 seconds
-            delay(1.seconds)
-            val result = userRepository.insertUser(user = user)
-            when (result) {
-                is Result.Error -> {
-                    if (result.error is DataError.Local.Unknown) {
-                        Timber.tag("MyTag").e("startTracking: error: ${result.error.unknownError}")
-                    } else {
-                        Timber.tag("MyTag").e("startTracking: error: ${result.error}")
-                    }
-                    _state.update { newState ->
-                        newState.copy(isButtonLoading = false)
-                    }
-                }
-
-                is Result.Success -> {
-                    Timber.tag("MyTag").d("startTracking(): success")
-                    val state = _state.value
-
-                    async {
-                        //default value for username
-                        sessionStorage.setAuthInfo(
-                            authInfo = AuthInfo(
-                                username = state.username,
-                                security = security,
-                                preferencesFormat = preferencesFormat,
-                            )
-                        )
-
+                //show circular progress indicator for 1 seconds
+                delay(1.seconds)
+                val result = userRepository.insertUser(user = user)
+                when (result) {
+                    is Result.Error -> {
+                        if (result.error is DataError.Local.Unknown) {
+                            Timber.tag("MyTag")
+                                .e("startTracking: error: ${result.error.unknownError}")
+                        } else {
+                            Timber.tag("MyTag").e("startTracking: error: ${result.error}")
+                        }
                         _state.update { newState ->
                             newState.copy(isButtonLoading = false)
                         }
-                    }.await()
+                    }
 
-                    _events.send(OnBoardingEvents.Dashboard(username = username))
+                    is Result.Success -> {
+                        Timber.tag("MyTag").d("startTracking(): success")
+                        val state = _state.value
+
+                        async {
+                            //default value for username
+                            sessionStorage.setAuthInfo(
+                                authInfo = AuthInfo(
+                                    username = state.username,
+//                                    security = security,
+//                                    preferencesFormat = preferencesFormat,
+                                )
+                            )
+                            _state.update { newState ->
+                                newState.copy(isButtonLoading = false)
+                            }
+                        }.await()
+
+                        _events.send(OnBoardingEvents.Dashboard(username = username))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateUserPreferencesFormat() {
+        _state.update { newState ->
+            newState.copy(isButtonLoading = true)
+        }
+        val username = _state.value.username
+        val preferencesFormat = _state.value.preferencesFormat
+        viewModelScope.launch {
+            val result = userRepository.updatePreferencesFormat(
+                username = username,
+                preferencesFormat = preferencesFormat
+            )
+            when (result) {
+                is Result.Error -> {
+                    Timber.tag("MyTag").e("updateUserPreferencesFormat(): ${result.error}")
+                }
+
+                is Result.Success -> {
+                    //i dont have to set isButtonLoading to false, cause navigateBack will clear this from backstack
+                    navigateBack()
                 }
             }
         }

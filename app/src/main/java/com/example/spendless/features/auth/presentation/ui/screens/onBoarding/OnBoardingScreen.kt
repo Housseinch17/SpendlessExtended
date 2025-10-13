@@ -1,13 +1,7 @@
 package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -20,9 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,7 +25,7 @@ import com.example.spendless.core.data.database.user.model.Currency
 import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.presentation.designsystem.components.CurrenciesDropDownMenu
 import com.example.spendless.core.presentation.designsystem.components.SpendlessButton
-import com.example.spendless.core.presentation.designsystem.primaryContainerOpacity8
+import com.example.spendless.core.presentation.designsystem.components.SpendlessSeparatorList
 import com.example.spendless.features.auth.presentation.designsystem.components.SpendlessBackButton
 
 @Composable
@@ -84,6 +76,7 @@ fun OnBoardingScreen(
             onThousandsClick = { selectedThousands ->
                 onBoardingActions(OnBoardingActions.UpdateThousandsSeparator(thousands = selectedThousands))
             },
+            isStartTrackingEnabled = onBoardingUiState.isStartTrackingEnabled,
             startTracking = {
                 onBoardingActions(OnBoardingActions.StartTracking)
             },
@@ -165,6 +158,7 @@ fun OnBoardingBody(
     onExpensesClick: (String) -> Unit,
     onDecimalClick: (String) -> Unit,
     onThousandsClick: (String) -> Unit,
+    isStartTrackingEnabled: Boolean,
     startTracking: () -> Unit,
     isButtonLoading: Boolean,
     currenciesList: List<Currency>,
@@ -250,7 +244,7 @@ fun OnBoardingBody(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 34.dp),
-        enabled = true,
+        enabled = isStartTrackingEnabled,
         onClick = startTracking,
         content = {
             if (!isButtonLoading) {
@@ -269,72 +263,13 @@ fun OnBoardingBody(
 }
 
 @Composable
-fun SeparatorItem(
-    modifier: Modifier = Modifier,
-    item: String,
-    enabledItem: String,
-    onClick: () -> Unit,
-) {
-    Text(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.small)
-            .background(
-                color = if (item == enabledItem) MaterialTheme.colorScheme.surfaceContainerLowest else Color.Transparent,
-                shape = MaterialTheme.shapes.small
-            )
-            .clickable(onClick = onClick)
-            .padding(8.dp),
-        text = item,
-        style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
-    )
-}
-
-@Composable
-fun SeparatorList(
-    modifier: Modifier = Modifier,
-    list: List<String>,
-    enabledItem: String,
-    onClick: (String) -> Unit,
-) {
-    AnimatedVisibility(
-        visible = true,
-        enter = fadeIn(animationSpec = tween(durationMillis = 300)),
-        exit = fadeOut(animationSpec = tween(durationMillis = 300))
-    ) {
-        Row(
-            modifier = modifier.background(
-                color = MaterialTheme.colorScheme.primaryContainerOpacity8,
-                shape = MaterialTheme.shapes.medium
-            ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            list.forEach { item ->
-                SeparatorItem(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp),
-                    item = item,
-                    enabledItem = enabledItem,
-                    onClick = {
-                        onClick(item)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun ExpensesFormat(
     modifier: Modifier = Modifier,
     expensesFormatList: List<String>,
     enabledItem: String,
     onExpensesClick: (String) -> Unit,
 ) {
-    SeparatorList(
+    SpendlessSeparatorList(
         modifier = modifier,
         list = expensesFormatList,
         enabledItem = enabledItem,
@@ -370,7 +305,7 @@ fun DecimalSeparator(
     enabledItem: String,
     onDecimalClick: (String) -> Unit,
 ) {
-    SeparatorList(
+    SpendlessSeparatorList(
         modifier = modifier,
         list = decimalSeparatorList,
         enabledItem = enabledItem,
@@ -385,7 +320,7 @@ fun ThousandsSeparator(
     enabledItem: String,
     onThousandsClick: (String) -> Unit,
 ) {
-    SeparatorList(
+    SpendlessSeparatorList(
         modifier = modifier,
         list = thousandsSeparatorList,
         enabledItem = enabledItem,

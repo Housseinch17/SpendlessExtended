@@ -108,7 +108,7 @@ class TransactionsImpl @Inject constructor(
             emptyFlow()
         }
 
-    override suspend fun getTotalSpentPreviousWeek(preferencesFormat: PreferencesFormat): Flow<String> {
+    override suspend fun getTotalSpentPreviousWeek(): Flow<String> {
         val username = sessionStorage.getAuthInfo()!!.username
         return transactionDao.getAllTransactions(username)
             .map { list ->
@@ -122,7 +122,7 @@ class TransactionsImpl @Inject constructor(
                         if (date != null && date in start..end) transactionItem.price.toDoubleOrNull() else null
                     }
                     .sumOf { it }
-                amountFormatter(total.toString(), preferencesFormat = preferencesFormat)
+                total.toString()
             }
     }
 

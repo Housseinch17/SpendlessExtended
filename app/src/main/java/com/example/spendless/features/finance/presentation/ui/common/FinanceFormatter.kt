@@ -2,6 +2,7 @@ package com.example.spendless.features.finance.presentation.ui.common
 
 import com.example.spendless.R
 import com.example.spendless.core.presentation.ui.UiText
+import com.example.spendless.features.auth.data.model.CounterPerTimeUnit
 import com.example.spendless.features.finance.data.model.TransactionItem
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -9,6 +10,22 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import java.util.concurrent.TimeUnit
+
+fun <T> formatItem(item: T): UiText {
+    return when (item) {
+        is Int -> UiText.StringResource(item)
+        is CounterPerTimeUnit -> when (item.timeUnit) {
+            TimeUnit.SECONDS -> UiText.DynamicString("${item.counter}s")
+            TimeUnit.MINUTES -> UiText.DynamicString("${item.counter} min")
+            TimeUnit.HOURS -> UiText.DynamicString("${item.counter} hour")
+            else -> UiText.DynamicString("")
+        }
+        else -> {
+            UiText.DynamicString(item.toString())
+        }
+    }
+}
 
 fun groupTransactionsByDate(transactions: List<TransactionItem>): Map<UiText, List<TransactionItem>> {
     if (transactions.isNotEmpty()) {
@@ -24,7 +41,7 @@ fun groupTransactionsByDate(transactions: List<TransactionItem>): Map<UiText, Li
                 else -> UiText.DynamicString(itemDate.toString())
             }
         }
-    }else{
+    } else {
         return emptyMap()
     }
 }

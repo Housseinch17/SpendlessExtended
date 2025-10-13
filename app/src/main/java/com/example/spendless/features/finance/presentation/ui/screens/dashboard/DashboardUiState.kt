@@ -26,6 +26,11 @@ data class DashboardUiState(
         preferencesFormat = preferencesFormat,
     )
 
+    val previousWeekSpentFormatted = amountFormatter(
+        total = previousWeekSpent,
+        preferencesFormat = preferencesFormat
+    )
+
     val largestTransactionAmount: String =
         amountFormatter(
             total = largestTransaction?.price ?: "0.00",

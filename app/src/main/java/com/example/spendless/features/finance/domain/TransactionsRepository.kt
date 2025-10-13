@@ -1,6 +1,5 @@
 package com.example.spendless.features.finance.domain
 
-import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.features.finance.data.model.TransactionItem
@@ -12,7 +11,7 @@ interface TransactionsRepository {
     suspend fun getTransactionsForTodayAndYesterday(): Flow<List<TransactionItem>>
     suspend fun getNetTotalForUser(): Flow<String>
     suspend fun getLargestTransaction(): Flow<TransactionItem?>
-    suspend fun getTotalSpentPreviousWeek(preferencesFormat: PreferencesFormat): Flow<String>
+    suspend fun getTotalSpentPreviousWeek(): Flow<String>
     suspend fun getAllTransactionsForAllData(): List<TransactionItem>
     suspend fun getTransactionsCurrentMonth(): List<TransactionItem>
     suspend fun getTransactionsLastMonth(): List<TransactionItem>

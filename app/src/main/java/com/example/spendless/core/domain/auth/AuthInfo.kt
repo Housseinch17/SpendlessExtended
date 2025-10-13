@@ -5,6 +5,6 @@ import com.example.spendless.core.data.database.user.model.Security
 
 data class AuthInfo(
     val username: String = "",
-    val security: Security = Security(),
-    val preferencesFormat: PreferencesFormat = PreferencesFormat()
+//    val security: Security = Security(),
+//    val preferencesFormat: PreferencesFormat = PreferencesFormat()
 )

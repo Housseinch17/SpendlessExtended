@@ -66,29 +66,32 @@ class PinPromptViewModel @Inject constructor(
         }
     }
 
-    private fun setUsername(){
+    private fun setUsername() {
         viewModelScope.launch {
             val user = sessionStorage.getAuthInfo()
             val username = user?.username ?: ""
-            val counterPerTimeUnit = user?.security?.lockedOutDuration ?: CounterPerTimeUnit()
+            val security = userRepository.getSecurityByUsername(username)
+//            val counterPerTimeUnit = user?.security?.lockedOutDuration ?: CounterPerTimeUnit()
 
             val pinResult = userRepository.getPinByUsername(username)
-            when(pinResult){
+            when (pinResult) {
                 is Result.Error -> {
-                    if(pinResult.error is DataError.Local.Unknown){
+                    if (pinResult.error is DataError.Local.Unknown) {
                         showBanner(uiText = UiText.DynamicString(pinResult.error.unknownError))
-                    }else{
+                    } else {
                         showBanner(uiText = UiText.DynamicString(pinResult.error.toString()))
                     }
                 }
+
                 is Result.Success -> {
                     Timber.tag("MyTag").d("authInfo: $username")
-                    _state.update { newState->
+                    _state.update { newState ->
                         newState.copy(
                             username = username,
                             headerText = "$username !",
                             pin = pinResult.data,
-                            counterPerTimeUnit = counterPerTimeUnit
+                            counterPerTimeUnit = if (security is Result.Success) security.data.lockedOutDuration else CounterPerTimeUnit(),
+                            _withBiometric = if (security is Result.Success) security.data.withBiometric else true
                         )
                     }
                 }
@@ -98,30 +101,30 @@ class PinPromptViewModel @Inject constructor(
 
 
     private fun logOut() {
-        _state.update { newState->
+        _state.update { newState ->
             newState.copy(
                 enabledButtons = false,
             )
         }
         viewModelScope.launch {
             val result = sessionStorage.clearAuthInfo()
-            when(result){
+            when (result) {
 
                 is Result.Error -> {
-                    if(result.error is DataError.Local.Unknown) {
+                    if (result.error is DataError.Local.Unknown) {
                         showBanner(uiText = UiText.DynamicString(result.error.unknownError))
-                    }
-                    else{
+                    } else {
                         showBanner(uiText = UiText.DynamicString(result.error.toString()))
                     }
-                    _state.update { newState->
+                    _state.update { newState ->
                         newState.copy(
                             enabledButtons = true
                         )
                     }
                 }
+
                 is Result.Success -> {
-                    _state.update { newState->
+                    _state.update { newState ->
                         newState.copy(
                             enabledButtons = true
                         )
@@ -129,7 +132,6 @@ class PinPromptViewModel @Inject constructor(
                     _events.send(PinPromptEvents.NavigateToLogIn)
                 }
             }
-
         }
     }
 

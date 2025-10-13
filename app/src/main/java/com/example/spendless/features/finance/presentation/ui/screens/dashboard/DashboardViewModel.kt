@@ -19,11 +19,9 @@ import com.example.spendless.features.finance.presentation.ui.common.groupTransa
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -45,17 +43,17 @@ class DashboardViewModel @Inject constructor(
     private val transactionsRepository: TransactionsRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(DashboardUiState())
-    val state = _state.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = DashboardUiState()
-    ).onStart {
+    val state = _state.asStateFlow()
+
+    init {
+        //here we used those functions inside the onStart because when i'm already logged in
+        //and i want to update preferences
         viewModelScope.launch {
             try {
-                //they should work sequentially because getPreferencesFormat() depends on username from setUsername()
-                //and combineFlows() depends on preferencesFormat from getPreferencesFormat()
+                //they should work sequentially because combineFlows() depends on username from setUsername()
                 setUsername()
-                setPreferencesFormat()
+                //combine in combineFlows is used when we have multiple flows and we have  to ensure
+                //that it will only work when all collected at least once
                 combineFlows()
             } catch (_: Exception) {
                 hideLoader()
@@ -83,25 +81,25 @@ class DashboardViewModel @Inject constructor(
     }
 
     private suspend fun combineFlows() {
+        val username = _state.value.username
+        val preferencesFormat = userRepository.getPreferencesByUsernameAsFlow(username)
         val total = transactionsRepository.getNetTotalForUser()
         val transactionsList = transactionsRepository.getTransactionsForTodayAndYesterday()
         val largestTransaction = transactionsRepository.getLargestTransaction()
+        val totalSpentPreviousWeek = transactionsRepository.getTotalSpentPreviousWeek()
         combine(
+            preferencesFormat,
             total,
+            totalSpentPreviousWeek,
             transactionsList,
             largestTransaction
-        ) { total, transactionList, largestTransaction ->
-            //format prices
-            val uiState = DashboardUiState(
-                total = total,
-                largestTransaction = largestTransaction,
-            )
+        ) { preferencesFormat, total, totalSpentPreviousWeek, transactionList, largestTransaction ->
             val transactionMap = transactionList.map {
                 it.copy(
                     price = amountFormatter(
                         total = it.price,
                         isExpense = it.isExpense,
-                        preferencesFormat = _state.value.preferencesFormat
+                        preferencesFormat = preferencesFormat
                     )
                 )
             }
@@ -109,14 +107,29 @@ class DashboardViewModel @Inject constructor(
             //all the transactionItems at this date
             val groupTransactions = groupTransactionsByDate(transactions = transactionMap)
 
-            Pair(uiState, groupTransactions)
-        }.collect { (uiState, groupTransactions) ->
+            //format prices
+            val uiState = DashboardUiState(
+                total = total,
+                previousWeekSpent = totalSpentPreviousWeek,
+                largestTransaction = largestTransaction,
+                preferencesFormat = preferencesFormat,
+                bottomSheetUiState = _state.value.bottomSheetUiState.copy(preferencesFormat = preferencesFormat),
+                transactionsByDate = groupTransactions
+            )
+            //here is the last thing which is what i want to return for example
+            //Pair(uiState, groupTransactions) will collect down uiState and groupTransactions
+            //here will only collect uiState and up is everything i want to do as calculations
+            uiState
+        }.collect { uiState ->
             _state.update { newState ->
                 Timber
                 newState.copy(
+                    preferencesFormat = uiState.preferencesFormat,
                     total = uiState.total,
+                    previousWeekSpent = uiState.previousWeekSpent,
+                    bottomSheetUiState = uiState.bottomSheetUiState,
                     largestTransaction = uiState.largestTransaction,
-                    transactionsByDate = groupTransactions
+                    transactionsByDate = uiState.transactionsByDate
                 )
             }
             //here after each flow emit at least once we will hide the loader
@@ -313,27 +326,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun setPreferencesFormat() {
-        viewModelScope.launch {
-            val username = sessionStorage.getAuthInfo()!!.username
-            val result = userRepository.getPreferencesByUsername(username)
-            if (result is Result.Success) {
-                val preferences = result.data
-                transactionsRepository.getTotalSpentPreviousWeek(preferences)
-                    .collect { totalSpentPreviousWeek ->
-                        _state.update { newState ->
-                            newState.copy(
-                                bottomSheetUiState = newState.bottomSheetUiState.copy(
-                                    preferencesFormat = preferences,
-                                ),
-                                preferencesFormat = preferences,
-                                previousWeekSpent = totalSpentPreviousWeek
-                            )
-                        }
-                    }
-            }
-        }
-    }
 
     private fun showBottomBar() {
         _state.update { newState ->

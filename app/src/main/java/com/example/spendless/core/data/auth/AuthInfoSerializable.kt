@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AuthInfoSerializable(
     val username: String = "",
-    val security: Security = Security(),
-    val preferencesFormat: PreferencesFormat = PreferencesFormat(),
+//    val security: Security = Security(),
+//    val preferencesFormat: PreferencesFormat = PreferencesFormat(),
 )

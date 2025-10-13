@@ -13,6 +13,18 @@ interface UserDao {
     @Insert
     suspend fun insertUser(userEntity: UserEntity)
 
+    @Query("UPDATE User SET preferences = :preferencesFormat WHERE username = :username")
+    suspend fun updatePreferencesFormat(
+        username: String,
+        preferencesFormat: PreferencesFormat
+    )
+
+    @Query("UPDATE User SET security = :security WHERE username = :username")
+    suspend fun updateSecurity(
+        username: String,
+        security: Security
+    )
+
     @Query("SELECT EXISTS(SELECT 1 FROM User WHERE username = :username)")
     suspend fun doesUserExist(username: String): Boolean
 
@@ -25,8 +37,10 @@ interface UserDao {
     @Query("Select preferences from User Where username = :username Limit 1")
     suspend fun getPreferencesByUsername(username: String): PreferencesFormat
 
+    @Query("Select preferences from User Where username = :username Limit 1")
+    fun getPreferencesByUsernameAsFlow(username: String): Flow<PreferencesFormat>
+
     @Query("SELECT * FROM User WHERE username = :username LIMIT 1")
     fun getUserByUsername(username: String): Flow<UserEntity>
-
 
 }

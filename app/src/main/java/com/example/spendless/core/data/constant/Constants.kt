@@ -3,10 +3,13 @@ package com.example.spendless.core.data.constant
 import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.data.database.user.model.Currency
 import com.example.spendless.core.presentation.designsystem.SpendLessIcons
+import com.example.spendless.features.auth.data.model.CounterPerTimeUnit
 import com.example.spendless.features.finance.data.model.CategoryItem
 import com.example.spendless.features.finance.data.model.ExportFormat
 import com.example.spendless.features.finance.data.model.ExportRange
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
+import java.util.concurrent.TimeUnit
+import com.example.spendless.R
 
 object Constants {
     val currenciesList = listOf<Currency>(
@@ -83,5 +86,48 @@ object Constants {
     val exportFormatList = listOf<ExportFormat>(
         ExportFormat.CSV,
         ExportFormat.PDF
+    )
+
+    val biometricList = listOf<Int>(
+        R.string.enable,
+        R.string.disable
+    )
+
+    val expiryDuration = listOf<CounterPerTimeUnit>(
+        CounterPerTimeUnit(
+            counter = 5,
+            timeUnit = TimeUnit.MINUTES
+        ),
+        CounterPerTimeUnit(
+            counter = 15,
+            timeUnit = TimeUnit.MINUTES
+        ),
+        CounterPerTimeUnit(
+            counter = 30,
+            timeUnit = TimeUnit.MINUTES
+        ),
+        CounterPerTimeUnit(
+            counter = 1,
+            timeUnit = TimeUnit.HOURS
+        ),
+    )
+
+    val lockedDuration = listOf<CounterPerTimeUnit>(
+        CounterPerTimeUnit(
+            counter = 15,
+            timeUnit = TimeUnit.SECONDS
+        ),
+        CounterPerTimeUnit(
+            counter = 30,
+            timeUnit = TimeUnit.SECONDS
+        ),
+        CounterPerTimeUnit(
+            counter = 1,
+            timeUnit = TimeUnit.MINUTES
+        ),
+        CounterPerTimeUnit(
+            counter = 5,
+            timeUnit = TimeUnit.MINUTES
+        ),
     )
 }

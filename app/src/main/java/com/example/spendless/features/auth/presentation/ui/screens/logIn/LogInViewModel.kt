@@ -120,30 +120,27 @@ class LogInViewModel @Inject constructor(
                             )
                         }
 
-                        //run concurrently(in parallel)
-                        val (security, preferencesFormat) = coroutineScope {
-                            val securityDeferred =
-                                async { userRepository.getSecurityByUsername(username) }
-                            val preferencesDeferred =
-                                async { userRepository.getPreferencesByUsername(username) }
-
-                            // Wait for both in parallel
-                            Pair(securityDeferred.await(), preferencesDeferred.await())
-                        }
-                        if (security is Result.Success && preferencesFormat is Result.Success) {
+//                        //run concurrently(in parallel)
+//                        val (security, preferencesFormat) = coroutineScope {
+//                            val securityDeferred =
+//                                async { userRepository.getSecurityByUsername(username) }
+//                            val preferencesDeferred =
+//                                async { userRepository.getPreferencesByUsername(username) }
+//
+//                            // Wait for both in parallel
+//                            Pair(securityDeferred.await(), preferencesDeferred.await())
+//                        }
+//                        if (security is Result.Success && preferencesFormat is Result.Success) {
                             sessionStorage.setAuthInfo(
                                 authInfo = AuthInfo(
                                     username = username,
-                                    security = security.data,
-                                    preferencesFormat = preferencesFormat.data
+//                                    security = security.data,
+//                                    preferencesFormat = preferencesFormat.data
                                 )
                             )
                             verifyPin(username = username, pin = pin) {
                                 _events.send(LogInEvents.NavigateToDashboard(username = username))
                             }
-                        }
-
-                        showBanner(bannerText = UiText.StringResource(R.string.failed_to_save_user))
                     } else {
                         _state.update { newState ->
                             newState.copy(

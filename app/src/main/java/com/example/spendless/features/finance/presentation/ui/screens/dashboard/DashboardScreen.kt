@@ -103,7 +103,7 @@ fun DashboardScreen(
                             .statusBarsPadding()
                             .padding(top = 8.dp)
                             .padding(horizontal = 16.dp),
-                        username = dashboardUiState.username,
+                        username = dashboardUiState.username.uppercase(),
                         onExportClick = {
                             dashboardActions(DashboardActions.NavigateToExportData)
                         },
@@ -419,7 +419,7 @@ fun LargestTransaction(
         ) {
             Text(
                 modifier = Modifier,
-                text = dashboardUiState.previousWeekSpent,
+                text = dashboardUiState.previousWeekSpentFormatted,
                 style = MaterialTheme.typography.titleLarge.copy(
                     MaterialTheme.colorScheme.onSurface
                 )
