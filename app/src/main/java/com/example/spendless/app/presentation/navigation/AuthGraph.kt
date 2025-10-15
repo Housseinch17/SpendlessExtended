@@ -4,10 +4,12 @@ import android.content.Intent
 import android.hardware.biometrics.BiometricManager
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -45,7 +47,7 @@ fun NavGraphBuilder.authGraph(
             ObserveAsEvents(logInViewModel.events) { events ->
                 when (events) {
                     is LogInEvents.NavigateToDashboard -> navHostController.navigate(
-                        NavigationScreens.Dashboard
+                        NavigationScreens.Dashboard(promptPin = false)
                     ) {
                         //remove all backstack, keep Dashboard only
                         popUpTo(0) {
@@ -153,13 +155,14 @@ fun NavGraphBuilder.authGraph(
         }
 
         composable<NavigationScreens.Onboarding> {
+            val context = LocalContext.current
             val onBoardingViewModel = hiltViewModel<OnBoardingViewModel>()
             val onBoardingUiState by onBoardingViewModel.state.collectAsStateWithLifecycle()
 
             ObserveAsEvents(onBoardingViewModel.events) { events ->
                 when (events) {
                     is OnBoardingEvents.Dashboard -> navHostController.navigate(
-                        NavigationScreens.Dashboard
+                        NavigationScreens.Dashboard(promptPin = false)
                     ) {
                         //remove all backstack, keep Dashboard only
                         popUpTo(0) {
@@ -168,6 +171,11 @@ fun NavGraphBuilder.authGraph(
                     }
 
                     OnBoardingEvents.NavigateBack -> navHostController.navigateUp()
+                    is OnBoardingEvents.ShowToast -> Toast.makeText(
+                        context,
+                        events.showText.asString(context),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             OnBoardingScreen(
@@ -214,6 +222,11 @@ fun NavGraphBuilder.authGraph(
 
                     PinEvents.BiometricResult.AuthenticationSuccess -> {
                         Timber.tag("MyTag").d("AuthenticationSuccess")
+                        navHostController.navigateUp()
+                    }
+
+                    PinEvents.PinPromptEvents.VerifiedSuccessfully -> {
+                        Timber.tag("MyTag").d("VerifiedSuccessfully")
                         navHostController.navigateUp()
                     }
 

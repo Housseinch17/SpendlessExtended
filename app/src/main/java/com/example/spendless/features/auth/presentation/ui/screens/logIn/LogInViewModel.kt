@@ -1,20 +1,20 @@
 package com.example.spendless.features.auth.presentation.ui.screens.logIn
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
+import com.example.spendless.core.domain.PatternValidator
 import com.example.spendless.core.domain.auth.AuthInfo
 import com.example.spendless.core.domain.auth.SessionStorage
+import com.example.spendless.core.domain.time.TimeRepository
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
-import com.example.spendless.core.domain.PatternValidator
 import com.example.spendless.features.auth.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,6 +41,7 @@ sealed interface LogInActions {
 class LogInViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val sessionStorage: SessionStorage,
+    private val timeRepository: TimeRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(LogInUiState())
     val state = _state.asStateFlow()
@@ -86,6 +87,7 @@ class LogInViewModel @Inject constructor(
         }
     }
 
+    @SuppressLint("NewApi")
     private fun logIn() {
         _state.update { newState ->
             newState.copy(
@@ -112,6 +114,8 @@ class LogInViewModel @Inject constructor(
 
                 is Result.Success -> {
                     if (doesUserExist.data) {
+                        val currentTime = timeRepository.getCurrentTime()
+
                         //show circular progress indicator for 1 seconds
                         delay(1.seconds)
                         _state.update { newState ->
@@ -134,6 +138,7 @@ class LogInViewModel @Inject constructor(
                             sessionStorage.setAuthInfo(
                                 authInfo = AuthInfo(
                                     username = username,
+                                    currentTimeLoggedIn = currentTime,
 //                                    security = security.data,
 //                                    preferencesFormat = preferencesFormat.data
                                 )

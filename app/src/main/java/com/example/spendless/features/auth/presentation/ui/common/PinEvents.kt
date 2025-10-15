@@ -10,6 +10,8 @@ sealed interface PinEvents {
 
     sealed interface PinPromptEvents : PinEvents {
         data object NavigateToLogIn : PinPromptEvents
+        data object VerifiedSuccessfully: PinPromptEvents
+
     }
 
     sealed interface BiometricResult : PinEvents {

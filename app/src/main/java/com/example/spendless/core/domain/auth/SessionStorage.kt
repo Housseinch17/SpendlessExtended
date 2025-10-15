@@ -6,5 +6,6 @@ import com.example.spendless.core.domain.util.Result
 interface SessionStorage {
     suspend fun getAuthInfo(): AuthInfo?
     suspend fun setAuthInfo(authInfo: AuthInfo?)
+    suspend fun setCurrentTimeLoggedIn(currentTimeLoggedIn: String)
     suspend fun clearAuthInfo(): Result<Unit, DataError.Local>
 }

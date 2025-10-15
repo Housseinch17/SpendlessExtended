@@ -2,9 +2,12 @@ package com.example.spendless.features.finance.presentation.ui.screens.dashboard
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.example.spendless.R
+import com.example.spendless.app.presentation.navigation.NavigationScreens
 import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.Result
@@ -12,6 +15,7 @@ import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
+import com.example.spendless.features.finance.domain.SessionExpiryUseCase
 import com.example.spendless.features.finance.domain.TransactionsRepository
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions.DashboardActions
@@ -34,22 +38,31 @@ sealed interface DashboardEvents {
     data object NavigateToExportData : DashboardEvents
     data object NavigateToSettings : DashboardEvents
     data object NavigateToTransactions : DashboardEvents
+    data object PromptPin : DashboardEvents
 }
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val userRepository: UserRepository,
     private val sessionStorage: SessionStorage,
-    private val transactionsRepository: TransactionsRepository
+    private val transactionsRepository: TransactionsRepository,
+    private val sessionExpiryUseCase: SessionExpiryUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DashboardUiState())
     val state = _state.asStateFlow()
+
+    private val _events = Channel<DashboardEvents>()
+    val events = _events.receiveAsFlow()
 
     init {
         //here we used those functions inside the onStart because when i'm already logged in
         //and i want to update preferences
         viewModelScope.launch {
             try {
+                launch {
+                    initialPromptPin()
+                }
                 //they should work sequentially because combineFlows() depends on username from setUsername()
                 setUsername()
                 //combine in combineFlows is used when we have multiple flows and we have  to ensure
@@ -61,9 +74,15 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private val _events = Channel<DashboardEvents>()
-    val events = _events.receiveAsFlow()
-
+    private fun initialPromptPin() {
+        val args = savedStateHandle.toRoute<NavigationScreens.Dashboard>()
+        val promptPin = args.promptPin
+        if (promptPin) {
+            viewModelScope.launch {
+                _events.send(DashboardEvents.PromptPin)
+            }
+        }
+    }
 
     private fun hideLoader() {
         _state.update { newState ->
@@ -183,20 +202,46 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    private fun promptPin() {
+        viewModelScope.launch {
+            _events.send(DashboardEvents.PromptPin)
+        }
+    }
+
+    private suspend fun isExpiry(): Boolean {
+        val isExpired = sessionExpiryUseCase.invoke()
+        return isExpired
+    }
+
     private fun navigateToTransactions() {
         viewModelScope.launch {
+            val isExpiry = isExpiry()
+            if (isExpiry) {
+                promptPin()
+                return@launch
+            }
             _events.send((DashboardEvents.NavigateToTransactions))
         }
     }
 
     private fun navigateToSettings() {
         viewModelScope.launch {
+            val isExpiry = isExpiry()
+            if (isExpiry) {
+                promptPin()
+                return@launch
+            }
             _events.send(DashboardEvents.NavigateToSettings)
         }
     }
 
     private fun navigateToExportData() {
         viewModelScope.launch {
+            val isExpiry = isExpiry()
+            if (isExpiry) {
+                promptPin()
+                return@launch
+            }
             _events.send(DashboardEvents.NavigateToExportData)
         }
     }
@@ -328,10 +373,17 @@ class DashboardViewModel @Inject constructor(
 
 
     private fun showBottomBar() {
-        _state.update { newState ->
-            newState.copy(
-                bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = true)
-            )
+        viewModelScope.launch {
+            val isExpiry = isExpiry()
+            if (isExpiry) {
+                promptPin()
+                return@launch
+            }
+            _state.update { newState ->
+                newState.copy(
+                    bottomSheetUiState = newState.bottomSheetUiState.copy(showBottomSheet = true)
+                )
+            }
         }
     }
 

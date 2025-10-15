@@ -74,7 +74,6 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
 
     //Kotlin serialization
     implementation(libs.kotlinx.serialization.json)
@@ -118,5 +117,7 @@ dependencies {
     //Document
     implementation (libs.itextg)
 
+    //ProcessLifecycleOwner provides a lifecycle for the whole application process
+    implementation (libs.androidx.lifecycle.process)
 
 }

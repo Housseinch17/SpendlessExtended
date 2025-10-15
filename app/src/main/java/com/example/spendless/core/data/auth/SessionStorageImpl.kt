@@ -26,6 +26,7 @@ class SessionStorageImpl @Inject constructor(
         try {
             withContext(Dispatchers.IO) {
                 authDataStore.updateData {
+
                     //if authInfo is set to null just use AuthInfoSerializable()
                     //later check if the data is null or AuthInfoSerializable() means it's null
                     //used like that to clear the data inside AuthInfo instead of just removing/deleting it
@@ -38,6 +39,22 @@ class SessionStorageImpl @Inject constructor(
                 throw e
             }
             Timber.tag("MyTag").e("setAuthInfo: ${e.localizedMessage}")
+        }
+    }
+
+    override suspend fun setCurrentTimeLoggedIn(currentTimeLoggedIn: String) {
+        try {
+            withContext(Dispatchers.IO) {
+                authDataStore.updateData { authInfo ->
+                    val oldAuthInfo = authInfo ?: AuthInfoSerializable()
+                    oldAuthInfo.copy(
+                        currentTimeLoggedIn = currentTimeLoggedIn
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Timber.tag("MyTag").e("setCurrentTimeLoggedIn: ${e.localizedMessage}")
         }
     }
 

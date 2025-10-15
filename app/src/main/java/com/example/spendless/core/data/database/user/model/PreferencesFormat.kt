@@ -1,11 +1,13 @@
 package com.example.spendless.core.data.database.user.model
 
+import androidx.annotation.Keep
 import com.example.spendless.core.data.constant.Constants.currenciesList
 import com.example.spendless.core.data.constant.Constants.decimalSeparatorList
 import com.example.spendless.core.data.constant.Constants.expensesFormatList
 import com.example.spendless.core.data.constant.Constants.thousandsSeparatorList
 import kotlinx.serialization.Serializable
 
+@Keep
 @Serializable
 data class PreferencesFormat(
     val currency: Currency = currenciesList.first(),

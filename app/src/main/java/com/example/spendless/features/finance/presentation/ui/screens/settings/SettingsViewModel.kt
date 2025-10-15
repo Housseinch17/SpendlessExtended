@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.Result
+import com.example.spendless.features.finance.domain.SessionExpiryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,8 @@ sealed interface SettingsEvents {
     data object NavigateToPreferences : SettingsEvents
     data object NavigateToSecurity : SettingsEvents
     data object LogOut : SettingsEvents
+    data object PromptPin : SettingsEvents
+
 }
 
 sealed interface SettingsActions {
@@ -30,6 +33,7 @@ sealed interface SettingsActions {
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val sessionStorage: SessionStorage,
+    private val sessionExpiryUseCase: SessionExpiryUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(SettingsUiState())
     val state = _state.asStateFlow()
@@ -54,12 +58,22 @@ class SettingsViewModel @Inject constructor(
 
     private fun navigateToPreferences() {
         viewModelScope.launch {
+            val isExpiry = isExpiry()
+            if (isExpiry) {
+                promptPin()
+                return@launch
+            }
             _events.send(SettingsEvents.NavigateToPreferences)
         }
     }
 
     private fun navigateToSecurity() {
         viewModelScope.launch {
+            val isExpiry = isExpiry()
+            if (isExpiry) {
+                promptPin()
+                return@launch
+            }
             _events.send(SettingsEvents.NavigateToSecurity)
         }
     }
@@ -96,5 +110,16 @@ class SettingsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun promptPin() {
+        viewModelScope.launch {
+            _events.send(SettingsEvents.PromptPin)
+        }
+    }
+
+    private suspend fun isExpiry(): Boolean {
+            val isExpired = sessionExpiryUseCase.invoke()
+            return isExpired
     }
 }

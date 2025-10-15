@@ -64,7 +64,6 @@ class SecurityViewModel @Inject constructor(
             val username = sessionStorage.getAuthInfo()?.username ?: ""
             val result = userRepository.getSecurityByUsername(username)
             if (result is Result.Success) {
-                Timber.tag("MyTag").d("getSecurity: $username and ${result.data}")
                 _state.update { newState ->
                     newState.copy(
                         username = username,
@@ -127,6 +126,7 @@ class SecurityViewModel @Inject constructor(
             )
             if(result is Result.Success){
                 _events.send(SecurityEvents.ShowToast(UiText.StringResource(R.string.successfully_saved)))
+                navigateBack()
             }
             _state.update { newState->
                 newState.copy(

@@ -18,7 +18,6 @@ class MainViewModel @Inject constructor(
     private val _state = MutableStateFlow(MainUiState())
     val state = _state.asStateFlow()
 
-
     init {
         viewModelScope.launch {
             getAuthInfo()

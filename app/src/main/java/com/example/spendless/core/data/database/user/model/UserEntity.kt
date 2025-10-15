@@ -12,5 +12,5 @@ data class UserEntity(
     @ColumnInfo("username") val username: String,
     @ColumnInfo("pin") val pin: String,
     @ColumnInfo("preferences") val preferences: PreferencesFormat,
-    @ColumnInfo("security") val security: Security
+    @ColumnInfo("security") val security: Security,
 )

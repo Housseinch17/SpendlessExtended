@@ -3,6 +3,10 @@ package com.example.spendless.features.finance.data.di
 import com.example.spendless.core.data.database.Database
 import com.example.spendless.features.finance.data.datasource.TransactionsImpl
 import com.example.spendless.features.finance.data.database.dao.TransactionDao
+import com.example.spendless.features.finance.data.datasource.AndroidAppLifecycleObserver
+import com.example.spendless.features.finance.data.datasource.SessionExpiryImpl
+import com.example.spendless.features.finance.domain.LifecycleObserver
+import com.example.spendless.features.finance.domain.SessionExpiryUseCase
 import com.example.spendless.features.finance.domain.TransactionsRepository
 import dagger.Binds
 import dagger.Module
@@ -16,7 +20,15 @@ import javax.inject.Singleton
 abstract class FinanceModule {
     @Binds
     @Singleton
-    abstract fun provideTransactionRepository(transactionsImpl: TransactionsImpl): TransactionsRepository
+    abstract fun bindsTransactionRepository(transactionsImpl: TransactionsImpl): TransactionsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindsSessionExpiryUseCase(sessionExpiryImpl: SessionExpiryImpl): SessionExpiryUseCase
+
+    @Binds
+    @Singleton
+    abstract fun bindsLifecycleObserver(lifecycleObserver: AndroidAppLifecycleObserver): LifecycleObserver
 
     companion object{
         @Provides

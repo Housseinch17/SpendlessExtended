@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
+
             val mainUiState by mainViewModel.state.collectAsStateWithLifecycle()
             navController = rememberNavController()
             navController.restoreState(restoreState)

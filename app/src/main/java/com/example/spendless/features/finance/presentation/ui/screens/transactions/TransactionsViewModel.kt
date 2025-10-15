@@ -16,6 +16,7 @@ import com.example.spendless.features.finance.data.model.ExportFormat
 import com.example.spendless.features.finance.data.model.ExportRange
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
+import com.example.spendless.features.finance.domain.SessionExpiryUseCase
 import com.example.spendless.features.finance.domain.TransactionsRepository
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions
 import com.example.spendless.features.finance.presentation.ui.common.groupTransactionsByDate
@@ -37,6 +38,7 @@ import javax.inject.Inject
 
 sealed interface TransactionsEvents {
     data object NavigateBack : TransactionsEvents
+    data object PromptPin : TransactionsEvents
 }
 
 @HiltViewModel
@@ -45,7 +47,8 @@ class TransactionsViewModel @Inject constructor(
     private val sessionStorage: SessionStorage,
     private val transactionsRepository: TransactionsRepository,
     private val userRepository: UserRepository,
-    private val fileExporter: FileExporter
+    private val fileExporter: FileExporter,
+    private val sessionExpiryUseCase: SessionExpiryUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(TransactionsUiState())
     val state = _state.asStateFlow()
@@ -414,6 +417,11 @@ class TransactionsViewModel @Inject constructor(
     private fun exportData() {
         exportJob?.cancel()
         exportJob = viewModelScope.launch {
+            val isExpiry = isExpiry()
+            if (isExpiry) {
+                promptPin()
+                return@launch
+            }
             val exportRange = _state.value.selectedExportRange
             val exportFormat = _state.value.selectedExportFormat
             try {
@@ -524,5 +532,16 @@ class TransactionsViewModel @Inject constructor(
         _state.update { newState ->
             newState.copy(transactionsToExport = transactionList)
         }
+    }
+
+    private fun promptPin() {
+        viewModelScope.launch {
+            _events.send(TransactionsEvents.PromptPin)
+        }
+    }
+
+    private suspend fun isExpiry(): Boolean{
+            val isExpired = sessionExpiryUseCase.invoke()
+            return isExpired
     }
 }

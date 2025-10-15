@@ -3,15 +3,19 @@ package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.spendless.R
 import com.example.spendless.core.data.database.user.model.Currency
 import com.example.spendless.core.data.database.user.model.Security
 import com.example.spendless.core.domain.auth.AuthInfo
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.model.User
+import com.example.spendless.core.domain.time.TimeRepository
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
+import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.finance.domain.TransactionsRepository
+import com.example.spendless.features.finance.presentation.ui.screens.security.SecurityEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +32,7 @@ import kotlin.time.Duration.Companion.seconds
 sealed interface OnBoardingEvents {
     data object NavigateBack : OnBoardingEvents
     data class Dashboard(val username: String) : OnBoardingEvents
+    data class ShowToast(val showText: UiText): OnBoardingEvents
 }
 
 sealed interface OnBoardingActions {
@@ -46,7 +51,9 @@ class OnBoardingViewModel @Inject constructor(
     private val saveHandleStateHandle: SavedStateHandle,
     private val userRepository: UserRepository,
     private val sessionStorage: SessionStorage,
-    private val transactionsRepository: TransactionsRepository
+    private val transactionsRepository: TransactionsRepository,
+    private val timeRepository: TimeRepository,
+
 ) : ViewModel() {
     private val _state = MutableStateFlow(OnBoardingUiState())
     val state = _state.asStateFlow()
@@ -232,12 +239,14 @@ class OnBoardingViewModel @Inject constructor(
                     is Result.Success -> {
                         Timber.tag("MyTag").d("startTracking(): success")
                         val state = _state.value
+                        val currentTime = timeRepository.getCurrentTime()
 
                         async {
                             //default value for username
                             sessionStorage.setAuthInfo(
                                 authInfo = AuthInfo(
                                     username = state.username,
+                                    currentTimeLoggedIn = currentTime
 //                                    security = security,
 //                                    preferencesFormat = preferencesFormat,
                                 )
@@ -271,10 +280,17 @@ class OnBoardingViewModel @Inject constructor(
                 }
 
                 is Result.Success -> {
+                    showToast()
                     //i dont have to set isButtonLoading to false, cause navigateBack will clear this from backstack
                     navigateBack()
                 }
             }
+        }
+    }
+
+    private fun showToast(){
+        viewModelScope.launch {
+            _events.send(OnBoardingEvents.ShowToast(UiText.StringResource(R.string.successfully_saved)))
         }
     }
 

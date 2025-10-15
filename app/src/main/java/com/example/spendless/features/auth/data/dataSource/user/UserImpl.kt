@@ -143,7 +143,6 @@ class UserImpl @Inject constructor(
         security: Security
     ): Result<Unit, DataError.Local> {
         return try {
-            Timber.tag("MyTag").d("updateSecurity: $username and $security")
             userDao.updateSecurity(
                 username = username.lowercase(),
                 security = security

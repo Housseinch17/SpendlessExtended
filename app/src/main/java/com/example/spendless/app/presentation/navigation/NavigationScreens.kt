@@ -26,7 +26,7 @@ sealed interface NavigationScreens {
 
     //Finance Graph
     @Serializable
-    data object Dashboard: NavigationScreens
+    data class Dashboard(val promptPin: Boolean = false): NavigationScreens
 
     @Serializable
     data class Transactions(val showExportRange: Boolean = false): NavigationScreens

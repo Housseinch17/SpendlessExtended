@@ -16,9 +16,9 @@ abstract class AuthModule {
 
     @Binds
     @Singleton
-    abstract fun provideUserRepository(userImpl: UserImpl): UserRepository
+    abstract fun bindsUserRepository(userImpl: UserImpl): UserRepository
 
     @Binds
     @Singleton
-    abstract fun provideBiometricRepository(biometricImpl: BiometricImpl): BiometricRepository
+    abstract fun bindsBiometricRepository(biometricImpl: BiometricImpl): BiometricRepository
 }

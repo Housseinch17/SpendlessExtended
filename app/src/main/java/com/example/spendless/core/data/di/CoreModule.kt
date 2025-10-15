@@ -9,7 +9,9 @@ import com.example.spendless.core.data.auth.AuthInfoSerializer
 import com.example.spendless.core.data.auth.SessionStorageImpl
 import com.example.spendless.core.data.database.Database
 import com.example.spendless.core.data.database.user.dao.UserDao
+import com.example.spendless.core.data.time.TimeRepositoryImpl
 import com.example.spendless.core.domain.auth.SessionStorage
+import com.example.spendless.core.domain.time.TimeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -30,7 +32,11 @@ abstract class CoreModule {
 
     @Binds
     @Singleton
-    abstract fun provideSessionStorage(sessionStorageImpl: SessionStorageImpl): SessionStorage
+    abstract fun bindsSessionStorage(sessionStorageImpl: SessionStorageImpl): SessionStorage
+
+    @Binds
+    @Singleton
+    abstract fun bindsTimeRepository(timeRepositoryImpl: TimeRepositoryImpl): TimeRepository
 
     companion object {
         @Provides

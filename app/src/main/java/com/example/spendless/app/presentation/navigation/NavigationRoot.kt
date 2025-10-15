@@ -29,9 +29,8 @@ fun NavigationRoot(
 
             financeGraph(
                 modifier = Modifier.fillMaxSize(),
-                navHostController = navHostController
+                navHostController = navHostController,
             )
         }
-
     }
 }

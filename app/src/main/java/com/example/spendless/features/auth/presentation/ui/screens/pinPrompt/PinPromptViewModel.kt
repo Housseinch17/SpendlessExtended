@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.R
 import com.example.spendless.core.domain.auth.SessionStorage
+import com.example.spendless.core.domain.time.TimeRepository
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
@@ -36,6 +37,7 @@ class PinPromptViewModel @Inject constructor(
     private val biometricRepository: BiometricRepository,
     private val sessionStorage: SessionStorage,
     private val userRepository: UserRepository,
+    private val timeRepository: TimeRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PinPromptUIState())
     val state = _state.asStateFlow()
@@ -84,7 +86,6 @@ class PinPromptViewModel @Inject constructor(
                 }
 
                 is Result.Success -> {
-                    Timber.tag("MyTag").d("authInfo: $username")
                     _state.update { newState ->
                         newState.copy(
                             username = username,
@@ -158,7 +159,10 @@ class PinPromptViewModel @Inject constructor(
                 val pin = _state.value.pin
                 viewModelScope.launch {
                     if (pinPromptPin == pin) {
-                        //the action
+                        //set auth info to the new currentLoggedInTime
+                        updateCurrentTime()
+                        Timber.tag("MyTag").d("VerifiedSuccessfully")
+                        _events.send((PinPromptEvents.VerifiedSuccessfully))
                     } else {
                         incrementPinCounter()
                         showBanner(
@@ -213,6 +217,8 @@ class PinPromptViewModel @Inject constructor(
 
                     PinEvents.BiometricResult.AuthenticationSuccess -> {
                         Timber.tag("MyTag").d("AuthenticationSuccess")
+                        //set auth info to the new currentLoggedInTime
+                        updateCurrentTime()
                         _events.send(PinEvents.BiometricResult.AuthenticationSuccess)
                     }
 
@@ -289,8 +295,7 @@ class PinPromptViewModel @Inject constructor(
         }
 
         val counterByTimeUnit = _state.value.counterPerTimeUnit
-        val totalSeconds =
-            counterByTimeUnit.timeUnit.toSeconds(counterByTimeUnit.counter.toLong()).toInt()
+        val totalSeconds = counterByTimeUnit.timeUnit.toSeconds(counterByTimeUnit.counter.toLong()).toInt()
 
         counter = viewModelScope.launch {
             for (seconds in totalSeconds downTo 0) {
@@ -315,4 +320,10 @@ class PinPromptViewModel @Inject constructor(
         }
     }
 
+    private suspend fun updateCurrentTime(){
+        //get currentTime
+        val currentTime = timeRepository.getCurrentTime()
+        //update authInfo with new current time logged in
+        sessionStorage.setCurrentTimeLoggedIn(currentTimeLoggedIn = currentTime)
+    }
 }

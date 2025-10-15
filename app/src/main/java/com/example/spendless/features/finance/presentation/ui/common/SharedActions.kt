@@ -8,22 +8,16 @@ import com.example.spendless.features.finance.data.model.PaymentRecurrence
 import com.example.spendless.features.finance.data.model.TransactionItem
 
 sealed interface SharedActions {
-    data class SelectedTransaction(val selectedTransactionItem: TransactionItem) :
-        SharedActions
-
+    data class SelectedTransaction(val selectedTransactionItem: TransactionItem) : SharedActions
     data object DismissBottomSheet : SharedActions
     data object ShowBottomBar : SharedActions
     data class UpdateExpense(val isExpense: Boolean) : SharedActions
     data class UpdateTextFieldValue(val textFieldValue: String) : SharedActions
-    data class UpdateAmountTextFieldValue(val amountTextFieldValue: TextFieldValue) :
-        SharedActions
-
+    data class UpdateAmountTextFieldValue(val amountTextFieldValue: TextFieldValue) : SharedActions
     data class UpdateNote(val noteValue: String) : SharedActions
     data class UpdateSelectedCategory(val category: Category) : SharedActions
     data class UpdateDropDownCategoryExpand(val isExpand: Boolean) : SharedActions
-    data class UpdateSelectedPaymentRecurrence(val paymentRecurrence: PaymentRecurrence) :
-        SharedActions
-
+    data class UpdateSelectedPaymentRecurrence(val paymentRecurrence: PaymentRecurrence) : SharedActions
     data class UpdateDropDownPaymentRecurrenceExpand(val isExpand: Boolean) : SharedActions
     data object OnCreateClick : SharedActions
     data class ShowFloatingActionButton(val isVisible: Boolean) : SharedActions
