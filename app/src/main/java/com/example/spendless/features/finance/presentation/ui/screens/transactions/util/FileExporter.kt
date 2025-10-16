@@ -102,7 +102,7 @@ class FileExporter @Inject constructor(@ApplicationContext val context: Context)
         transactionsList.forEach { txn ->
             table.addCell(Phrase(txn.title, cellFont))
             table.addCell(Phrase(txn.category.categoryName.name, cellFont))
-            table.addCell(Phrase("$${txn.price}", cellFont))
+            table.addCell(Phrase(txn.price, cellFont))
             table.addCell(Phrase(if (txn.isExpense) "Expense" else "Income", cellFont))
             table.addCell(Phrase(txn.date, cellFont))
         }
