@@ -29,7 +29,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import timber.log.Timber
 import javax.inject.Inject
@@ -103,7 +105,7 @@ class DashboardViewModel @Inject constructor(
         val username = _state.value.username
         val preferencesFormat = userRepository.getPreferencesByUsernameAsFlow(username)
         val total = transactionsRepository.getNetTotalForUser()
-        val transactionsList = transactionsRepository.getTransactionsForTodayAndYesterday()
+        val transactionsList = transactionsRepository.getTransactionsForLastTwoDates()
         val largestTransaction = transactionsRepository.getLargestTransaction()
         val totalSpentPreviousWeek = transactionsRepository.getTotalSpentPreviousWeek()
         combine(
@@ -141,7 +143,10 @@ class DashboardViewModel @Inject constructor(
             uiState
         }.collect { uiState ->
             _state.update { newState ->
-                Timber
+//                Timber.tag("MyTag").d("total: ${uiState.total}" +
+//                        "previousWeek: ${uiState.previousWeekSpent}" +
+//                        "largestTransaction: ${uiState.largestTransaction}" +
+//                        "transactionsByDate: ${uiState.transactionsByDate}")
                 newState.copy(
                     preferencesFormat = uiState.preferencesFormat,
                     total = uiState.total,
@@ -264,6 +269,7 @@ class DashboardViewModel @Inject constructor(
                 .now()
                 .toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
+//                .minus(1, DateTimeUnit.DAY)
             val state = _state.value
             val transactionItem = state.bottomSheetUiState.selectedTransactionItem.copy(
                 category = state.bottomSheetUiState.selectedCategory,
@@ -277,7 +283,7 @@ class DashboardViewModel @Inject constructor(
             )
             val result = transactionsRepository.insertTransaction(transactionItem)
             when (result) {
-                is Result.Error -> Timber.tag("MyTag").d("onCreateClick error: ${result.error}")
+                is Result.Error -> Timber.tag("MyTag").e("onCreateClick error: ${result.error}")
                 is Result.Success -> {
                     _state.update { newState ->
                         newState.copy(

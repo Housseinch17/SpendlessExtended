@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
@@ -30,9 +31,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -150,6 +155,10 @@ fun CreateTransactionModalBottomSheet(
                     onNoteChange = { newNote ->
                         transactionsActions(SharedActions.UpdateNote(newNote))
                     },
+                    isButtonEnabled = bottomSheetUiState.isButtonEnabled,
+                    onDone = {
+                        transactionsActions(SharedActions.OnCreateClick)
+                    }
                 )
 
                 if (bottomSheetUiState.isExpense) {
@@ -297,7 +306,13 @@ fun AddNote(
     modifier: Modifier = Modifier,
     note: String,
     onNoteChange: (String) -> Unit,
+    isButtonEnabled: Boolean,
+    onDone: () -> Unit,
 ) {
+    //keyboard controller to show or hide keyboard
+    val keyboardController = LocalSoftwareKeyboardController.current
+    //current focus manager if focused or not
+    val focusManager = LocalFocusManager.current
     TextField(
         modifier = modifier,
         value = note,
@@ -341,6 +356,21 @@ fun AddNote(
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         ),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                if(isButtonEnabled) {
+                //close keyboard
+                keyboardController?.hide()
+                //clear focus
+                focusManager.clearFocus()
+                //do the function
+                    onDone()
+                }
+            }
+        ),
         maxLines = 2,
     )
 }
@@ -352,6 +382,8 @@ fun SenderOrReceiverTextField(
     value: String,
     onValueChange: (String) -> Unit,
 ) {
+    //current focus manager if focused or not
+    val focusManager = LocalFocusManager.current
     TextField(
         modifier = modifier,
         value = value,
@@ -388,6 +420,14 @@ fun SenderOrReceiverTextField(
             errorIndicatorColor = Color.Transparent,
             errorSupportingTextColor = MaterialTheme.colorScheme.error
         ),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            },
+        ),
         maxLines = 2
     )
 }
@@ -401,6 +441,8 @@ fun AmountSpentTextField(
     preferencesFormat: PreferencesFormat,
     onAmountValueChange: (TextFieldValue) -> Unit,
 ) {
+    //current focus manager if focused or not
+    val focusManager = LocalFocusManager.current
     TextField(
         modifier = modifier,
         value = amountValue,
@@ -439,7 +481,13 @@ fun AmountSpentTextField(
             textAlign = TextAlign.Center
         ),
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            },
         ),
         visualTransformation = CurrencyVisualTransformation(
             preferencesFormat = preferencesFormat,

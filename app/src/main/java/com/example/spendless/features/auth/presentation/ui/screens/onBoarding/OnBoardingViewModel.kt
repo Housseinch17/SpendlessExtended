@@ -15,7 +15,6 @@ import com.example.spendless.core.domain.util.Result
 import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.finance.domain.TransactionsRepository
-import com.example.spendless.features.finance.presentation.ui.screens.security.SecurityEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel

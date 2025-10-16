@@ -1,18 +1,18 @@
 package com.example.spendless.features.finance.data.datasource
 
-import com.example.spendless.core.data.database.user.model.PreferencesFormat
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
-import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.finance.data.database.dao.TransactionDao
 import com.example.spendless.features.finance.data.database.mapper.toTransactionEntity
 import com.example.spendless.features.finance.data.database.mapper.toTransactionItem
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.domain.TransactionsRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
@@ -24,6 +24,7 @@ import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import timber.log.Timber
 import javax.inject.Inject
 
 class TransactionsImpl @Inject constructor(
@@ -86,6 +87,25 @@ class TransactionsImpl @Inject constructor(
             ).map { list ->
                 list.orEmpty().map {
                     it.toTransactionItem()
+                }
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
+            emptyFlow()
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun getTransactionsForLastTwoDates(): Flow<List<TransactionItem>> =
+        try {
+            val username = sessionStorage.getAuthInfo()!!.username
+            getLastTwoTransactionDates().flatMapLatest { dates->
+                Timber.tag("MyTag").d("dates: $dates")
+                transactionDao.getTransactionsForLastTwoDates(username = username, dates = dates).map {
+                    it.map {
+                        it.toTransactionItem()
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -193,6 +213,16 @@ class TransactionsImpl @Inject constructor(
         }
     }
 
+    //use it as a flow to get the last two dates that are updated in table
+    private suspend fun getLastTwoTransactionDates(): Flow<List<String>> =
+        try {
+            val username = sessionStorage.getAuthInfo()!!.username
+            val lastTwoDates = transactionDao.getLastTwoTransactionDates(username = username)
+            lastTwoDates
+        } catch (e: Exception) {
+            Timber.tag("MyTag").e("getLastTwoTransactionDates: $e: ${e.localizedMessage}")
+            emptyFlow<List<String>>()
+        }
 
     private fun previousWeekRange(
         today: LocalDate = Clock.System.now()

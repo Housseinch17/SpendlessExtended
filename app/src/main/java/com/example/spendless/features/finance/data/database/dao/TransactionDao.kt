@@ -21,6 +21,28 @@ interface TransactionDao {
         yesterday: String
     ): Flow<List<TransactionEntity>?>
 
+    //get last two dates that are different from each other (distinct)
+    @Query("""
+    SELECT DISTINCT date 
+    FROM Transactions 
+    WHERE username = :username 
+    ORDER BY date DESC 
+    LIMIT 2
+""")
+    fun getLastTwoTransactionDates(username: String): Flow<List<String>>
+
+    @Query("""
+    SELECT * 
+    FROM Transactions 
+    WHERE username = :username 
+      AND date IN (:dates)
+    ORDER BY date DESC
+""")
+    fun getTransactionsForLastTwoDates(
+        username: String,
+        dates: List<String>
+    ): Flow<List<TransactionEntity>>
+
     //""" is used when we have multi-lines
     @Query("SELECT IFNULL(CAST(SUM(CASE WHEN isExpense = 1 THEN -CAST(price AS INTEGER) ELSE CAST(price AS INTEGER) END) AS TEXT), '0') FROM Transactions WHERE username = :username")
     fun getNetTotalForUser(username: String): Flow<String?>

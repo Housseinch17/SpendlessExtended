@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -18,8 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.spendless.R
@@ -81,6 +86,10 @@ fun RegisterBody(
             errorText = registerUiState.usernameError?.asString() ?: "",
             onValueChange = { newUsername ->
                 registerActions(RegisterActions.UpdateUsername(username = newUsername))
+            },
+            enabled = registerUiState.isEnabled,
+            onDone = {
+                registerActions(RegisterActions.ClickNext)
             }
         )
 
@@ -113,8 +122,14 @@ fun RegisterTextField(
     value: String,
     isError: Boolean,
     errorText: String,
+    enabled: Boolean,
     onValueChange: (String) -> Unit,
+    onDone: () -> Unit,
 ) {
+    //keyboard controller to show or hide keyboard
+    val keyboardController = LocalSoftwareKeyboardController.current
+    //current focus manager if focused or not
+    val focusManager = LocalFocusManager.current
     TextField(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
@@ -166,7 +181,22 @@ fun RegisterTextField(
         textStyle = MaterialTheme.typography.displayMedium.copy(
             color = LocalContentColor.current,
             textAlign = TextAlign.Center
-        )
+        ),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                if (enabled) {
+                    //close keyboard
+                    keyboardController?.hide()
+                    //clear focus
+                    focusManager.clearFocus()
+                    //do the function
+                    onDone()
+                }
+            }
+        ),
     )
 }
 
