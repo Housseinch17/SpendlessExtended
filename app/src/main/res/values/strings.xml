@@ -117,6 +117,7 @@
     <string name="save">Save</string>
     <string name="successfully_saved">Successfully Saved!</string>
     <string name="locked_out_duration">Locked out duration</string>
+    <string name="successfully_downloaded">Successfully Downloaded!</string>
 
 
 </resources>

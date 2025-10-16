@@ -10,6 +10,7 @@ import com.example.spendless.core.data.constant.Constants
 import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.Result
+import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.core.presentation.ui.amountFormatter
 import com.example.spendless.features.auth.domain.UserRepository
 import com.example.spendless.features.finance.data.model.ExportFormat
@@ -39,6 +40,7 @@ import javax.inject.Inject
 sealed interface TransactionsEvents {
     data object NavigateBack : TransactionsEvents
     data object PromptPin : TransactionsEvents
+    data class ShowToast(val showText: UiText) : TransactionsEvents
 }
 
 @HiltViewModel
@@ -459,6 +461,7 @@ class TransactionsViewModel @Inject constructor(
                         isExportButtonLoading = false,
                     )
                 }
+                _events.send(TransactionsEvents.ShowToast(UiText.StringResource(R.string.successfully_downloaded)))
             }
         }
     }
@@ -540,8 +543,8 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isExpiry(): Boolean{
-            val isExpired = sessionExpiryUseCase.invoke()
-            return isExpired
+    private suspend fun isExpiry(): Boolean {
+        val isExpired = sessionExpiryUseCase.invoke()
+        return isExpired
     }
 }

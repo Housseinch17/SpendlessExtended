@@ -29,9 +29,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import timber.log.Timber
 import javax.inject.Inject
@@ -269,7 +267,6 @@ class DashboardViewModel @Inject constructor(
                 .now()
                 .toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
-//                .minus(1, DateTimeUnit.DAY)
             val state = _state.value
             val transactionItem = state.bottomSheetUiState.selectedTransactionItem.copy(
                 category = state.bottomSheetUiState.selectedCategory,

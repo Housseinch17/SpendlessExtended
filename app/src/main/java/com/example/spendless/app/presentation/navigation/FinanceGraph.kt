@@ -86,6 +86,7 @@ fun NavGraphBuilder.financeGraph(
         }
 
         composable<NavigationScreens.Transactions> {
+            val context = LocalContext.current
             val parentBackStackEntry = remember(navHostController) {
                 navHostController.getBackStackEntry(NavigationGraphs.FinanceGraph)
             }
@@ -106,6 +107,13 @@ fun NavGraphBuilder.financeGraph(
                     TransactionsEvents.PromptPin ->  navHostController.navigate(
                         NavigationScreens.PinPrompt
                     )
+
+                    is TransactionsEvents.ShowToast ->
+                        Toast.makeText(
+                        context,
+                        events.showText.asString(context),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
