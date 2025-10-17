@@ -139,7 +139,7 @@ class TransactionsImpl @Inject constructor(
                     .mapNotNull { transactionItem ->
                         val date = transactionItem.date.takeIf { it.isNotEmpty() }
                             ?.let { LocalDate.parse(it) }
-                        if (date != null && date in start..end) transactionItem.price.toDoubleOrNull() else null
+                        if (date != null && date in start..end) transactionItem.price.toInt() else null
                     }
                     .sumOf { it }
                 total.toString()
