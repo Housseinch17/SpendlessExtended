@@ -1,9 +1,9 @@
 # 📝 Spendless
 
 > > A **secure, offline-first personal finance app** with PIN & biometric authentication, encrypted
-> > storage, and advanced transaction management..  
+> > storage, and advanced transaction management. 
 > Built with **Jetpack Compose, Room, DataStore, Hilt, Coroutines, Navigation, PDF/CSV export,
-Biometric Authentication and Firebase.**.
+Biometric Authentication and Firebase Analytics/Crashlytics.**.
 
 ---
 
@@ -12,13 +12,12 @@ Biometric Authentication and Firebase.**.
 - 🔐 **Authentication** – Login, registration, 5-digit PIN.
 - 🔒 **Encrypted Data Storage** – All PINs are encrypted before being stored locally.
 - 💰 **Finance Tracking** – Record income & expenses, categorize transactions, and view largest
-  transaction and weekly spending.
+  transaction and previous week spending(expenses only).
 - 📊 **Dashboard & Transactions** – Shows **recent transactions for the last 2 dates**, account
-  balance, largest transaction, show all navigation, and
-  create new transactions via FAB.
+  balance, largest transaction, show all navigation, and create new transactions via FAB.
 - 🗂 **All Transactions** – Lists all transactions with headers date, and export options (PDF/CSV).
-- 📤 **Export Data** – Export transactions as **PDF or CSV** for current, last, last three, all, or
-  custom date ranges.
+- 📤 **Export Data** – Export transactions as **PDF or CSV** for dates such as current, last, last three, all, or
+  custom ranges.
 - ⚙️ **Settings** – Update preferences, session duration, lockout duration, and biometric settings.
 - 🖥 **Secure UX** – PIN prompt on session expiry, lock screen after 3 failed attempts, seamless
   navigation and session handling.
@@ -34,7 +33,7 @@ Biometric Authentication and Firebase.**.
 - **Coroutines + Flow** – Async programming and reactive streams.
 - **DataStore(with custom encryption)** – Secure storage of authentication/session data using AES
   with Android Keystore..
-- **Firebase** – Crashlytics and Analytics via Firebase.
+- **Firebase** – Crashlytics and Analytics.
 - **Export data** – Export data as PDF or CSV.
 
 ---
