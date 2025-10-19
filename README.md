@@ -2,8 +2,7 @@
 
 > > A **secure, offline-first personal finance app** with PIN & biometric authentication, encrypted
 > > storage, and advanced transaction management. 
-> Built with **Jetpack Compose, Room, DataStore, Hilt, Coroutines, Navigation, PDF/CSV export,
-Biometric Authentication and Firebase Analytics/Crashlytics.**.
+> Built with **Jetpack Compose, Room, DataStore, Hilt, Coroutines, Navigation, PDF/CSV export and Firebase Analytics/Crashlytics.**.
 
 ---
 
