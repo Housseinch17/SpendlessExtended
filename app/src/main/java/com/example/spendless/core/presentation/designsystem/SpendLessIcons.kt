@@ -1,6 +1,5 @@
 package com.example.spendless.core.presentation.designsystem
 
-import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -108,19 +107,19 @@ object SpendLessIcons {
 
     val Preferences: Int = R.drawable.preferences
 
-    val Clothing: Int = R.drawable.clothing
+    const val CLOTHING: String = "R.drawable.clothing"
 
-    val Accessories: Int = R.drawable.accessories
+    const val ACCESSORIES: String = "R.drawable.accessories"
 
-    val Health: Int = R.drawable.health
+    const val HEALTH: String = "R.drawable.health"
 
-    val Food: Int = R.drawable.food
+    const val FOOD: String = "R.drawable.food"
 
-    val Entertainment: Int = R.drawable.entertainment
+    const val ENTERTAINMENT: String = "R.drawable.entertainment"
 
-    val Education: Int = R.drawable.education
+    const val EDUCATION: String = "R.drawable.education"
 
-    val Recurrence: Int = R.drawable.recurrence
+    const val RECURRENCE: String = "R.drawable.recurrence"
 
-    val Home: Int = R.drawable.home
+    const val HOME: String = "R.drawable.home"
 }

@@ -22,33 +22,56 @@ object Constants {
 
     val categoriesList = listOf<Category>(
         Category(
-            image = SpendLessIcons.Entertainment,
+            image = SpendLessIcons.ENTERTAINMENT.toString(),
             categoryName = CategoryItem.Entertainment
         ),
         Category(
-            image = SpendLessIcons.Food,
+            image = SpendLessIcons.FOOD,
             categoryName = CategoryItem.Food
         ),
         Category(
-            image = SpendLessIcons.Clothing,
+            image = SpendLessIcons.CLOTHING,
             categoryName = CategoryItem.Clothing
         ),
         Category(
-            image = SpendLessIcons.Home,
+            image = SpendLessIcons.HOME,
             categoryName = CategoryItem.Home
         ),
         Category(
-            image = SpendLessIcons.Accessories,
+            image = SpendLessIcons.ACCESSORIES,
             categoryName = CategoryItem.Accessories
         ),
         Category(
-            image = SpendLessIcons.Health,
+            image = SpendLessIcons.HEALTH,
             categoryName = CategoryItem.Health
         ),
         Category(
-            image = SpendLessIcons.Education,
+            image = SpendLessIcons.EDUCATION,
             categoryName = CategoryItem.Education
         ),
+    )
+
+    val drawableResMap = mapOf(
+        "R.drawable.food" to R.drawable.food,
+        "R.drawable.clothing" to R.drawable.clothing,
+        "R.drawable.accessories" to R.drawable.accessories,
+        "R.drawable.health" to R.drawable.health,
+        "R.drawable.entertainment" to R.drawable.entertainment,
+        "R.drawable.education" to R.drawable.education,
+        "R.drawable.home" to R.drawable.home,
+        "R.drawable.recurrence" to R.drawable.recurrence
+    )
+
+    val stringResMap = mapOf(
+        "R.string.clothing" to R.string.clothing,
+        "R.string.accessories" to R.string.accessories,
+        "R.string.health" to R.string.health,
+        "R.string.home" to R.string.home,
+        "R.string.food" to R.string.food,
+        "R.string.entertainment" to R.string.entertainment,
+        "R.string.education" to R.string.education,
+        "R.string.expense" to R.string.expense,
+        "R.string.income" to R.string.income
     )
 
     val expensesFormatList = listOf<String>(

@@ -62,6 +62,8 @@ import com.example.spendless.core.presentation.ui.UiText
 import com.example.spendless.features.finance.data.model.TransactionItem
 import com.example.spendless.features.finance.presentation.designsystem.components.CreateTransactionModalBottomSheet
 import com.example.spendless.features.finance.presentation.designsystem.components.TransactionsList
+import com.example.spendless.features.finance.presentation.designsystem.utils.toDrawableRes
+import com.example.spendless.features.finance.presentation.designsystem.utils.toStringRes
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions.DashboardActions
 
@@ -300,7 +302,7 @@ fun CategoryLargestExpense(
             ) {
                 Image(
                     modifier = Modifier.size(56.dp),
-                    painter = painterResource(category.image),
+                    painter = painterResource(category.image.toDrawableRes()),
                     contentDescription = null
                 )
                 Column(
@@ -309,7 +311,7 @@ fun CategoryLargestExpense(
                 ) {
                     Text(
                         modifier = Modifier,
-                        text = stringResource(category.categoryName.categoryRes),
+                        text = stringResource(category.categoryName.categoryRes.toStringRes()),
                         style = MaterialTheme.typography.titleLarge.copy(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
@@ -526,8 +528,8 @@ fun TransactionItem(
             ) {
                 Image(
                     modifier = Modifier.matchParentSize(),
-                    painter = painterResource(transactionItem.image),
-                    contentDescription = stringResource(transactionItem.description),
+                    painter = painterResource(transactionItem.image.toDrawableRes()),
+                    contentDescription = stringResource(transactionItem.description.toStringRes()),
                 )
                 if (transactionItem.content != null) {
                     Surface(
@@ -561,7 +563,7 @@ fun TransactionItem(
 
                 Text(
                     modifier = Modifier,
-                    text = stringResource(transactionItem.description),
+                    text = stringResource(transactionItem.description.toStringRes()),
                     style = MaterialTheme.typography.bodyXSmall.copy(
                         color = if (transactionItem.isExpense) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.success
                     )

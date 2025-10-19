@@ -211,11 +211,11 @@ class TransactionsViewModel @Inject constructor(
                 category = state.bottomSheetUiState.selectedCategory,
                 title = state.bottomSheetUiState.textFieldValue,
                 isExpense = state.bottomSheetUiState.isExpense,
-                description = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.categoryName.categoryRes else R.string.income,
+                description = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.categoryName.categoryRes else "R.string.income",
                 price = state.bottomSheetUiState.amountTextFieldValue.text,
                 date = timeNow.toString(),
                 content = state.bottomSheetUiState.noteValue,
-                image = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.image else R.drawable.accessories
+                image = if (state.bottomSheetUiState.isExpense) state.bottomSheetUiState.selectedCategory.image else "R.drawable.accessories"
             )
             Timber.tag("MyTag").d("onCreateClick $transactionItem")
             val result = transactionsRepository.insertTransaction(transactionItem)

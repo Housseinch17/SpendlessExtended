@@ -52,6 +52,8 @@ import com.example.spendless.core.presentation.designsystem.onSurfaceOpacity30
 import com.example.spendless.core.presentation.designsystem.primaryContainerOpacity8
 import com.example.spendless.core.presentation.designsystem.success
 import com.example.spendless.features.finance.data.model.PaymentRecurrence
+import com.example.spendless.features.finance.presentation.designsystem.utils.toDrawableRes
+import com.example.spendless.features.finance.presentation.designsystem.utils.toStringRes
 import com.example.spendless.features.finance.presentation.ui.common.BottomSheetUiState
 import com.example.spendless.features.finance.presentation.ui.common.SharedActions
 import com.example.spendless.features.finance.presentation.ui.screens.transactions.util.BuildStyledAmount
@@ -245,7 +247,7 @@ fun PaymentRecurrenceDropDownMenu(
         leading = { paymentRecurrence ->
             Image(
                 modifier = Modifier.size(40.dp),
-                painter = painterResource(SpendLessIcons.Recurrence),
+                painter = painterResource(SpendLessIcons.RECURRENCE.toDrawableRes()),
                 contentDescription = stringResource(paymentRecurrence.categoryRes)
             )
         },
@@ -277,7 +279,7 @@ fun ExpenseDropDownMenu(
         text = { category ->
             Text(
                 modifier = Modifier,
-                text = stringResource(category.categoryName.categoryRes),
+                text = stringResource(category.categoryName.categoryRes.toStringRes()),
                 style = MaterialTheme.typography.labelMedium.copy(
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -286,8 +288,8 @@ fun ExpenseDropDownMenu(
         leading = { category ->
             Image(
                 modifier = Modifier.size(40.dp),
-                painter = painterResource(category.image),
-                contentDescription = stringResource(category.categoryName.categoryRes)
+                painter = painterResource(category.image.toDrawableRes()),
+                contentDescription = stringResource(category.categoryName.categoryRes.toStringRes())
             )
         },
         isExpanded = isExpanded,

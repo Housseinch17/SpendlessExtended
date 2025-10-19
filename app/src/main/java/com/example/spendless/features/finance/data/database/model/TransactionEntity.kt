@@ -4,7 +4,6 @@ import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.spendless.R
 import com.example.spendless.core.data.model.Category
 
 @Keep
@@ -16,9 +15,9 @@ data class TransactionEntity(
     @ColumnInfo("category") val category: Category = Category(),
     @ColumnInfo("isExpense") val isExpense: Boolean = true,
     @ColumnInfo("title") val title: String = "",
-    @ColumnInfo("description") val description: Int = 0,
+    @ColumnInfo("description") val description: String = "",
     @ColumnInfo("content") val content: String? = null,
-    @ColumnInfo("image") val image: Int = R.drawable.food,
+    @ColumnInfo("image") val image: String = "R.drawable.food",
     @ColumnInfo("price") val price: String = "",
     @ColumnInfo("date") val date: String = "",
 )
