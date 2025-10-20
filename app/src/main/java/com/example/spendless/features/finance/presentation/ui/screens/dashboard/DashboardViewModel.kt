@@ -6,7 +6,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.example.spendless.R
 import com.example.spendless.app.presentation.navigation.NavigationScreens
 import com.example.spendless.core.data.model.Category
 import com.example.spendless.core.domain.auth.SessionStorage

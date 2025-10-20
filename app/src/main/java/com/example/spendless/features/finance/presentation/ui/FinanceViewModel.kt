@@ -2,6 +2,7 @@ package com.example.spendless.features.finance.presentation.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.spendless.core.data.constant.Constants
 import com.example.spendless.features.finance.domain.LifecycleObserver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -35,8 +36,9 @@ class FinanceViewModel @Inject constructor(
     private fun appLifeCycleObserver(){
         viewModelScope.launch {
             lifecycleObserver.isInForeground.collect { isForeground->
-                Timber.tag("MyTag").d("isForeground: $isForeground")
-                if(isForeground){
+                val isBiometricSettings = Constants.isBiometricSettings
+                Timber.tag("MyTag").d("isBiometricSettings: $isBiometricSettings")
+                if(isForeground && !isBiometricSettings){
                     promptPin()
                 }
             }

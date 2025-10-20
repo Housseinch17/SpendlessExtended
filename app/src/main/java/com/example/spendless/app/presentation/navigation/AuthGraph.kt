@@ -1,5 +1,6 @@
 package com.example.spendless.app.presentation.navigation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.hardware.biometrics.BiometricManager
 import android.os.Build
@@ -16,6 +17,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.example.spendless.core.data.constant.Constants
 import com.example.spendless.core.presentation.ui.ObserveAsEvents
 import com.example.spendless.features.auth.presentation.ui.common.PinEvents
 import com.example.spendless.features.auth.presentation.ui.screens.createPin.CreatePinScreen
@@ -35,6 +37,7 @@ import com.example.spendless.features.auth.presentation.ui.screens.repeatPin.Rep
 import com.example.spendless.features.auth.presentation.ui.screens.repeatPin.RepeatPinViewModel
 import timber.log.Timber
 
+@SuppressLint("RestrictedApi")
 fun NavGraphBuilder.authGraph(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
@@ -208,8 +211,10 @@ fun NavGraphBuilder.authGraph(
                     }
 
                     PinEvents.BiometricResult.AuthenticationNotSet -> {
-                        Timber.tag("MyTag").d("AuthenticationNotSet")
                         if (Build.VERSION.SDK_INT >= 30) {
+                            //set to true to avoid re-trigger promptPin because going to Actions biometric
+                            //will emit isForeGround true
+                            Constants.isBiometricSettings = true
                             val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
                                 putExtra(
                                     Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
@@ -221,12 +226,12 @@ fun NavGraphBuilder.authGraph(
                     }
 
                     PinEvents.BiometricResult.AuthenticationSuccess -> {
-                        Timber.tag("MyTag").d("AuthenticationSuccess")
+                        Constants.isBiometricSettings = false
                         navHostController.navigateUp()
                     }
 
                     PinEvents.PinPromptEvents.VerifiedSuccessfully -> {
-                        Timber.tag("MyTag").d("VerifiedSuccessfully")
+                        Constants.isBiometricSettings = false
                         navHostController.navigateUp()
                     }
 

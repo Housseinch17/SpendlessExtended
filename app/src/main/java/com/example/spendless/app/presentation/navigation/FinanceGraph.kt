@@ -51,7 +51,9 @@ fun NavGraphBuilder.financeGraph(
 
             ObserveAsEvents(financeViewModel.events) { event ->
                 when (event) {
-                    FinanceEvents.PromptPin -> navHostController.navigate(NavigationScreens.PinPrompt)
+                    FinanceEvents.PromptPin -> {
+                        navHostController.navigate(NavigationScreens.PinPrompt)
+                    }
                 }
             }
 
@@ -72,9 +74,11 @@ fun NavGraphBuilder.financeGraph(
                         navHostController.navigate(NavigationScreens.Transactions(false))
                     }
 
-                    DashboardEvents.PromptPin -> navHostController.navigate(
-                        NavigationScreens.PinPrompt
-                    )
+                    DashboardEvents.PromptPin -> {
+                        navHostController.navigate(
+                            NavigationScreens.PinPrompt
+                        )
+                    }
                 }
             }
 

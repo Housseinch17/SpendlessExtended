@@ -7,9 +7,7 @@ import com.example.spendless.core.domain.auth.SessionStorage
 import com.example.spendless.core.domain.util.DataError
 import com.example.spendless.core.domain.util.Result
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -17,23 +15,20 @@ class SessionStorageImpl @Inject constructor(
     @AuthInfoDataStore
     private val authDataStore: DataStore<AuthInfoSerializable?>
 ) : SessionStorage {
-    override suspend fun getAuthInfo(): AuthInfo? = withContext(Dispatchers.IO) {
+    override suspend fun getAuthInfo(): AuthInfo?{
         val data = authDataStore.data.firstOrNull()
-        return@withContext if (data == null || data == AuthInfoSerializable()) null else data.toAuthInfo()
+        return if (data == null || data == AuthInfoSerializable()) null else data.toAuthInfo()
     }
 
     override suspend fun setAuthInfo(authInfo: AuthInfo?) {
         try {
-            withContext(Dispatchers.IO) {
                 authDataStore.updateData {
-
                     //if authInfo is set to null just use AuthInfoSerializable()
                     //later check if the data is null or AuthInfoSerializable() means it's null
                     //used like that to clear the data inside AuthInfo instead of just removing/deleting it
                     //which will remain the authInfo variables saved inside memory
                     authInfo?.toAuthInfoSerializable() ?: AuthInfoSerializable()
                 }
-            }
         } catch (e: Exception) {
             if (e is CancellationException) {
                 throw e
@@ -44,13 +39,11 @@ class SessionStorageImpl @Inject constructor(
 
     override suspend fun setCurrentTimeLoggedIn(currentTimeLoggedIn: String) {
         try {
-            withContext(Dispatchers.IO) {
                 authDataStore.updateData { authInfo ->
                     val oldAuthInfo = authInfo ?: AuthInfoSerializable()
                     oldAuthInfo.copy(
                         currentTimeLoggedIn = currentTimeLoggedIn
                     )
-                }
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
