@@ -27,6 +27,7 @@ import com.example.spendless.features.finance.presentation.ui.screens.settings.S
 import com.example.spendless.features.finance.presentation.ui.screens.transactions.TransactionsEvents
 import com.example.spendless.features.finance.presentation.ui.screens.transactions.TransactionsScreen
 import com.example.spendless.features.finance.presentation.ui.screens.transactions.TransactionsViewModel
+import timber.log.Timber
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 fun NavGraphBuilder.financeGraph(
@@ -52,6 +53,7 @@ fun NavGraphBuilder.financeGraph(
             ObserveAsEvents(financeViewModel.events) { event ->
                 when (event) {
                     FinanceEvents.PromptPin -> {
+                        Timber.tag("MyTag").d("promptPin received")
                         navHostController.navigate(NavigationScreens.PinPrompt)
                     }
                 }

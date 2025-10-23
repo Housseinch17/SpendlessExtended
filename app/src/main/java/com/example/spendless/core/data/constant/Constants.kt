@@ -12,11 +12,6 @@ import java.util.concurrent.TimeUnit
 import com.example.spendless.R
 
 object Constants {
-    //here it will check if we entered biometric settings to avoid prompt pin after
-    //coming to foreground since setting biometric will take us to biometric settings
-    //which means foreGround will be true
-    var isBiometricSettings: Boolean = false
-
     val currenciesList = listOf<Currency>(
         Currency(symbol = "$", name = "US Dollar", code = "USD"),
         Currency(symbol = "€", name = "Euro", code = "EUR"),

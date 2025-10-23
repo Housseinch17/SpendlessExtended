@@ -17,7 +17,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.spendless.core.data.constant.Constants
 import com.example.spendless.core.presentation.ui.ObserveAsEvents
 import com.example.spendless.features.auth.presentation.ui.common.PinEvents
 import com.example.spendless.features.auth.presentation.ui.screens.createPin.CreatePinScreen
@@ -212,9 +211,6 @@ fun NavGraphBuilder.authGraph(
 
                     PinEvents.BiometricResult.AuthenticationNotSet -> {
                         if (Build.VERSION.SDK_INT >= 30) {
-                            //set to true to avoid re-trigger promptPin because going to Actions biometric
-                            //will emit isForeGround true
-                            Constants.isBiometricSettings = true
                             val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
                                 putExtra(
                                     Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
@@ -226,12 +222,10 @@ fun NavGraphBuilder.authGraph(
                     }
 
                     PinEvents.BiometricResult.AuthenticationSuccess -> {
-                        Constants.isBiometricSettings = false
                         navHostController.navigateUp()
                     }
 
                     PinEvents.PinPromptEvents.VerifiedSuccessfully -> {
-                        Constants.isBiometricSettings = false
                         navHostController.navigateUp()
                     }
 
