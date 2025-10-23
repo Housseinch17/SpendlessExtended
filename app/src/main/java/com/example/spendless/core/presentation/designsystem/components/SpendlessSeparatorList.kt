@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.spendless.core.presentation.designsystem.primaryContainerOpacity8
 import com.example.spendless.features.finance.presentation.ui.common.formatItem
+import timber.log.Timber
 
 @Composable
 fun <T> SpendlessSeparatorList(
@@ -70,7 +71,7 @@ fun <T> SpendlessSeparatorItem(
                 shape = MaterialTheme.shapes.small
             )
             .clickable(onClick = onClick)
-            .padding(8.dp),
+            .padding(6.dp),
         //we might use item as StringRes or CounterPerTimeUnit
         text = formatItem(item).asString(),
         style = MaterialTheme.typography.titleMedium.copy(

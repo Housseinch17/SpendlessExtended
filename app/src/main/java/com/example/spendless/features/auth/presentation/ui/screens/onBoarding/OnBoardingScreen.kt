@@ -3,6 +3,7 @@ package com.example.spendless.features.auth.presentation.ui.screens.onBoarding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,6 +44,7 @@ fun OnBoardingScreen(
                 end = 16.dp,
                 bottom = 20.dp
             )
+            .navigationBarsPadding()
     ) {
         SpendlessBackButton(
             modifier = Modifier
@@ -256,7 +258,10 @@ fun OnBoardingBody(
                     )
                 )
             } else {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     )
